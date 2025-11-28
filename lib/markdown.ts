@@ -23,57 +23,53 @@ function escapeHtml(s: string) {
     .replaceAll("'", "&#039;");
 }
 
-/**
- * 간단 Markdown → HTML 변환기 (보안상 raw HTML은 막고, 필요한 문법만 지원)
- * 지원: #/##/###, - 리스트, **bold**, [text](url), ![alt](url), ```코드블록```, `인라인코드`
- */
 export function markdownToHtml(md: string) {
   let s = escapeHtml(md);
 
-  // 코드블록
+  // code blocks
   s = s.replace(/```([\s\S]*?)```/g, (_m, code) => {
-    return `<pre class="rounded-2xl border border-gray-200 bg-gray-50 p-4 overflow-auto"><code>${code.trim()}</code></pre>`;
+    return `<pre class="mt-4 rounded-2xl border border-[var(--line)] bg-[var(--soft)] p-4 overflow-auto"><code>${code.trim()}</code></pre>`;
   });
 
-  // 이미지 ![alt](url)
+  // images ![alt](url)
   s = s.replace(/!\[([^\]]*)\]\((https?:\/\/[^\s)]+)\)/g, (_m, alt, url) => {
-    return `<img src="${url}" alt="${alt}" class="mt-4 w-full rounded-2xl border border-gray-200" />`;
+    return `<img src="${url}" alt="${alt}" class="mt-4 w-full rounded-2xl border border-[var(--line)] grayscale" />`;
   });
 
-  // 인라인 코드
+  // inline code
   s = s.replace(/`([^`]+)`/g, (_m, code) => {
-    return `<code class="px-1.5 py-0.5 rounded bg-gray-100 border border-gray-200">${code}</code>`;
+    return `<code class="px-1.5 py-0.5 rounded bg-[var(--soft)] border border-[var(--line)]">${code}</code>`;
   });
 
-  // 링크
+  // links
   s = s.replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, (_m, text, url) => {
-    return `<a class="underline underline-offset-4" href="${url}" target="_blank" rel="noreferrer">${text}</a>`;
+    return `<a class="underline underline-offset-4 hover:opacity-80 transition" href="${url}" target="_blank" rel="noreferrer">${text}</a>`;
   });
 
   // bold
   s = s.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
 
   // headings
-  s = s.replace(/^###\s(.+)$/gm, `<h3 class="mt-6 text-lg font-semibold text-gray-900">$1</h3>`);
-  s = s.replace(/^##\s(.+)$/gm, `<h2 class="mt-7 text-xl font-semibold text-gray-900">$1</h2>`);
-  s = s.replace(/^#\s(.+)$/gm, `<h1 class="mt-2 text-2xl font-semibold text-gray-900">$1</h1>`);
+  s = s.replace(/^###\s(.+)$/gm, `<h3 class="mt-7 text-lg font-semibold tracking-tight text-[var(--fg)]">$1</h3>`);
+  s = s.replace(/^##\s(.+)$/gm, `<h2 class="mt-8 text-xl font-semibold tracking-tight text-[var(--fg)]">$1</h2>`);
+  s = s.replace(/^#\s(.+)$/gm, `<h1 class="mt-2 text-2xl font-semibold tracking-tight text-[var(--fg)]">$1</h1>`);
 
-  // 리스트 블록(- )
+  // lists
   s = s.replace(/(^-\s.+(\n-\s.+)*)/gm, (block) => {
     const items = block
       .split("\n")
       .map((line) => line.replace(/^-+\s/, "").trim())
       .map((item) => `<li class="ml-5 list-disc">${item}</li>`)
       .join("");
-    return `<ul class="mt-3 space-y-1">${items}</ul>`;
+    return `<ul class="mt-3 space-y-1 text-sm leading-7 text-[var(--muted)]">${items}</ul>`;
   });
 
-  // 문단 분리
+  // paragraphs
   const parts = s.split(/\n{2,}/).map((p) => p.trim()).filter(Boolean);
   s = parts
     .map((p) => {
       if (/^<h[1-3]\b|^<ul\b|^<pre\b|^<img\b/.test(p)) return p;
-      return `<p class="mt-3 text-sm leading-7 text-gray-700">${p.replace(/\n/g, "<br/>")}</p>`;
+      return `<p class="mt-3 text-sm leading-7 text-[var(--muted)]">${p.replace(/\n/g, "<br/>")}</p>`;
     })
     .join("\n");
 
