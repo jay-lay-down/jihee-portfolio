@@ -1,578 +1,570 @@
 "use client";
 
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useState } from "react";
 import Image from "next/image";
-import { motion, useScroll, useTransform } from "framer-motion";
-import { PROJECTS, type Category, type Project } from "@/app/projects/data";
+import { PROJECTS } from "@/app/projects/data";
 
 const LINKS = {
   email: "chubbyfinger1010@gmail.com",
   hf: "https://huggingface.co/Jay1121",
   velog: "https://velog.io/@jaylaydown",
+  resume: "https://github.com/jay-lay-down/jiheecho/blob/main/assets/RESUME.md",
   github: "https://github.com/jay-lay-down",
-  resumePdf: "/resume.pdf", // public/resume.pdf 업로드
 };
 
-type TabKey = "Home" | "About" | "Details";
-type Filter = "All" | Category;
+type Category = "All" | "LLM" | "Forecasting" | "Bayesian" | "Segmentation";
 
-type Tone = "neutral" | "accent" | "dark" | "primary";
-type SkillChip = { label: string; cat?: Exclude<Filter, "All">; tone?: Tone };
+type SkillChipTone = "neutral" | "accent" | "dark" | "primary";
+type SkillChip = {
+  label: string;
+  cat?: Exclude<Category, "All">;
+  tone?: SkillChipTone;
+};
 
-function ChipLink({ href, children }: { href: string; children: React.ReactNode }) {
+function cn(...xs: Array<string | false | undefined | null>) {
+  return xs.filter(Boolean).join(" ");
+}
+
+function ChipLink({
+  href,
+  children,
+  className,
+}: {
+  href: string;
+  children: React.ReactNode;
+  className?: string;
+}) {
   return (
     <a
       href={href}
       target="_blank"
       rel="noreferrer"
-      className="inline-flex items-center gap-2 rounded-full border border-[var(--line)] bg-white/70 px-4 py-2 text-sm font-semibold hover:opacity-85 transition"
+      className={cn(
+        "inline-flex items-center gap-2 rounded-full border border-[var(--line)] bg-white/75 px-4 py-2 text-sm font-semibold hover:opacity-90 transition",
+        className
+      )}
     >
       {children} <span className="text-[var(--muted)]">↗</span>
     </a>
   );
 }
 
-function ChipButton({
+function Pill({
   active,
   onClick,
-  tone = "neutral",
   children,
 }: {
   active?: boolean;
   onClick?: () => void;
-  tone?: Tone;
   children: React.ReactNode;
 }) {
-  const base =
-    "inline-flex items-center rounded-full border px-4 py-2 text-sm font-semibold transition select-none";
-  const tones: Record<Tone, string> = {
-    neutral: "border-[var(--line)] bg-white/70 text-[var(--muted)] hover:text-[var(--fg)]",
-    dark: "border-black/20 bg-black text-white hover:opacity-90",
-    accent: "border-black/10 bg-[rgba(194,122,58,.14)] text-[var(--fg)] hover:opacity-90",
-    primary: "border-black/10 bg-[rgba(255,186,73,.20)] text-[var(--fg)] hover:opacity-90",
-  };
-  const on = active ? "ring-2 ring-black/20" : "";
   return (
-    <button onClick={onClick} className={[base, tones[tone], on].join(" ")}>
+    <button
+      type="button"
+      onClick={onClick}
+      className={cn(
+        "rounded-full px-4 py-2 text-sm font-extrabold border transition",
+        active
+          ? "border-black/20 bg-black text-white"
+          : "border-[var(--line)] bg-white/70 text-[var(--muted)] hover:text-[var(--fg)]"
+      )}
+    >
       {children}
     </button>
   );
 }
 
-function pickPrimaryLink(p: Project) {
-  return p.repo ?? p.demo ?? p.blog ?? `/projects/${p.slug}`;
+function pickPrimaryLink(p: (typeof PROJECTS)[number]) {
+  // Details/카드 클릭 우선순위: Repo > Demo > Blog > 내부 상세
+  return (p as any).repo ?? (p as any).demo ?? (p as any).blog ?? `/projects/${(p as any).slug}`;
 }
 
-function isExternal(href: string) {
-  return href.startsWith("http://") || href.startsWith("https://");
+function inferCategory(p: (typeof PROJECTS)[number]): Exclude<Category, "All"> {
+  const c = String((p as any).category ?? "").toLowerCase();
+  if (c.includes("llm")) return "LLM";
+  if (c.includes("forecast")) return "Forecasting";
+  if (c.includes("bayes")) return "Bayesian";
+  if (c.includes("segment")) return "Segmentation";
+
+  // oneLiner/stack 기반 fallback
+  const one = String((p as any).oneLiner ?? "").toLowerCase();
+  const stack = Array.isArray((p as any).stack) ? (p as any).stack.join(" ").toLowerCase() : "";
+
+  const text = `${c} ${one} ${stack}`;
+  if (/(lora|rag|llm|transformer|gradio|hugging\s?face)/.test(text)) return "LLM";
+  if (/(sarimax|forecast|time\s*series|arima|mape|mase)/.test(text)) return "Forecasting";
+  if (/(bayes|pymc|arviz|posterior)/.test(text)) return "Bayesian";
+  return "Segmentation";
 }
 
-/** slug 기반 고정 “랜덤” 패턴 (SSR/CSR mismatch 방지) */
-function hashSlug(slug: string) {
+function hashToIndex(s: string, mod: number) {
   let h = 0;
-  for (let i = 0; i < slug.length; i++) h = (h * 31 + slug.charCodeAt(i)) >>> 0;
-  return h;
+  for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0;
+  return mod ? h % mod : 0;
 }
-function patternIndex(slug: string, n: number) {
-  return hashSlug(slug) % n;
-}
-function patternBg(slug: string) {
-  const i = patternIndex(slug, 5);
-  switch (i) {
-    case 0:
-      return "bg-[radial-gradient(ellipse_at_20%_20%,rgba(255,186,73,.35),transparent_55%),radial-gradient(ellipse_at_80%_80%,rgba(194,122,58,.25),transparent_55%),linear-gradient(135deg,rgba(0,0,0,.02),rgba(0,0,0,.06))]";
-    case 1:
-      return "bg-[radial-gradient(circle_at_30%_30%,rgba(194,122,58,.30),transparent_50%),radial-gradient(circle_at_70%_40%,rgba(255,186,73,.26),transparent_55%),radial-gradient(circle_at_40%_80%,rgba(0,0,0,.08),transparent_55%)]";
-    case 2:
-      return "bg-[conic-gradient(from_90deg_at_50%_50%,rgba(255,186,73,.25),rgba(0,0,0,.05),rgba(194,122,58,.22),rgba(0,0,0,.04),rgba(255,186,73,.25))]";
-    case 3:
-      return "bg-[linear-gradient(115deg,rgba(0,0,0,.08),transparent_35%),radial-gradient(circle_at_65%_35%,rgba(255,186,73,.30),transparent_50%),radial-gradient(circle_at_30%_80%,rgba(194,122,58,.22),transparent_55%)]";
+
+const FALLBACK_PATTERNS = [
+  // warm beige + ink
+  "bg-[radial-gradient(ellipse_at_20%_30%,rgba(255,214,170,0.55),transparent_55%),radial-gradient(ellipse_at_80%_70%,rgba(30,30,30,0.10),transparent_60%),linear-gradient(135deg,rgba(255,248,240,1),rgba(245,236,225,1))]",
+  // subtle grid + warm
+  "bg-[linear-gradient(rgba(0,0,0,0.04)_1px,transparent_1px),linear-gradient(90deg,rgba(0,0,0,0.04)_1px,transparent_1px),radial-gradient(ellipse_at_30%_30%,rgba(255,193,140,0.40),transparent_55%),linear-gradient(135deg,rgba(252,248,242,1),rgba(242,234,224,1))] bg-[size:18px_18px,18px_18px,auto,auto]",
+  // diagonal stripes
+  "bg-[repeating-linear-gradient(135deg,rgba(0,0,0,0.04)_0px,rgba(0,0,0,0.04)_10px,transparent_10px,transparent_22px),radial-gradient(ellipse_at_70%_30%,rgba(255,175,110,0.35),transparent_60%),linear-gradient(135deg,rgba(252,247,240,1),rgba(244,235,225,1))]",
+  // double glow
+  "bg-[radial-gradient(circle_at_18%_25%,rgba(255,200,150,0.55),transparent_55%),radial-gradient(circle_at_82%_78%,rgba(0,0,0,0.10),transparent_55%),linear-gradient(135deg,rgba(253,248,242,1),rgba(243,233,222,1))]",
+  // clean ink vignette
+  "bg-[radial-gradient(ellipse_at_50%_15%,rgba(0,0,0,0.10),transparent_60%),radial-gradient(ellipse_at_30%_80%,rgba(255,210,170,0.40),transparent_60%),linear-gradient(135deg,rgba(252,248,244,1),rgba(244,236,226,1))]",
+];
+
+const SKILLSET: SkillChip[] = [
+  { label: "Analytics planning", tone: "primary" },
+  { label: "Market research", tone: "primary" },
+  { label: "Segmentation", cat: "Segmentation", tone: "accent" },
+  { label: "SEM", tone: "neutral" },
+  { label: "PCA / Factor", tone: "neutral" },
+  { label: "Granger / Causal TS", tone: "neutral" },
+  { label: "SARIMAX", cat: "Forecasting", tone: "accent" },
+  { label: "Bayesian (PyMC)", cat: "Bayesian", tone: "accent" },
+  { label: "Automation (Python/R)", tone: "dark" },
+  { label: "LLM Fine-tuning (LoRA)", cat: "LLM", tone: "accent" },
+  { label: "RAG workflow", cat: "LLM", tone: "accent" },
+];
+
+const CORE_STRENGTHS: SkillChip[] = [
+  { label: "Problem definition → decision points", tone: "primary" },
+  { label: "Method rationale (explainable choice)", tone: "primary" },
+  { label: "Decision-ready outputs (dashboard/report)", tone: "neutral" },
+  { label: "Automation → productization", tone: "neutral" },
+  { label: "Stakeholder alignment & communication", tone: "dark" },
+];
+
+type InfoItem = { year?: number; label: string; sub?: string };
+const EDUCATION: InfoItem[] = [
+  { label: "Seoul Women's University (M.S.)", sub: "Child Psychology" },
+  { label: "Seoul Women's University (B.A.)", sub: "Child Studies" },
+];
+
+const EXPERIENCE: InfoItem[] = [
+  { label: "Kantar Korea", sub: "Analytics" },
+  { label: "NIQ-GfK", sub: "Global Strategic Account Management" },
+  { label: "Macromill Embrain", sub: "Research Dept. (Team 3)" },
+  { label: "MnM Research", sub: "Research & Business Division" },
+  { label: "Seoul National University Hospital", sub: "Pediatric Psychiatry · Biomedical Researcher" },
+];
+
+const AWARDS: InfoItem[] = [
+  { year: 2024, label: "3Q Night out in town" },
+  { year: 2021, label: "HR Committee · Best Report 선정" },
+  { year: 2018, label: "KCI 등재 · 제1저자 논문" },
+  { year: 2016, label: "Korea Student Aid Foundation · 우수 연구계획서 선정" },
+];
+
+function toneClass(tone?: SkillChipTone) {
+  switch (tone) {
+    case "primary":
+      return "border-black/15 bg-black text-white";
+    case "accent":
+      return "border-black/10 bg-[rgba(255,186,73,0.26)] text-black";
+    case "dark":
+      return "border-black/15 bg-[rgba(30,30,30,0.10)] text-black";
     default:
-      return "bg-[radial-gradient(ellipse_at_50%_20%,rgba(0,0,0,.06),transparent_50%),radial-gradient(ellipse_at_20%_80%,rgba(255,186,73,.28),transparent_55%),radial-gradient(ellipse_at_85%_75%,rgba(194,122,58,.22),transparent_55%)]";
+      return "border-[var(--line)] bg-white/80 text-[var(--muted)]";
   }
 }
 
-const ABOUT_INFO = {
-  education: [
-    "서울여자대학교 일반대학원 아동심리학 전공(석사)",
-    "서울여자대학교 아동학과 졸업(학사)",
-  ],
-  experience: [
-    "Kantar Korea / Analytics",
-    "NIQ-GfK / Global Strategic Account Management",
-    "Macromill Embrain / 리서치 1부서 3팀",
-    "MnM Research / 연구사업본부",
-    "서울대학교병원 / 소아정신과 의생명연구원",
-  ],
-  awards: [
-    { year: 2024, text: "3Q Night Out in Town" },
-    { year: 2021, text: "인적자원위원회 최우수 보고서 선정" },
-    { year: 2018, text: "KCI 등재 학술지 제1저자(논문)" },
-    { year: 2016, text: "한국장학재단 우수연구계획서 선정" },
-  ].sort((a, b) => b.year - a.year),
-};
-
-const ABOUT_SUMMARY =
-  "7년간 데이터 분석·시장조사 영역에서 일하며, 데이터를 ‘분석’에서 끝내지 않고 의사결정으로 이어지게 만드는 구조를 설계해 왔습니다. 의료 데이터 관리로 커리어를 시작해 리서치 기획, 컨설팅, 예측 모델링까지 경험을 확장했고, 프로젝트 초기에 클라이언트의 모호한 요구를 지표·비교군·방법론으로 구체화하고 리드하는 역할을 자주 맡았습니다. SEM·시계열·세그멘테이션 등 다양한 기법을 적용해왔지만, 핵심은 왜 이 방법을 쓰는지 설명 가능하게 만들고 결과가 어떤 판단으로 연결되는지까지 설계하는 것입니다. 반복 업무는 자동화 툴로 구현하고(세그멘테이션 데스크톱 툴), LLM 파인튜닝/배포와 RAG 기반 워크플로우 적용까지 확장해 분석을 실제로 ‘작동 및 서비스하는 형태’로 만들었습니다. 복잡한 내용을 비즈니스 언어로 전달해 이해관계자 간 정렬을 만드는 커뮤니케이션도 강점입니다.";
-
-const ABOUT_SKILLSET: SkillChip[] = [
-  { label: "Analytics planning / Market research", tone: "primary" },
-  { label: "KPI framework · Survey design · POS/Panel", tone: "neutral" },
-
-  { label: "SEM", cat: "Bayesian", tone: "accent" }, // cat은 “필터 연결용”
-  { label: "PCA/FA", cat: "Segmentation", tone: "accent" },
-  { label: "Segmentation (Tree/Cluster)", cat: "Segmentation", tone: "accent" },
-
-  { label: "Causal time series (Granger)", cat: "Forecasting", tone: "neutral" },
-  { label: "Forecasting (SARIMAX)", cat: "Forecasting", tone: "neutral" },
-
-  { label: "Python/R automation", cat: "Segmentation", tone: "dark" },
-  { label: "Reproducible reporting", tone: "neutral" },
-
-  { label: "LLM fine-tuning (LoRA)", cat: "LLM", tone: "primary" },
-  { label: "RAG workflow", cat: "LLM", tone: "primary" },
-  { label: "Lightweight deployment experiments", cat: "LLM", tone: "neutral" },
-];
-
-const ABOUT_CORE: SkillChip[] = [
-  { label: "Problem definition → analysis design", tone: "primary" },
-  { label: "Method rationale (explainable choices)", tone: "primary" },
-  { label: "Decision-ready outputs (metrics → action)", tone: "neutral" },
-  { label: "Automation → productization", tone: "neutral" },
-  { label: "Stakeholder alignment communication", tone: "dark" },
-];
-
-function ProjectRow({
-  p,
+function Chip({
+  label,
+  tone,
+  onClick,
+  clickable,
 }: {
-  p: Project;
+  label: string;
+  tone?: SkillChipTone;
+  onClick?: () => void;
+  clickable?: boolean;
 }) {
-  const href = pickPrimaryLink(p);
-  const external = isExternal(href);
-
+  const base =
+    "inline-flex items-center rounded-full border px-3.5 py-2 text-sm font-extrabold tracking-tight transition";
+  const hover = clickable ? "hover:opacity-90 cursor-pointer" : "";
   return (
-    <a
-      href={href}
-      target={external ? "_blank" : undefined}
-      rel={external ? "noreferrer" : undefined}
-      className="group rounded-3xl border border-[var(--line)] bg-white/70 p-6 hover:shadow-sm transition"
-    >
-      <div className="flex items-start justify-between gap-10">
-        {/* left */}
-        <div className="min-w-0">
-          <div className="text-xs font-semibold text-[var(--muted)]">{p.category}</div>
-          <div className="mt-1 text-2xl font-extrabold tracking-tight">{p.title}</div>
-          <div className="mt-2 text-[15px] text-[var(--muted)] leading-8">{p.oneLiner}</div>
-
-          <div className="mt-5 flex flex-wrap gap-2">
-            {p.stack.slice(0, 10).map((s) => (
-              <span
-                key={s}
-                className="text-xs px-2.5 py-1 rounded-full border border-[var(--line)] bg-white/80 text-[var(--muted)]"
-              >
-                {s}
-              </span>
-            ))}
-          </div>
-
-          <div className="mt-5 flex items-center gap-3 text-sm font-semibold">
-            <span className="underline underline-offset-4 group-hover:opacity-85">
-              {p.repo ? "Repo" : p.demo ? "Demo" : p.blog ? "Blog" : "Details"} ↗
-            </span>
-          </div>
-        </div>
-
-        {/* right thumbnail */}
-        <div className="shrink-0 w-[340px]">
-          <div className="relative h-[200px] w-full overflow-hidden rounded-2xl border border-black/15 bg-black/5">
-            {p.cover ? (
-              <>
-                <Image src={p.cover} alt={`${p.title} cover`} fill className="object-cover" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/35 via-black/0 to-transparent" />
-              </>
-            ) : (
-              <div className={["absolute inset-0", patternBg(p.slug)].join(" ")} />
-            )}
-
-            <div className="absolute top-3 left-3 rounded-full px-3 py-1 text-xs font-bold border border-white/25 bg-black/30 text-white backdrop-blur">
-              {p.category}
-            </div>
-
-            <div className="absolute bottom-2 right-2 rounded-full px-3 py-1 text-xs font-bold border border-white/25 bg-black/40 text-white backdrop-blur">
-              Details →
-            </div>
-          </div>
-        </div>
-      </div>
-    </a>
+    <span onClick={onClick} className={cn(base, toneClass(tone), hover)}>
+      {label}
+    </span>
   );
 }
 
 export default function HomeTabs() {
-  const [tab, setTab] = useState<TabKey>("Home");
-  const [filter, setFilter] = useState<Filter>("All");
-
-  // 워터마크 2026 모션
-  const { scrollY } = useScroll();
-  const wmY = useTransform(scrollY, [0, 800], [0, -60]);
-  const wmX = useTransform(scrollY, [0, 800], [0, 20]);
+  const [tab, setTab] = useState<"Home" | "About" | "Details">("Home");
+  const [cat, setCat] = useState<Category>("All");
 
   const tabs = useMemo(
     () => [
       { key: "Home" as const, label: "Home" },
       { key: "About" as const, label: "About" },
-      { key: "Details" as const, label: "Projects" },
+      { key: "Details" as const, label: "Details" },
     ],
     []
   );
 
-  const filteredProjects = useMemo(() => {
-    if (filter === "All") return PROJECTS;
-    return PROJECTS.filter((p) => p.category === filter);
-  }, [filter]);
-
-  const featured = useMemo(() => PROJECTS.filter((p) => p.featured).slice(0, 4), []);
-
-  // URL 해시로 탭 열기(선택): /#about 등
-  useEffect(() => {
-    const h = typeof window !== "undefined" ? window.location.hash : "";
-    if (h === "#about") setTab("About");
-    if (h === "#projects") setTab("Details");
+  const normalizedProjects = useMemo(() => {
+    return PROJECTS.map((p) => {
+      const normCat = inferCategory(p);
+      const cover = (p as any).cover as string | undefined;
+      const featured = Boolean((p as any).featured);
+      return { ...p, __cat: normCat, __cover: cover, __featured: featured };
+    });
   }, []);
+
+  const filtered = useMemo(() => {
+    if (cat === "All") return normalizedProjects;
+    return normalizedProjects.filter((p) => (p as any).__cat === cat);
+  }, [cat, normalizedProjects]);
+
+  const featured = useMemo(() => {
+    const list = normalizedProjects.filter((p) => (p as any).__featured);
+    return (list.length ? list : normalizedProjects).slice(0, 4);
+  }, [normalizedProjects]);
+
+  const sortedAwards = useMemo(() => {
+    return [...AWARDS].sort((a, b) => (b.year ?? -1) - (a.year ?? -1));
+  }, []);
+
+  const infoBlock = (title: string, items: InfoItem[]) => (
+    <div className="rounded-3xl border border-[var(--line)] bg-[var(--soft)] p-6">
+      <div className="text-sm font-black tracking-tight">{title}</div>
+      <div className="mt-3 space-y-2 text-sm text-[var(--muted)] leading-7">
+        {items.map((x, i) => (
+          <div key={`${title}-${i}`} className="flex gap-3">
+            <div className="w-14 shrink-0 text-xs font-extrabold text-black/70">
+              {x.year ? String(x.year) : ""}
+            </div>
+            <div className="min-w-0">
+              <div className="font-semibold text-black/90">{x.label}</div>
+              {x.sub && <div className="text-[var(--muted)]">{x.sub}</div>}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
 
   return (
     <section className="mt-10">
-      {/* HERO */}
-      <div className="relative overflow-hidden rounded-[28px] border border-[var(--line)] bg-white/55 shadow-[0_18px_60px_rgba(0,0,0,0.08)]">
-        {/* watermark */}
-        <motion.div
-          style={{ x: wmX, y: wmY }}
-          className="pointer-events-none absolute -top-10 -left-10 text-[180px] font-black tracking-[-.06em] text-black/[0.06]"
-        >
-          2026
-        </motion.div>
-
-        <div className="grid grid-cols-12 gap-10 p-10">
-          {/* left */}
-          <div className="col-span-7">
-            <div className="inline-flex items-center gap-2 rounded-full border border-[var(--line)] bg-white/70 px-4 py-2 text-xs font-bold tracking-wide">
-              PORTFOLIO · ANALYTICS · BUILD
-              <span className="inline-block h-1.5 w-1.5 rounded-full bg-[var(--accent)]" />
-            </div>
-
-            <h1 className="mt-6 text-[64px] leading-[0.95] font-extrabold tracking-tight">
-              Portfolio
-              <span className="block text-[var(--accent)]">Jihee Cho</span>
-            </h1>
-
-            <p className="mt-6 text-[17px] leading-8 text-[var(--muted)]">
-              프로젝트/리서치/실험을 <b className="text-[var(--fg)]">기획</b>하고, 분석 결과를 대시보드·웹·자동화 산출물로 시각화합니다.
-              <span className="block mt-2">
-                아래 탭에서 About / Projects를 확인할 수 있고, Projects는 <b className="text-[var(--fg)]">Repo로 바로 연결</b>됩니다.
-              </span>
-            </p>
-
-            <div className="mt-7 flex flex-wrap gap-2">
-              <ChipLink href={LINKS.github}>GitHub</ChipLink>
-              <ChipLink href={LINKS.hf}>Hugging Face</ChipLink>
-              <ChipLink href={LINKS.velog}>Velog</ChipLink>
-              <ChipLink href={LINKS.resumePdf}>Resume PDF</ChipLink>
-              <ChipLink href={`mailto:${LINKS.email}`}>Contact</ChipLink>
-            </div>
-
-            {/* featured (세로로 정리) */}
-            <div className="mt-10">
-              <div className="flex items-end justify-between">
-                <div>
-                  <div className="text-sm font-extrabold">Featured Projects</div>
-                  <div className="mt-1 text-sm text-[var(--muted)]">대표 3~4개만 미리보기</div>
-                </div>
-                <button
-                  onClick={() => setTab("Details")}
-                  className="text-sm font-semibold underline underline-offset-4 hover:opacity-80"
-                >
-                  View all →
-                </button>
-              </div>
-
-              <div className="mt-4 space-y-3">
-                {featured.map((p) => {
-                  const href = pickPrimaryLink(p);
-                  const external = isExternal(href);
-                  return (
-                    <a
-                      key={p.slug}
-                      href={href}
-                      target={external ? "_blank" : undefined}
-                      rel={external ? "noreferrer" : undefined}
-                      className="block rounded-2xl border border-[var(--line)] bg-white/70 px-6 py-5 hover:shadow-sm transition"
-                    >
-                      <div className="flex items-start justify-between gap-6">
-                        <div className="min-w-0">
-                          <div className="text-xs font-semibold text-[var(--muted)]">{p.category}</div>
-                          <div className="mt-1 text-lg font-extrabold">{p.title}</div>
-                          <div className="mt-1 text-[15px] text-[var(--muted)] leading-7">{p.oneLiner}</div>
-                        </div>
-                        <div className="shrink-0 text-sm font-semibold text-[var(--muted)]">Open ↗</div>
-                      </div>
-                    </a>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
-
-          {/* right image */}
-          <div className="col-span-5">
-            <div className="relative h-[520px] rounded-[26px] overflow-hidden border border-black/15 bg-black/5">
-              <Image src="/a2026.jpg" alt="Hero image" fill className="object-cover" priority />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/15 to-transparent" />
-              <div className="absolute bottom-6 left-6 right-6">
-                <div className="flex items-center gap-3">
-                  <div className="relative h-14 w-14 rounded-full overflow-hidden border border-white/30">
-                    <Image src="/avatar.jpg" alt="Avatar" fill className="object-cover" />
-                  </div>
-                  <div className="min-w-0">
-                    <div className="text-white text-lg font-extrabold leading-tight">Jihee Cho</div>
-                    <div className="text-white/80 text-sm">Analytics · Bayesian · Forecasting · LLM</div>
-                  </div>
-                </div>
-
-                <div className="mt-4 flex flex-wrap gap-2">
-                  <span className="inline-flex items-center rounded-full bg-white/15 border border-white/25 px-3 py-1 text-xs font-bold text-white backdrop-blur">
-                    Decision-ready outputs
-                  </span>
-                  <span className="inline-flex items-center rounded-full bg-white/15 border border-white/25 px-3 py-1 text-xs font-bold text-white backdrop-blur">
-                    Automation → productization
-                  </span>
-                  <span className="inline-flex items-center rounded-full bg-white/15 border border-white/25 px-3 py-1 text-xs font-bold text-white backdrop-blur">
-                    Fine-tuning / RAG workflows
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            <div className="mt-4 text-xs text-[var(--muted)]">
-              * 이미지: public/a2026.jpg / 아바타: public/avatar.jpg (jpg로 맞춰둠)
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Tabs */}
-      <div className="mt-8 flex items-center gap-2">
+      {/* 탭 버튼 */}
+      <div className="flex items-center gap-2">
         {tabs.map((t) => (
-          <button
-            key={t.key}
-            onClick={() => setTab(t.key)}
-            className={[
-              "rounded-full px-5 py-2.5 text-sm font-extrabold border transition",
-              tab === t.key
-                ? "border-black/20 bg-black text-white"
-                : "border-[var(--line)] bg-white/70 text-[var(--muted)] hover:text-[var(--fg)]",
-            ].join(" ")}
-          >
+          <Pill key={t.key} active={tab === t.key} onClick={() => setTab(t.key)}>
             {t.label}
-          </button>
+          </Pill>
         ))}
       </div>
 
-      {/* Panel */}
-      <div className="mt-6 rounded-[28px] border border-[var(--line)] bg-white/55 p-10 shadow-[0_18px_60px_rgba(0,0,0,0.08)]">
-        {/* HOME (간단 안내만) */}
+      {/* 내용 패널 */}
+      <div className="mt-6 rounded-3xl border border-[var(--line)] bg-white/55 p-8 shadow-[0_18px_60px_rgba(0,0,0,0.08)]">
+        {/* HOME */}
         {tab === "Home" && (
-          <div>
-            <h2 className="text-3xl font-extrabold tracking-tight">Welcome</h2>
-            <p className="mt-4 text-[16px] text-[var(--muted)] leading-8">
-              위 Featured에서 주요 프로젝트를 확인하실 수 있습니다. 더 자세한 약력과 강점은 <b className="text-[var(--fg)]">About</b>, 전체 프로젝트는 <b className="text-[var(--fg)]">Projects</b> 탭에서 확인하세요.
-            </p>
+          <>
+            <div className="flex items-end justify-between gap-6">
+              <div>
+                <h2 className="text-4xl font-black tracking-tight">Portfolio</h2>
+                <p className="mt-3 text-[15px] text-[var(--muted)] leading-8 max-w-[75ch]">
+                  프로젝트/리서치/실험을 “보여주는 형태”로 만들고, 분석 결과를 대시보드·웹·자동화 산출물로 연결해.
+                </p>
+              </div>
 
-            <div className="mt-8 flex flex-wrap gap-2">
-              <ChipButton tone="primary" onClick={() => setTab("About")}>Go to About →</ChipButton>
-              <ChipButton tone="accent" onClick={() => setTab("Details")}>Go to Projects →</ChipButton>
-            </div>
-          </div>
-        )}
-
-        {/* ABOUT */}
-        {tab === "About" && (
-          <div>
-            <div className="flex items-end justify-between gap-10">
-              <h2 className="text-3xl font-extrabold tracking-tight">About</h2>
-              <div className="flex items-center gap-2">
-                <ChipLink href={LINKS.resumePdf}>Resume PDF</ChipLink>
-                <ChipLink href={`mailto:${LINKS.email}`}>Contact</ChipLink>
+              <div className="flex items-center gap-3">
+                <ChipLink href={LINKS.github}>GitHub</ChipLink>
+                <ChipLink href={LINKS.hf}>Hugging Face</ChipLink>
+                <ChipLink href={LINKS.velog}>Velog</ChipLink>
               </div>
             </div>
 
-            <div className="mt-8 grid grid-cols-12 gap-8">
-              {/* left: INFO */}
-              <div className="col-span-4 rounded-[26px] border border-[var(--line)] bg-[var(--soft)] p-7">
-                <div className="text-sm font-extrabold tracking-wide">INFO</div>
-
-                <div className="mt-6">
-                  <div className="text-xs font-extrabold text-[var(--muted)]">EDUCATION</div>
-                  <ul className="mt-2 space-y-2 text-sm leading-7 text-[var(--fg)]">
-                    {ABOUT_INFO.education.map((x) => (
-                      <li key={x} className="flex gap-2">
-                        <span className="mt-[10px] h-[6px] w-[6px] rounded-full bg-[var(--accent)]" />
-                        <span>{x}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-
-                <div className="mt-7">
-                  <div className="text-xs font-extrabold text-[var(--muted)]">EXPERIENCE</div>
-                  <ul className="mt-2 space-y-2 text-sm leading-7 text-[var(--fg)]">
-                    {ABOUT_INFO.experience.map((x) => (
-                      <li key={x} className="flex gap-2">
-                        <span className="mt-[10px] h-[6px] w-[6px] rounded-full bg-[var(--accent2)]" />
-                        <span>{x}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-
-                <div className="mt-7">
-                  <div className="text-xs font-extrabold text-[var(--muted)]">AWARDS</div>
-                  <ul className="mt-2 space-y-2 text-sm leading-7 text-[var(--fg)]">
-                    {ABOUT_INFO.awards.map((a) => (
-                      <li key={a.year + a.text} className="flex gap-2">
-                        <span className="mt-[10px] h-[6px] w-[6px] rounded-full bg-black/70" />
-                        <span>
-                          <b className="font-extrabold">{a.year}</b> {a.text}
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-
-                <div className="mt-8">
-                  <a
-                    href={LINKS.resumePdf}
-                    className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-[var(--line)] bg-white/70 px-4 py-2 text-sm font-extrabold hover:opacity-85 transition"
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    Resume PDF <span className="text-[var(--muted)]">↗</span>
-                  </a>
-                </div>
-              </div>
-
-              {/* right: narrative + skillset + strengths */}
-              <div className="col-span-8">
-                <div className="rounded-[26px] border border-[var(--line)] bg-[var(--soft)] p-7">
-                  <div className="text-sm font-extrabold tracking-wide">INFO</div>
-                  <p className="mt-4 text-[16px] leading-8 text-[var(--muted)]">{ABOUT_SUMMARY}</p>
-
-                  <div className="mt-8 grid grid-cols-12 gap-6">
-                    <div className="col-span-7">
-                      <div className="text-sm font-extrabold">Skillset</div>
-                      <div className="mt-3 flex flex-wrap gap-2">
-                        {ABOUT_SKILLSET.map((c) => (
-                          <ChipButton
-                            key={c.label}
-                            tone={c.tone ?? "neutral"}
-                            onClick={() => {
-                              if (c.cat) {
-                                setFilter(c.cat);
-                                setTab("Details");
-                              }
-                            }}
-                          >
-                            {c.label}
-                            {c.cat ? <span className="ml-2 text-[11px] text-black/60">({c.cat})</span> : null}
-                          </ChipButton>
-                        ))}
-                      </div>
-                      <div className="mt-3 text-xs text-[var(--muted)]">
-                        * Skillset 칩에 (LLM/Forecasting/Bayesian/Segmentation) 표시된 항목을 누르면 Projects가 자동 필터됩니다.
-                      </div>
-                    </div>
-
-                    <div className="col-span-5">
-                      <div className="text-sm font-extrabold">Core strengths</div>
-                      <div className="mt-3 flex flex-wrap gap-2">
-                        {ABOUT_CORE.map((c) => (
-                          <ChipButton key={c.label} tone={c.tone ?? "neutral"}>
-                            {c.label}
-                          </ChipButton>
-                        ))}
-                      </div>
-
-                      <div className="mt-6 text-sm font-extrabold">Contact</div>
-                      <div className="mt-2 text-sm text-[var(--muted)]">
-                        <a className="underline underline-offset-4 hover:opacity-80" href={`mailto:${LINKS.email}`}>
-                          {LINKS.email}
-                        </a>
-                      </div>
-                      <div className="mt-4 flex flex-wrap gap-2">
-                        <ChipLink href={LINKS.github}>GitHub</ChipLink>
-                        <ChipLink href={LINKS.hf}>Hugging Face</ChipLink>
-                        <ChipLink href={LINKS.velog}>Velog</ChipLink>
-                      </div>
-                    </div>
+            <div className="mt-10 grid grid-cols-12 gap-6 items-start">
+              {/* Left: Avatar + quick */}
+              <div className="col-span-4 rounded-3xl border border-[var(--line)] bg-white/70 p-6">
+                <div className="flex items-center gap-4">
+                  <div className="relative h-16 w-16 overflow-hidden rounded-2xl border border-black/15 bg-black/5">
+                    {/* public/avatar.jpg */}
+                    <Image src="/avatar.jpg" alt="avatar" fill className="object-cover" priority />
+                  </div>
+                  <div className="min-w-0">
+                    <div className="text-lg font-black tracking-tight">Jihee Cho</div>
+                    <div className="text-sm text-[var(--muted)]">Analytics · Bayesian · Time Series · LLM</div>
+                    <a
+                      className="mt-2 inline-flex text-sm font-extrabold underline underline-offset-4 hover:opacity-80"
+                      href={`mailto:${LINKS.email}`}
+                    >
+                      {LINKS.email}
+                    </a>
                   </div>
                 </div>
 
-                <div className="mt-6 rounded-[26px] border border-[var(--line)] bg-white/70 p-7">
-                  <div className="text-sm font-extrabold">Quick filter</div>
+                <div className="mt-5 flex flex-wrap gap-2">
+                  <ChipLink href={LINKS.resume} className="bg-black text-white border-black/20">
+                    Resume PDF
+                  </ChipLink>
+                  <ChipLink href={LINKS.github}>Repo list</ChipLink>
+                </div>
+
+                <div className="mt-6">
+                  <div className="text-sm font-black tracking-tight">Quick filters</div>
                   <div className="mt-3 flex flex-wrap gap-2">
-                    {(["All", "LLM", "Forecasting", "Bayesian", "Segmentation", "Other"] as Filter[]).map((k) => (
-                      <ChipButton
+                    {(["All", "LLM", "Forecasting", "Bayesian", "Segmentation"] as Category[]).map((k) => (
+                      <Pill
                         key={k}
-                        active={filter === k}
-                        tone={k === "All" ? "neutral" : k === "LLM" ? "primary" : "accent"}
+                        active={cat === k}
                         onClick={() => {
-                          setFilter(k);
+                          setCat(k);
                           setTab("Details");
                         }}
                       >
                         {k}
-                      </ChipButton>
+                      </Pill>
                     ))}
                   </div>
                 </div>
               </div>
+
+              {/* Right: Featured */}
+              <div className="col-span-8">
+                <div className="flex items-end justify-between">
+                  <div>
+                    <div className="text-sm font-black tracking-tight">Featured Projects</div>
+                    <div className="mt-1 text-sm text-[var(--muted)]">대표 3~4개</div>
+                  </div>
+                  <button
+                    onClick={() => setTab("Details")}
+                    className="text-sm font-extrabold underline underline-offset-4 hover:opacity-80"
+                  >
+                    View all →
+                  </button>
+                </div>
+
+                <div className="mt-4 grid gap-4">
+                  {featured.map((p: any) => {
+                    const href = pickPrimaryLink(p);
+                    const external = href.startsWith("http");
+                    const catLabel = p.__cat as Category;
+                    return (
+                      <a
+                        key={p.slug}
+                        href={href}
+                        target={external ? "_blank" : undefined}
+                        rel={external ? "noreferrer" : undefined}
+                        className="group rounded-3xl border border-[var(--line)] bg-white/70 p-6 hover:shadow-sm transition"
+                      >
+                        <div className="flex items-start justify-between gap-6">
+                          <div className="min-w-0">
+                            <div className="text-xs font-extrabold text-black/60">{catLabel}</div>
+                            <div className="mt-1 text-xl font-black tracking-tight">{p.title}</div>
+                            <div className="mt-2 text-sm text-[var(--muted)] leading-7">{p.oneLiner}</div>
+                            <div className="mt-4 text-sm font-extrabold underline underline-offset-4 group-hover:opacity-85">
+                              Details ↗
+                            </div>
+                          </div>
+
+                          <div className="shrink-0 w-[240px]">
+                            <div className="relative h-[140px] w-full overflow-hidden rounded-2xl border border-black/15 bg-black/5">
+                              {p.__cover ? (
+                                <>
+                                  <Image src={p.__cover} alt={`${p.title} cover`} fill className="object-cover" />
+                                  <div className="absolute inset-0 bg-gradient-to-t from-black/35 via-black/0 to-transparent" />
+                                </>
+                              ) : (
+                                <div
+                                  className={cn("absolute inset-0", FALLBACK_PATTERNS[hashToIndex(p.slug, FALLBACK_PATTERNS.length)])}
+                                />
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </a>
+                    );
+                  })}
+                </div>
+              </div>
             </div>
-          </div>
+          </>
+        )}
+
+        {/* ABOUT */}
+        {tab === "About" && (
+          <>
+            <h2 className="text-4xl font-black tracking-tight">About</h2>
+
+            <div className="mt-8 grid grid-cols-12 gap-6 items-start">
+              {/* Left: INFO */}
+              <div className="col-span-5 space-y-4">
+                <div className="text-sm font-black tracking-tight">INFO</div>
+                {infoBlock("Education", EDUCATION)}
+                {infoBlock("Experience", EXPERIENCE)}
+                {infoBlock("Awards", sortedAwards)}
+                <div className="rounded-3xl border border-[var(--line)] bg-[var(--soft)] p-6">
+                  <div className="text-sm font-black tracking-tight">Resume</div>
+                  <div className="mt-3">
+                    <ChipLink href={LINKS.resume} className="bg-black text-white border-black/20">
+                      Resume PDF
+                    </ChipLink>
+                  </div>
+                </div>
+              </div>
+
+              {/* Right: narrative + skillset + strengths */}
+              <div className="col-span-7">
+                <div className="rounded-3xl border border-[var(--line)] bg-white/70 p-7">
+                  <div className="text-sm font-black tracking-tight">Info</div>
+                  <p className="mt-3 text-[15px] text-[var(--muted)] leading-8">
+                    7년간 데이터 분석·시장조사 영역에서, 데이터를 “분석”에서 끝내지 않고 의사결정으로 이어지게 만드는 구조를 설계해 왔어.
+                    의료 데이터 관리로 시작해 리서치 기획·컨설팅·예측 모델링까지 넓혔고, 프로젝트 초기에 모호한 요구를 지표·비교군·방법론으로
+                    구체화하고 리드하는 역할을 자주 맡았지. SEM·시계열·세그멘테이션 등 다양한 기법을 적용해왔지만 핵심은 “왜 이 방법인지”를
+                    설명 가능하게 만들고 결과가 어떤 판단으로 연결되는지까지 설계하는 거야. 반복 업무는 자동화 툴로 구현했고(세그멘테이션 데스크톱 툴),
+                    LLM 파인튜닝/배포와 RAG 기반 워크플로우 적용까지 확장해서 분석을 실제로 “작동·서비스” 형태로 만들었어. 복잡한 내용을
+                    비즈니스 언어로 전달해 이해관계자 정렬을 만드는 커뮤니케이션도 강점이고.
+                  </p>
+
+                  <div className="mt-7 grid grid-cols-2 gap-4">
+                    <div className="rounded-3xl border border-[var(--line)] bg-[var(--soft)] p-6">
+                      <div className="text-sm font-black tracking-tight">Skillset</div>
+                      <div className="mt-3 flex flex-wrap gap-2">
+                        {SKILLSET.map((x) => (
+                          <Chip
+                            key={x.label}
+                            label={x.label}
+                            tone={x.tone}
+                            clickable={Boolean(x.cat)}
+                            onClick={
+                              x.cat
+                                ? () => {
+                                    setCat(x.cat!);
+                                    setTab("Details");
+                                  }
+                                : undefined
+                            }
+                          />
+                        ))}
+                      </div>
+                      <div className="mt-3 text-xs text-[var(--muted)] leading-6">
+                        카테고리 지정된 칩(LLM/Forecasting/Bayesian/Segmentation) 누르면 Projects가 자동 필터링돼.
+                      </div>
+                    </div>
+
+                    <div className="rounded-3xl border border-[var(--line)] bg-[var(--soft)] p-6">
+                      <div className="text-sm font-black tracking-tight">Core strengths</div>
+                      <div className="mt-3 flex flex-wrap gap-2">
+                        {CORE_STRENGTHS.map((x) => (
+                          <Chip key={x.label} label={x.label} tone={x.tone} />
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="mt-6 flex flex-wrap gap-2">
+                    <ChipLink href={LINKS.github}>GitHub</ChipLink>
+                    <ChipLink href={LINKS.hf}>Hugging Face</ChipLink>
+                    <ChipLink href={LINKS.velog}>Velog</ChipLink>
+                    <ChipLink href={`mailto:${LINKS.email}`}>Contact</ChipLink>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </>
         )}
 
         {/* DETAILS */}
         {tab === "Details" && (
-          <div>
+          <>
             <div className="flex items-end justify-between gap-6">
               <div>
-                <h2 className="text-3xl font-extrabold tracking-tight">Projects</h2>
-                <p className="mt-2 text-sm text-[var(--muted)]">
-                  카드 클릭 시 <b className="text-[var(--fg)]">GitHub Repo(우선)</b>로 이동합니다. (커버 없으면 자동 패턴 적용)
+                <h2 className="text-4xl font-black tracking-tight">Projects</h2>
+                <p className="mt-3 text-[15px] text-[var(--muted)] leading-8">
+                  카드 클릭 / Details 버튼 → GitHub Repo(우선)로 이동. (Repo 없으면 Demo → Blog 순)
                 </p>
               </div>
-              <a className="text-sm font-extrabold underline underline-offset-4 hover:opacity-80" href="/projects">
-                View simple list →
-              </a>
+
+              <div className="flex items-center gap-2">
+                <Pill active={cat === "All"} onClick={() => setCat("All")}>
+                  All
+                </Pill>
+                <Pill active={cat === "LLM"} onClick={() => setCat("LLM")}>
+                  LLM
+                </Pill>
+                <Pill active={cat === "Forecasting"} onClick={() => setCat("Forecasting")}>
+                  Forecasting
+                </Pill>
+                <Pill active={cat === "Bayesian"} onClick={() => setCat("Bayesian")}>
+                  Bayesian
+                </Pill>
+                <Pill active={cat === "Segmentation"} onClick={() => setCat("Segmentation")}>
+                  Segmentation
+                </Pill>
+              </div>
             </div>
 
-            <div className="mt-6 flex flex-wrap gap-2">
-              {(["All", "LLM", "Forecasting", "Bayesian", "Segmentation", "Other"] as Filter[]).map((k) => (
-                <ChipButton
-                  key={k}
-                  active={filter === k}
-                  tone={k === "All" ? "neutral" : k === "LLM" ? "primary" : "accent"}
-                  onClick={() => setFilter(k)}
-                >
-                  {k}
-                </ChipButton>
-              ))}
+            <div className="mt-8 grid gap-4">
+              {filtered.map((p: any) => {
+                const href = pickPrimaryLink(p);
+                const external = href.startsWith("http");
+                const pattern = FALLBACK_PATTERNS[hashToIndex(p.slug, FALLBACK_PATTERNS.length)];
+                return (
+                  <a
+                    key={p.slug}
+                    href={href}
+                    target={external ? "_blank" : undefined}
+                    rel={external ? "noreferrer" : undefined}
+                    className="group rounded-3xl border border-[var(--line)] bg-white/70 p-6 hover:shadow-sm transition"
+                  >
+                    <div className="flex items-start justify-between gap-6">
+                      {/* left */}
+                      <div className="min-w-0">
+                        <div className="text-xs font-extrabold text-black/60">{p.__cat}</div>
+                        <div className="mt-1 text-2xl font-black tracking-tight">{p.title}</div>
+                        <div className="mt-2 text-sm text-[var(--muted)] leading-7">{p.oneLiner}</div>
+
+                        <div className="mt-4 flex flex-wrap gap-2">
+                          {(Array.isArray(p.stack) ? p.stack : [])
+                            .slice(0, 10)
+                            .map((s: string) => (
+                              <span
+                                key={s}
+                                className="text-xs px-2 py-1 rounded-full border border-[var(--line)] bg-white/80 text-[var(--muted)] font-semibold"
+                              >
+                                {s}
+                              </span>
+                            ))}
+                        </div>
+
+                        <div className="mt-5 text-sm font-extrabold underline underline-offset-4 group-hover:opacity-85">
+                          Details ↗
+                        </div>
+                      </div>
+
+                      {/* right thumbnail */}
+                      <div className="shrink-0 w-[320px]">
+                        <div className="relative h-[180px] w-full overflow-hidden rounded-2xl border border-black/15 bg-black/5">
+                          {p.__cover ? (
+                            <>
+                              <Image src={p.__cover} alt={`${p.title} cover`} fill className="object-cover" />
+                              <div className="absolute inset-0 bg-gradient-to-t from-black/35 via-black/0 to-transparent" />
+                            </>
+                          ) : (
+                            <div className={cn("absolute inset-0", pattern)} />
+                          )}
+
+                          <div className="absolute bottom-2 right-2 rounded-full px-3 py-1 text-xs font-extrabold border border-white/25 bg-black/40 text-white backdrop-blur">
+                            Open →
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </a>
+                );
+              })}
             </div>
 
-            <div className="mt-6 grid gap-4">
-              {filteredProjects.map((p) => (
-                <ProjectRow key={p.slug} p={p} />
-              ))}
-            </div>
-          </div>
+            {filtered.length === 0 && (
+              <div className="mt-10 text-sm text-[var(--muted)]">해당 카테고리 프로젝트가 아직 없어. (data.ts의 category/stack 확인)</div>
+            )}
+          </>
         )}
       </div>
     </section>
