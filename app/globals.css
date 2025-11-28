@@ -1,22 +1,38 @@
 @import "tailwindcss";
 
 :root{
-  --bg: #efe9de;
-  --fg: #0b0b0b;
-  --muted: rgba(11,11,11,0.62);
-  --line: rgba(11,11,11,0.14);
-  --card: rgba(255,255,255,0.76);
-  --soft: rgba(255,255,255,0.55);
-  --accent: #ffba49;
-  --accent2: #c47a3a;
+  --bg: #fbf7ef;        /* warm beige */
+  --fg: #111111;
+  --muted: #5b5b5b;
+  --line: rgba(17,17,17,.12);
+
+  --card: rgba(255,255,255,.74);
+  --soft: rgba(255,255,255,.55);
+
+  --accent: #c27a3a;     /* warm tan */
+  --accent2: #ffba49;    /* gold-ish */
 }
 
-html, body{
+html, body {
   height: 100%;
+}
+
+body{
+  font-family: var(--font-noto), system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
   background: var(--bg);
   color: var(--fg);
-  font-family: var(--font-noto), system-ui, -apple-system, Segoe UI, Roboto, Arial, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
 }
 
-::selection{ background: rgba(11,11,11,0.12); }
-a{ color: inherit; }
+::selection{
+  background: rgba(194,122,58,.25);
+}
+
+.prose :where(a){
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.container-wide{
+  max-width: 1400px;
+  margin: 0 auto;
+}
