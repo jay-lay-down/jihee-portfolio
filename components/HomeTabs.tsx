@@ -1,6 +1,8 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Image from "next/image";
+import { PROJECTS } from "@/app/projects/data";
 
 const LINKS = {
   email: "chubbyfinger1010@gmail.com",
@@ -9,49 +11,6 @@ const LINKS = {
   resume: "https://github.com/jay-lay-down/jiheecho/blob/main/assets/RESUME.md",
   github: "https://github.com/jay-lay-down",
 };
-
-const REPOS = [
-  {
-    title: "AI/LLM-powered Analytics Chatbot",
-    href: "https://github.com/jay-lay-down/jaychatbot_2nd",
-    note: "LoRA/QLoRA 기반 파인튜닝 + self-hosting",
-  },
-  {
-    title: "Social Animal Type Test",
-    href: "https://github.com/jay-lay-down/animal_test",
-    note: "Gradio 기반 서비스형 웹 테스트",
-  },
-  {
-    title: "Auto Segment Tool (Desktop EXE)",
-    href: "https://github.com/jay-lay-down/auto_segment",
-    note: "PCA → Tree 기반 segmentation 자동화",
-  },
-  {
-    title: "Bayesian Modeling & Dashboard",
-    href: "https://github.com/jay-lay-down/bayesian_dashboard",
-    note: "PyMC + 대시보드로 의사결정 연결",
-  },
-  {
-    title: "Brand Image Bayesian Norms",
-    href: "https://github.com/jay-lay-down/bayesian_norm",
-    note: "소셜+설문 결합, Bayesian 기반 평가",
-  },
-  {
-    title: "Demand Forecasting (SARIMAX)",
-    href: "https://github.com/jay-lay-down/demand_forecasting",
-    note: "수요예측 파이프라인/패키지화",
-  },
-  {
-    title: "Brand Share% Forecasting (seq2seq)",
-    href: "https://github.com/jay-lay-down/seq2seq_softmax",
-    note: "seq2seq LSTM/Attention 기반 예측",
-  },
-  {
-    title: "Employee Engagement (LPA)",
-    href: "https://github.com/jay-lay-down/LPA_synthetic_vars",
-    note: "Latent Profile Analysis로 세그먼트 도출",
-  },
-];
 
 function ChipLink({ href, children }: { href: string; children: React.ReactNode }) {
   return (
@@ -66,20 +25,28 @@ function ChipLink({ href, children }: { href: string; children: React.ReactNode 
   );
 }
 
+function pickPrimaryLink(p: (typeof PROJECTS)[number]) {
+  // ✅ Details 버튼/카드 클릭 시 어디로 보낼지 우선순위
+  return p.repo ?? p.demo ?? p.blog ?? `/projects/${p.slug}`;
+}
+
 export default function HomeTabs() {
-  const [tab, setTab] = useState<"Home" | "About" | "Projects">("Home");
+  const [tab, setTab] = useState<"Home" | "About" | "Details">("Home");
 
   const tabs = useMemo(
     () => [
       { key: "Home" as const, label: "Home" },
       { key: "About" as const, label: "About" },
-      { key: "Projects" as const, label: "Details" },
+      { key: "Details" as const, label: "Details" },
     ],
     []
   );
 
+  const featured = useMemo(() => PROJECTS.filter((p) => p.featured).slice(0, 6), []);
+
   return (
     <section className="mt-10">
+      {/* 탭 버튼 */}
       <div className="flex items-center gap-2">
         {tabs.map((t) => (
           <button
@@ -97,125 +64,205 @@ export default function HomeTabs() {
         ))}
       </div>
 
-      {/* PANEL */}
+      {/* 내용 패널 */}
       <div className="mt-6 rounded-3xl border border-[var(--line)] bg-white/55 p-8 shadow-[0_18px_60px_rgba(0,0,0,0.08)]">
+        {/* HOME */}
         {tab === "Home" && (
           <>
-            <h2 className="text-2xl font-black tracking-tight">
-              About
-            </h2>
+            <h2 className="text-2xl font-black tracking-tight">Home</h2>
             <p className="mt-4 text-[15px] text-[var(--muted)] leading-8">
-              7년차 데이터 분석가로서 서울대학교병원 연구원으로 커리어를 시작해 엠브레인, NIQ(구 GfK), 칸타코리아까지
-              <span className="font-semibold text-[var(--fg)]"> 시장조사·리서치·데이터 분석</span> 경험을 확장해 왔습니다.
-              다양한 산업군의 리서치 프로젝트를 수행하며 <span className="font-semibold text-[var(--fg)]">PPT 스토리라인 구성, 프레젠테이션, 클라이언트 워크숍/커뮤니케이션</span>까지 end-to-end로 리드해 왔습니다.
+              프로젝트/리서치/실험을 “보여주는 형태”로 정리하고, 분석 결과를 대시보드·웹·자동화 산출물로 연결하는 일을
+              지향합니다. (홈 화면에서는 Featured만 간단히 보여주고, Details 탭에서 썸네일+레포 링크로 바로 이동됩니다.)
             </p>
-
-            <div className="mt-6 grid gap-4 lg:grid-cols-2">
-              <div className="rounded-3xl border border-[var(--line)] bg-[var(--soft)] p-6">
-                <div className="text-sm font-bold">Technical Expertise</div>
-                <ul className="mt-3 space-y-2 text-sm text-[var(--muted)] leading-7">
-                  <li>• R / Python / SPSS 기반 고급 통계 분석</li>
-                  <li>• SEM, PCA/요인분석, 의사결정나무, Bayesian 네트워크</li>
-                  <li>• 시계열 인과(Granger) 및 수요예측(SARIMAX)</li>
-                  <li>• LLM 파인튜닝/LoRA, RAG 기반 분석 자동화로 확장</li>
-                </ul>
-              </div>
-
-              <div className="rounded-3xl border border-[var(--line)] bg-[var(--soft)] p-6">
-                <div className="text-sm font-bold">Highlights</div>
-                <ul className="mt-3 space-y-2 text-sm text-[var(--muted)] leading-7">
-                  <li>• GfK 재직 시 중단 고객사 온라인 데이터 윈백으로 매출 회복 및 수상</li>
-                  <li>• 입사 첫 해 대형 프로젝트 수주 경험</li>
-                  <li>• 수요예측 모델 개발 및 조직 내 표준화 경험</li>
-                  <li>• 반복 업무 자동화(분석→시각화→리포팅) 툴을 직접 개발/배포</li>
-                </ul>
-              </div>
-            </div>
 
             <div className="mt-7 flex flex-wrap gap-2">
               <ChipLink href={LINKS.github}>GitHub</ChipLink>
               <ChipLink href={LINKS.hf}>Hugging Face</ChipLink>
               <ChipLink href={LINKS.velog}>Velog</ChipLink>
               <ChipLink href={LINKS.resume}>Resume</ChipLink>
-              <ChipLink href={`mailto:${LINKS.email}`}>{LINKS.email}</ChipLink>
+              <ChipLink href={`mailto:${LINKS.email}`}>Contact</ChipLink>
+            </div>
+
+            <div className="mt-10">
+              <div className="flex items-end justify-between">
+                <div>
+                  <div className="text-sm font-bold">Featured Projects</div>
+                  <div className="mt-1 text-sm text-[var(--muted)]">대표 3~6개만 미리보기</div>
+                </div>
+                <button
+                  onClick={() => setTab("Details")}
+                  className="text-sm underline underline-offset-4 hover:opacity-80"
+                >
+                  Go to Details →
+                </button>
+              </div>
+
+              <div className="mt-4 grid gap-3">
+                {featured.slice(0, 4).map((p) => {
+                  const href = pickPrimaryLink(p);
+                  const external = href.startsWith("http");
+                  return (
+                    <a
+                      key={p.slug}
+                      href={href}
+                      target={external ? "_blank" : undefined}
+                      rel={external ? "noreferrer" : undefined}
+                      className="rounded-2xl border border-[var(--line)] bg-white/70 p-5 hover:shadow-sm transition"
+                    >
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="min-w-0">
+                          <div className="text-xs text-[var(--muted)]">{p.category}</div>
+                          <div className="mt-1 font-bold">{p.title}</div>
+                          <div className="mt-1 text-sm text-[var(--muted)] leading-7">{p.oneLiner}</div>
+                        </div>
+                        <div className="shrink-0 text-sm text-[var(--muted)]">Open ↗</div>
+                      </div>
+                    </a>
+                  );
+                })}
+              </div>
             </div>
           </>
         )}
 
+        {/* ABOUT */}
         {tab === "About" && (
           <>
-            <h2 className="text-2xl font-black tracking-tight">
-              Focus (Strengths)
-            </h2>
+            <h2 className="text-2xl font-black tracking-tight">About</h2>
 
-            <div className="mt-5 grid gap-4">
+            <div className="mt-6 grid gap-4 lg:grid-cols-2">
               <div className="rounded-3xl border border-[var(--line)] bg-[var(--soft)] p-6">
-                <div className="text-sm font-bold">통계 전문성 + 실무 적용력</div>
-                <div className="mt-2 text-sm text-[var(--muted)] leading-7">
-                  분석 기법 자체보다, 비즈니스 문제를 구조화하고 적합한 방법론을 선택해 실행 가능한 인사이트로 연결하는 역량을 강점으로 보유하고 있습니다.
-                </div>
+                <div className="text-sm font-bold">Summary</div>
+                <p className="mt-2 text-sm text-[var(--muted)] leading-7">
+                  7년차 데이터 분석가로서 서울대학교병원 연구원으로 커리어를 시작해 엠브레인, NIQ(구 GfK), 칸타코리아까지
+                  시장조사 및 데이터 분석 경험을 확장해 왔습니다. 현재는 Senior Analyst/Manager로서 프로젝트 리드와 신규
+                  사업 개발까지 수행하고 있습니다.
+                </p>
               </div>
 
               <div className="rounded-3xl border border-[var(--line)] bg-[var(--soft)] p-6">
-                <div className="text-sm font-bold">End-to-End 자동화 역량</div>
-                <div className="mt-2 text-sm text-[var(--muted)] leading-7">
-                  분석 → 시각화 → 리포팅까지 전 과정을 Python 기반으로 자동화해, 반복 업무를 효율화하고 분석 품질을 표준화하는 방향의 솔루션을 구축해 왔습니다.
-                </div>
-              </div>
-
-              <div className="rounded-3xl border border-[var(--line)] bg-[var(--soft)] p-6">
-                <div className="text-sm font-bold">AI/ML 확장성</div>
-                <div className="mt-2 text-sm text-[var(--muted)] leading-7">
-                  통계 기반 역량을 출발점으로 LLM 파인튜닝/챗봇 구현, RAG 기반 자동화까지 빠르게 습득하고 실제 서비스 형태로 구현해 왔습니다.
-                </div>
-              </div>
-
-              <div className="rounded-3xl border border-[var(--line)] bg-[var(--soft)] p-6">
-                <div className="text-sm font-bold">클라이언트 커뮤니케이션</div>
-                <div className="mt-2 text-sm text-[var(--muted)] leading-7">
-                  비전문가도 이해할 수 있는 언어로 분석 결과를 전달하고, 고객의 니즈를 제안/사업 개발로 연결하는 “영업-분석 통합” 실행 경험을 보유하고 있습니다.
-                </div>
+                <div className="text-sm font-bold">Research & Presentation</div>
+                <ul className="mt-2 space-y-2 text-sm text-[var(--muted)] leading-7">
+                  <li>• 다양한 산업군 리서치 프로젝트 수행(설문/정량/정성/POS)</li>
+                  <li>• PPT 스토리라인 구성, 결과 리포팅, 프레젠테이션/워크숍 리드</li>
+                  <li>• 클라이언트 니즈 파악 → 제안서/사업개발로 연결</li>
+                </ul>
               </div>
             </div>
 
-            <div className="mt-7 rounded-3xl border border-[var(--line)] bg-white/70 p-6">
-              <div className="text-sm font-bold">Contact</div>
-              <div className="mt-2 text-sm text-[var(--muted)] leading-7">
-                <a className="underline underline-offset-4 hover:opacity-80" href={`mailto:${LINKS.email}`}>
-                  {LINKS.email}
-                </a>
+            <div className="mt-4 grid gap-4 lg:grid-cols-2">
+              <div className="rounded-3xl border border-[var(--line)] bg-[var(--soft)] p-6">
+                <div className="text-sm font-bold">Stat / ML Skills</div>
+                <ul className="mt-2 space-y-2 text-sm text-[var(--muted)] leading-7">
+                  <li>• R / Python / SPSS 기반 고급 통계 분석</li>
+                  <li>• SEM, PCA/요인분석, Decision Tree, Bayesian Network</li>
+                  <li>• Granger causality, SARIMAX 수요예측</li>
+                  <li>• LLM fine-tuning(LoRA) / RAG 기반 자동화 툴로 확장</li>
+                </ul>
+              </div>
+
+              <div className="rounded-3xl border border-[var(--line)] bg-[var(--soft)] p-6">
+                <div className="text-sm font-bold">Contact</div>
+                <div className="mt-2 text-sm text-[var(--muted)] leading-7">
+                  <a className="underline underline-offset-4 hover:opacity-80" href={`mailto:${LINKS.email}`}>
+                    {LINKS.email}
+                  </a>
+                </div>
+                <div className="mt-4 flex flex-wrap gap-2">
+                  <ChipLink href={LINKS.github}>GitHub</ChipLink>
+                  <ChipLink href={LINKS.hf}>Hugging Face</ChipLink>
+                  <ChipLink href={LINKS.velog}>Velog</ChipLink>
+                </div>
               </div>
             </div>
           </>
         )}
 
-        {tab === "Projects" && (
+        {/* DETAILS (Projects list w/ thumbnail + repo link) */}
+        {tab === "Details" && (
           <>
-            <h2 className="text-2xl font-black tracking-tight">
-              Details (Selected Repositories)
-            </h2>
-            <p className="mt-3 text-sm text-[var(--muted)] leading-7">
-              아래 항목은 각각 GitHub 레포지토리로 연결됩니다.
-            </p>
+            <div className="flex items-end justify-between gap-4">
+              <div>
+                <h2 className="text-2xl font-black tracking-tight">Projects (Details)</h2>
+                <p className="mt-2 text-sm text-[var(--muted)]">
+                  카드 클릭 또는 Details 버튼을 누르면 GitHub Repo(우선)로 이동합니다.
+                </p>
+              </div>
+              <a className="text-sm underline underline-offset-4 hover:opacity-80" href="/projects">
+                View all →
+              </a>
+            </div>
 
-            <div className="mt-6 grid gap-3">
-              {REPOS.map((r) => (
-                <a
-                  key={r.href}
-                  href={r.href}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="rounded-2xl border border-[var(--line)] bg-white/70 p-5 hover:shadow-sm transition"
-                >
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="min-w-0">
-                      <div className="font-bold">{r.title}</div>
-                      <div className="mt-1 text-sm text-[var(--muted)] leading-7">{r.note}</div>
+            <div className="mt-6 grid gap-4">
+              {PROJECTS.map((p) => {
+                const href = pickPrimaryLink(p);
+                const external = href.startsWith("http");
+                return (
+                  <a
+                    key={p.slug}
+                    href={href}
+                    target={external ? "_blank" : undefined}
+                    rel={external ? "noreferrer" : undefined}
+                    className="group rounded-3xl border border-[var(--line)] bg-white/70 p-6 hover:shadow-sm transition"
+                  >
+                    <div className="flex items-start justify-between gap-6">
+                      {/* left */}
+                      <div className="min-w-0">
+                        <div className="text-xs text-[var(--muted)]">{p.category}</div>
+                        <div className="mt-1 text-xl font-black tracking-tight">{p.title}</div>
+                        <div className="mt-2 text-sm text-[var(--muted)] leading-7">{p.oneLiner}</div>
+
+                        <div className="mt-4 flex flex-wrap gap-2">
+                          {p.stack.slice(0, 10).map((s) => (
+                            <span
+                              key={s}
+                              className="text-xs px-2 py-1 rounded-full border border-[var(--line)] bg-white/80 text-[var(--muted)]"
+                            >
+                              {s}
+                            </span>
+                          ))}
+                        </div>
+
+                        <div className="mt-5 flex flex-wrap gap-3 text-sm">
+                          {p.repo && (
+                            <span className="underline underline-offset-4 group-hover:opacity-85">
+                              Repo ↗
+                            </span>
+                          )}
+                          {!p.repo && p.demo && (
+                            <span className="underline underline-offset-4 group-hover:opacity-85">
+                              Demo ↗
+                            </span>
+                          )}
+                          {!p.repo && !p.demo && p.blog && (
+                            <span className="underline underline-offset-4 group-hover:opacity-85">
+                              Blog ↗
+                            </span>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* right thumbnail */}
+                      <div className="shrink-0 w-[260px]">
+                        <div className="relative h-[150px] w-full overflow-hidden rounded-2xl border border-black/15 bg-black/5">
+                          {p.cover ? (
+                            <>
+                              <Image src={p.cover} alt={`${p.title} cover`} fill className="object-cover" />
+                              <div className="absolute inset-0 bg-gradient-to-t from-black/35 via-black/0 to-transparent" />
+                            </>
+                          ) : (
+                            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_30%_30%,rgba(255,186,73,0.25),transparent_55%),radial-gradient(ellipse_at_70%_70%,rgba(196,122,58,0.18),transparent_55%)]" />
+                          )}
+
+                          <div className="absolute bottom-2 right-2 rounded-full px-3 py-1 text-xs font-semibold border border-white/25 bg-black/40 text-white backdrop-blur">
+                            Details →
+                          </div>
+                        </div>
+                      </div>
                     </div>
-                    <div className="shrink-0 text-sm text-[var(--muted)]">Open ↗</div>
-                  </div>
-                </a>
-              ))}
+                  </a>
+                );
+              })}
             </div>
           </>
         )}
