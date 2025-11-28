@@ -26,9 +26,7 @@ export default function ProfileCard() {
         <h1 className="mt-4 text-2xl font-semibold text-gray-900">Jihee Cho</h1>
         <p className="text-gray-500">Analytics · Data Science · LLM</p>
 
-        <p className="mt-3 text-sm text-gray-800">
-          📊 Data → ✍️ Insight → 🚀 Impact
-        </p>
+        <p className="mt-3 text-sm text-gray-800">📊 Data → ✍️ Insight → 🚀 Impact</p>
         <p className="mt-1 text-sm text-gray-600">
           Bayesian · Time series · Dashboards · Automation · LLM apps
         </p>
@@ -49,7 +47,7 @@ export default function ProfileCard() {
 
         <div className="mt-5 w-full text-left text-sm text-gray-700 space-y-2">
           <div className="flex items-center gap-2"><span>📍</span><span>Seoul, KR</span></div>
-          <div className="flex items-center gap-2"><span>✉️</span><span>Contact via LinkedIn / Email</span></div>
+          <div className="flex items-center gap-2"><span>✉️</span><span>Contact via LinkedIn</span></div>
         </div>
       </div>
     </div>
