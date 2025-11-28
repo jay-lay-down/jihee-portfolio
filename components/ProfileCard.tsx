@@ -1,53 +1,70 @@
 import Image from "next/image";
 
 const LINKS = [
-  { label: "GitHub", href: "https://github.com/jay-lay-down" },
   { label: "Hugging Face", href: "https://huggingface.co/Jay1121" },
   { label: "Velog", href: "https://velog.io/@jaylaydown" },
   { label: "Resume", href: "https://github.com/jay-lay-down/jiheecho/blob/main/assets/RESUME.md" },
+  { label: "GitHub", href: "https://github.com/jay-lay-down" },
   { label: "LinkedIn", href: "https://www.linkedin.com/in/jihee-cho-767aa9260/" },
 ];
 
 export default function ProfileCard() {
   return (
-    <div className="bg-white rounded-3xl shadow-sm border border-gray-200 p-6">
-      <div className="flex flex-col items-center text-center">
-        <div className="h-28 w-28 rounded-full overflow-hidden ring-4 ring-gray-100">
-          <Image
-            src="/avatar.png"
-            alt="Jihee Cho"
-            width={112}
-            height={112}
-            className="h-full w-full object-cover"
-            priority
-          />
+    <div className="rounded-3xl border border-[var(--line)] bg-[var(--card)] overflow-hidden shadow-[0_1px_0_rgba(0,0,0,0.03)]">
+      <div className="relative h-36 w-full">
+        <Image src="/header.jpg" alt="Header" fill className="object-cover grayscale" priority />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/35 to-transparent" />
+      </div>
+
+      <div className="p-6">
+        <div className="flex items-center gap-4">
+          <div className="h-16 w-16 rounded-full overflow-hidden ring-4 ring-white shadow-sm shrink-0">
+            <Image
+              src="/avatar.png"
+              alt="Jihee Cho"
+              width={64}
+              height={64}
+              className="h-full w-full object-cover grayscale"
+              priority
+            />
+          </div>
+
+          <div>
+            <h1 className="text-xl font-semibold tracking-tight">Jihee Cho</h1>
+            <p className="text-sm text-[var(--muted)]">Analytics · Bayesian · Time Series · LLM</p>
+            <p className="text-xs text-[var(--muted)] mt-1">Data → Insight → Impact</p>
+          </div>
         </div>
 
-        <h1 className="mt-4 text-2xl font-semibold text-gray-900">Jihee Cho</h1>
-        <p className="text-gray-500">Analytics · Data Science · LLM</p>
-
-        <p className="mt-3 text-sm text-gray-800">📊 Data → ✍️ Insight → 🚀 Impact</p>
-        <p className="mt-1 text-sm text-gray-600">
-          Bayesian · Time series · Dashboards · Automation · LLM apps
-        </p>
-
-        <div className="mt-5 w-full flex flex-wrap gap-2 justify-center">
+        <div className="mt-5 flex flex-wrap gap-2">
           {LINKS.map((l) => (
             <a
               key={l.label}
               href={l.href}
               target="_blank"
               rel="noreferrer"
-              className="px-3 py-1.5 rounded-full border border-gray-200 text-sm text-gray-800 hover:bg-gray-50"
+              className="px-3 py-1.5 rounded-full border border-[var(--line)] text-sm text-[var(--fg)] hover:bg-[var(--soft)] transition"
             >
               {l.label}
             </a>
           ))}
         </div>
 
-        <div className="mt-5 w-full text-left text-sm text-gray-700 space-y-2">
-          <div className="flex items-center gap-2"><span>📍</span><span>Seoul, KR</span></div>
-          <div className="flex items-center gap-2"><span>✉️</span><span>Contact via LinkedIn</span></div>
+        <div className="mt-5 text-sm text-[var(--muted)] leading-7">
+          정성/정량 데이터 통합 · 베이지안 모델링/대시보드 · AI/LLM 응용<br />
+          비즈니스 인사이트 ·  Prompt Engineering · 글로벌 고객사와 협업
+        </div>
+
+        <div className="mt-5 flex items-center gap-2 text-xs text-[var(--muted)]">
+          <span className="inline-flex items-center gap-1 rounded-full border border-[var(--line)] px-2 py-1">
+            📍 Seoul
+          </span>
+          <span className="inline-flex items-center gap-1 rounded-full border border-[var(--line)] px-2 py-1">
+            ✉️{" "}
+            <a className="underline underline-offset-4 hover:text-[var(--fg)] transition" href="mailto:jiheecho@gmail.com">
+              jiheecho@gmail.com
+            </a>
+          </span>
         </div>
       </div>
     </div>
