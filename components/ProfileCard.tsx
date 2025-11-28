@@ -51,8 +51,8 @@ export default function ProfileCard() {
         </div>
 
         <div className="mt-5 text-sm text-[var(--muted)] leading-7">
-          정성/정량 데이터 통합 · 베이지안 모델링/대시보드 · AI/LLM 응용<br />
-          비즈니스 인사이트 ·  Prompt Engineering · 글로벌 고객사와 협업
+          📊 정성/정량 데이터 통합 · 🧠 베이지안 모델링/대시보드 · 🤖 AI/LLM 응용<br />
+          📈 비즈니스 인사이트 · 🧩 Prompt Engineering · 🤝 글로벌 고객사와 협업
         </div>
 
         <div className="mt-5 flex items-center gap-2 text-xs text-[var(--muted)]">
