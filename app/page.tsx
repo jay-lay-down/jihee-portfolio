@@ -1,65 +1,75 @@
-import Image from "next/image";
+import ProfileCard from "@/components/ProfileCard";
+import Section from "@/components/Section";
+import ProjectsGrid from "@/components/ProjectsGrid";
+import { PROJECTS } from "@/app/projects/data";
 
 export default function Home() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <main className="min-h-screen bg-gray-50">
+      <div className="mx-auto max-w-6xl p-6 grid gap-6 lg:grid-cols-[360px_1fr]">
+        <aside className="lg:sticky lg:top-20 h-fit">
+          <ProfileCard />
+        </aside>
+
+        <div className="space-y-6">
+          <Section title="🔑 Core Competencies">
+            <div className="text-sm text-gray-700 leading-7">
+              📊 정성/정량 데이터 통합 · 🧠 베이지안 모델링/대시보드 · 🤖 AI/LLM 응용<br />
+              📈 비즈니스 인사이트 · 🧩 Prompt Engineering · 🤝 글로벌 고객사와 협업
+            </div>
+          </Section>
+
+          <Section title="🧰 Skills">
+            <div className="flex flex-wrap gap-2 text-sm">
+              {["Python", "PyTorch", "TensorFlow", "R", "SQL", "Tableau", "Excel", "PowerPoint", "Hugging Face", "SPSS"].map(
+                (s) => (
+                  <span key={s} className="px-3 py-1.5 rounded-full bg-gray-100 text-gray-700">
+                    {s}
+                  </span>
+                )
+              )}
+            </div>
+          </Section>
+
+          <Section title="📒 Featured Projects (탭+검색)">
+            <ProjectsGrid projects={PROJECTS} mode="featured" />
+            <div className="mt-5 flex gap-4 text-sm">
+              <a className="underline underline-offset-4 text-gray-700" href="/projects">
+                View all projects →
+              </a>
+              <a className="underline underline-offset-4 text-gray-700" href="/blog">
+                Go to blog →
+              </a>
+            </div>
+          </Section>
+
+          <Section title="📊 Stats">
+            <div className="grid gap-4 md:grid-cols-2">
+              <img
+                className="w-full rounded-2xl border border-gray-200 bg-white"
+                src="https://github-readme-stats.vercel.app/api/top-langs/?username=jay-lay-down&layout=compact&theme=default"
+                alt="Top langs"
+              />
+              <img
+                className="w-full rounded-2xl border border-gray-200 bg-white"
+                src="https://streak-stats.demolab.com?user=jay-lay-down&theme=default&hide_border=true&cache_seconds=86400&v=2"
+                alt="GitHub streak"
+              />
+            </div>
+
+            <div className="mt-4">
+              <a
+                className="underline underline-offset-4 text-sm text-gray-700"
+                href="https://leetcode.com/jiheecho"
+                target="_blank"
+                rel="noreferrer"
+              >
+                LeetCode profile ↗
+              </a>
+            </div>
+          </Section>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+      </div>
+    </main>
   );
 }
