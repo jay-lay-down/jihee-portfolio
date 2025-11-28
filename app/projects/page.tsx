@@ -1,24 +1,21 @@
-import ProjectsGrid from "@/components/ProjectsGrid";
 import { PROJECTS } from "./data";
+
+function pickPrimaryLink(p: (typeof PROJECTS)[number]) {
+  return p.repo ?? p.demo ?? p.blog ?? `/`;
+}
+function isExternal(href: string) {
+  return href.startsWith("http://") || href.startsWith("https://");
+}
 
 export default function ProjectsPage() {
   return (
-    <main className="min-h-screen p-6">
-      <div className="mx-auto max-w-5xl">
-        <div className="flex items-end justify-between gap-3">
-          <div>
-            <h1 className="text-2xl font-semibold tracking-tight">Projects</h1>
-            <p className="mt-2 text-sm text-[var(--muted)]">카드 클릭해서 상세(마크다운)로 보기</p>
-          </div>
-          <a className="text-sm underline underline-offset-4 text-[var(--muted)] hover:text-[var(--fg)] transition" href="/">
-            ← Home
-          </a>
-        </div>
+    <main className="container-wide px-10 py-12">
+      <h1 className="text-3xl font-extrabold tracking-tight">Projects</h1>
+      <p className="mt-2 text-sm text-[var(--muted)]">프로젝트 목록</p>
 
-        <div className="mt-6 rounded-3xl border border-[var(--line)] bg-[var(--card)] p-6">
-          <ProjectsGrid projects={PROJECTS} mode="all" />
-        </div>
-      </div>
-    </main>
-  );
-}
+      <div className="mt-8 space-y-3">
+        {PROJECTS.map((p) => {
+          const href = pickPrimaryLink(p);
+          const external = isExternal(href);
+          return (
+            <
