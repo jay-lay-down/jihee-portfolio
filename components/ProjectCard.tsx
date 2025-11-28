@@ -1,65 +1,47 @@
-export type Category = "LLM" | "Bayesian" | "Forecasting" | "Segmentation" | "Other";
-
-export type Project = {
-  slug: string;
-  title: string;
-  oneLiner: string;
-  category: Category;
-  featured?: boolean;
-  stack: string[];
-  links: { label: string; href: string }[];
-};
+import type { Project } from "@/app/projects/data";
 
 export default function ProjectCard({ p }: { p: Project }) {
   return (
-    <div className="rounded-2xl border border-[var(--line)] bg-[var(--card)] p-5 hover:bg-[#fcfcfc] transition">
-      <div className="flex items-start justify-between gap-3">
+    <div className="rounded-3xl border border-black/15 bg-white/55 p-6 shadow-[0_18px_60px_rgba(0,0,0,0.08)]">
+      <div className="flex items-start justify-between gap-6">
         <div>
-          <div className="inline-flex items-center gap-2">
-            <span className="text-xs px-2 py-1 rounded-full bg-[var(--soft)] text-[var(--fg)] border border-[var(--line)]">
-              {p.category}
-            </span>
-            {p.featured && (
-              <span className="text-xs px-2 py-1 rounded-full bg-[var(--fg)] text-white">
-                Featured
+          <div className="text-xs text-[var(--muted)]">{p.category}</div>
+          <div className="mt-1 text-xl font-bold tracking-tight">{p.title}</div>
+          <div className="mt-2 text-sm text-[var(--muted)] leading-7">{p.oneLiner}</div>
+
+          <div className="mt-4 flex flex-wrap gap-2">
+            {p.stack.slice(0, 8).map((s) => (
+              <span
+                key={s}
+                className="text-xs px-2 py-1 rounded-full border border-[var(--line)] bg-white/70 text-[var(--muted)]"
+              >
+                {s}
               </span>
-            )}
+            ))}
           </div>
 
-          <h3 className="mt-2 text-base font-semibold tracking-tight">{p.title}</h3>
-          <p className="mt-1 text-sm text-[var(--muted)] leading-6">{p.oneLiner}</p>
+          <div className="mt-5 flex flex-wrap gap-3 text-sm">
+            {p.repo && (
+              <a className="underline underline-offset-4 hover:opacity-80" href={p.repo} target="_blank" rel="noreferrer">
+                Repo ↗
+              </a>
+            )}
+            {p.demo && (
+              <a className="underline underline-offset-4 hover:opacity-80" href={p.demo} target="_blank" rel="noreferrer">
+                Demo ↗
+              </a>
+            )}
+            {p.blog && (
+              <a className="underline underline-offset-4 hover:opacity-80" href={p.blog} target="_blank" rel="noreferrer">
+                Blog ↗
+              </a>
+            )}
+          </div>
         </div>
 
-        <a className="text-sm underline underline-offset-4 text-[var(--muted)] hover:text-[var(--fg)] transition whitespace-nowrap" href={`/projects/${p.slug}`}>
+        <button className="shrink-0 rounded-full px-4 py-2 text-sm font-semibold border border-black/20 bg-[var(--soft)] hover:bg-white/60 transition">
           Details →
-        </a>
-      </div>
-
-      <div className="mt-3 flex flex-wrap gap-2">
-        {p.stack.slice(0, 7).map((s) => (
-          <span key={s} className="text-xs px-2 py-1 rounded-full border border-[var(--line)] bg-white text-[var(--muted)]">
-            {s}
-          </span>
-        ))}
-        {p.stack.length > 7 && (
-          <span className="text-xs px-2 py-1 rounded-full border border-[var(--line)] bg-white text-[var(--muted)]">
-            +{p.stack.length - 7}
-          </span>
-        )}
-      </div>
-
-      <div className="mt-4 flex flex-wrap gap-2">
-        {p.links.map((l) => (
-          <a
-            key={l.label}
-            href={l.href}
-            target="_blank"
-            rel="noreferrer"
-            className="text-sm px-3 py-1.5 rounded-full border border-[var(--line)] hover:bg-[var(--soft)] transition"
-          >
-            {l.label}
-          </a>
-        ))}
+        </button>
       </div>
     </div>
   );
