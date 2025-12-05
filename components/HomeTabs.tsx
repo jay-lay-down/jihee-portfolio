@@ -11,6 +11,7 @@ import { FaGithub, FaLinkedin, FaPen, FaUserCircle, FaExternalLinkAlt, FaDownloa
 import { SiHuggingface, SiVelog } from "react-icons/si";
 import { MdEmail, MdArticle, MdSchool, MdWork, MdEmojiEvents } from "react-icons/md";
 import { IoLocationSharp } from "react-icons/io5";
+import { FaQuoteLeft } from "react-icons/fa";
 
 // --- 상수 ---
 const LINKS = {
@@ -227,6 +228,10 @@ export default function HomeTabs() {
               <Image src="/a2026.jpg" alt="Hero" fill className="object-cover" priority />
               <div className="absolute inset-0 bg-black/40" />
               <div className="absolute inset-0 p-10 flex flex-col justify-center text-white">
+                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/20 backdrop-blur-md text-xs font-bold w-fit mb-5 border border-white/30">
+                  <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse"/>
+                  Available for new projects
+                </div>
                 <h2 className="text-5xl font-black mb-6 leading-tight">Data Driven, <br/> Decision Ready.</h2>
                 <p className="text-white/90 text-lg font-medium max-w-xl">
                   데이터 분석과 시장조사를 바탕으로,<br/> 의사결정을 실질적으로 지원하는 결과물을 만듭니다.
