@@ -12,7 +12,6 @@ export default function RootLayout({
   return (
     <html lang="ko">
       <body className="font-sans antialiased bg-[#FDFBF7]">
-        {/* 👉 PC 에서 훨씬 넓게 보이도록 max-width 확 키움 */}
         <main className="min-h-screen mx-auto px-4 md:px-10 lg:px-16 xl:px-20 2xl:px-24 max-w-[1440px]">
           {children}
         </main>
