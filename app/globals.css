@@ -1,10 +1,17 @@
-/* 1. Pretendard 폰트 불러오기 (CDN) */
+/* 1. Pretendard 폰트 불러오기 */
 @import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css");
 
 /* 2. Tailwind CSS 불러오기 */
 @import "tailwindcss";
 
-/* 3. 변수 설정 */
+/* 3. 폰트 강제 적용 (Tailwind 방식 + !important) */
+@layer base {
+  html, body {
+    font-family: "Pretendard Variable", "Pretendard", -apple-system, BlinkMacSystemFont, system-ui, Roboto, "Helvetica Neue", "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif !important;
+  }
+}
+
+/* 4. 변수 설정 */
 :root {
   --bg: #fbf7f2;
   --fg: #111111;
@@ -15,32 +22,26 @@
   --accent2: #c27a3a;
 }
 
-/* 4. 기본 설정 (중복 제거 및 통합) */
+/* 5. 기본 설정 */
 html,
 body {
   height: 100%;
   margin: 0;
   padding: 0;
-}
-
-body {
-  /* Pretendard를 최우선으로 적용 */
-  font-family: "Pretendard Variable", "Pretendard", -apple-system, BlinkMacSystemFont, system-ui, Roboto, "Helvetica Neue", "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif;
-  
   background: var(--bg);
   color: var(--fg);
   -webkit-font-smoothing: antialiased;
   text-rendering: geometricPrecision;
 }
 
-/* 5. 유틸리티 클래스 정리 */
+/* 6. 유틸리티 클래스 */
 .container-wide {
   max-width: 1400px;
-  width: 94%; /* 모바일에서 너무 꽉 차지 않게 여백 줌 */
+  width: 94%;
   margin: 0 auto;
 }
 
-/* 6. 기타 스타일 */
+/* 7. 기타 스타일 */
 ::selection {
   background: rgba(194, 122, 58, 0.25);
 }
