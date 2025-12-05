@@ -12,7 +12,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="ko">
+      <head>
+        <link
+          rel="stylesheet"
+          href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css"
+        />
+      </head>
       <body
         className="antialiased bg-[#FDFBF7]"
         style={{
@@ -20,7 +26,6 @@ export default function RootLayout({
             '"Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, Roboto, "Helvetica Neue", "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif',
         }}
       >
-        {/* ⬇⬇ 여기서 max-w-screen-xl / mx-auto 싹 제거 */}
         <main className="min-h-screen w-full">
           {children}
         </main>
