@@ -381,10 +381,10 @@ export default function HomeTabs() {
               </div>
 
               <div className="space-y-10">
-                <div className="grid gap-8 items-start grid-cols-1 lg:grid-cols-12">
-                  {/* LEFT: ABOUT (✅ 갈색 전체박스 투명화: bg/border/rounded 제거, 패딩은 그대로) */}
+                <div className="grid gap-8 items-stretch grid-cols-1 lg:grid-cols-12">
+                  {/* LEFT: ABOUT */}
                   <div className="lg:col-span-8 space-y-8">
-                    <section className="px-6 py-6 sm:px-8 sm:py-7">
+                    <section className="h-full rounded-2xl bg-[#f5ebe0]/60 border border-[#e3d5ca] px-6 py-6 sm:px-8 sm:py-7">
                       <h3 className="text-sm font-extrabold tracking-wide text-stone-700 mb-3">
                         ABOUT
                       </h3>
@@ -423,7 +423,7 @@ export default function HomeTabs() {
 
                   {/* RIGHT: Profile 카드 */}
                   <div className="lg:col-span-4">
-                    <div className="lg:sticky lg:top-20 bg-white/85 backdrop-blur-sm rounded-2xl p-8 border border-stone-200 shadow-sm">
+                    <div className="lg:sticky lg:top-20 bg-white/85 backdrop-blur-sm rounded-2xl p-8 border border-stone-200 shadow-sm h-full">
                       <div className="relative w-24 h-24 rounded-full border-4 border-white shadow-md mb-5 overflow-hidden">
                         <Image src="/avatar.jpg" alt="Avatar" fill className="object-cover" />
                       </div>
