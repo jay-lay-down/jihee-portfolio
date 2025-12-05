@@ -1,18 +1,18 @@
 /* 1. Pretendard 폰트 */
-@import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/pretendard.min.css");
+@import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css");
 
-/* 2. Tailwind v4 import (원래 있던 거 다시!) */
+/* 2. Tailwind v4 */
 @import "tailwindcss";
 
-/* 3. html/body 기본 폰트 + 배경 강제 적용 */
+/* 3. 전역 폰트 / 배경 */
 html,
 body {
   margin: 0;
   padding: 0;
-  font-family: "Pretendard", -apple-system, BlinkMacSystemFont, system-ui,
-    Roboto, "Helvetica Neue", "Segoe UI", "Apple SD Gothic Neo",
-    "Noto Sans KR", "Malgun Gothic", "Apple Color Emoji", "Segoe UI Emoji",
-    "Segoe UI Symbol", sans-serif;
+  font-family: "Pretendard Variable", "Pretendard", -apple-system,
+    BlinkMacSystemFont, system-ui, Roboto, "Helvetica Neue", "Segoe UI",
+    "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic",
+    "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif;
   background: #fbf7f2;
   color: #111111;
   -webkit-font-smoothing: antialiased;
