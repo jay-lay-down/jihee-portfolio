@@ -123,7 +123,7 @@ function TopNav({
         <div className="flex items-center gap-4">
           <NavBtn k="Home" label="HOME" />
           <NavBtn k="Projects" label="PROJECTS" />
-          <NavBtn k="Board" label="게시판" />
+          <NavBtn k="Board" label="BOARD" />
         </div>
 
         <div className="flex items-center gap-1">
