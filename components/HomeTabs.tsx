@@ -69,7 +69,7 @@ function cn(...xs: Array<string | false | undefined | null>) {
   return xs.filter(Boolean).join(" ");
 }
 
-// ✅ 상단 텍스트형 네비게이션 (네모박스 삭제 + 글자/아이콘 살짝 업)
+// ✅ 상단 텍스트형 네비게이션
 function TopNav({
   tab,
   setTab,
@@ -120,14 +120,12 @@ function TopNav({
   return (
     <div className="sticky top-0 z-50 w-full bg-white/85 backdrop-blur border-b border-stone-200">
       <div className="px-6 lg:px-10 py-3 flex items-center justify-between gap-4">
-        {/* 왼쪽: 섹션 네비 (텍스트형) */}
         <div className="flex items-center gap-4">
           <NavBtn k="Home" label="HOME" />
           <NavBtn k="Projects" label="PROJECTS" />
           <NavBtn k="Board" label="게시판" />
         </div>
 
-        {/* 오른쪽: 외부 링크 아이콘 (크기 업) */}
         <div className="flex items-center gap-1">
           <IconLink href={LINKS.linkedin} label="LinkedIn">
             <FaLinkedin className="text-[22px]" />
@@ -223,19 +221,6 @@ function ProjectCard({ p }: { p: any }) {
   );
 }
 
-function SocialBtn({ href, icon: Icon }: { href: string; icon: any }) {
-  return (
-    <a
-      href={href}
-      target="_blank"
-      rel="noreferrer"
-      className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-white/80 text-stone-700 hover:bg-[#8C5E35] hover:text-white transition shadow-sm border border-stone-200"
-    >
-      <Icon className="text-xl" />
-    </a>
-  );
-}
-
 // ABOUT 아래 “작은 Info 카드”
 function MiniInfoCard({
   title,
@@ -253,7 +238,6 @@ function MiniInfoCard({
         <div className="text-xs font-black text-stone-800">{title}</div>
       </div>
 
-      {/* ✅ 여기만 수정: slice(0,2) 제거해서 전부 표시 */}
       <div className="mt-2 space-y-2">
         {items.map((x, i) => (
           <div key={i} className="text-[11px] leading-4 text-stone-600 font-medium">
@@ -372,15 +356,13 @@ export default function HomeTabs() {
 
   return (
     <div className="min-h-screen text-stone-800 pb-20 w-full">
-      {/* ✅ 맨 상단 텍스트 네비 + 외부 링크 */}
       <TopNav tab={tab} setTab={setTab} />
 
-      {/* 상단 헤더 */}
-      <header className="py-10 w-full px-0">
+      {/* ✅ 헤더: 중복 제거 (서브텍스트 삭제) */}
+      <header className="py-6 w-full px-0">
         <div className="px-6 lg:px-10 w-full flex items-start justify-between gap-6">
           <div>
             <h1 className="text-4xl font-black tracking-tight text-stone-900">Jihee Cho</h1>
-            <p className="text-[15px] text-stone-500 font-semibold mt-1">Jan.25.1991 / Seoul</p>
           </div>
         </div>
       </header>
@@ -388,9 +370,9 @@ export default function HomeTabs() {
       <main className="animate-in fade-in slide-in-from-bottom-2 duration-500 shadow-xl rounded-b-xl overflow-hidden w-full">
         {/* HOME */}
         {tab === "Home" && (
-          <div className="bg-stone-100/80 pt-8 pb-12 px-0 border-x border-b border-stone-200/50">
+          <div className="bg-stone-100/80 pt-2 pb-12 px-0 border-x border-b border-stone-200/50">
             <div className="space-y-10 px-6 lg:px-10">
-              {/* Hero */}
+              {/* ✅ Hero: 위로 끌어올림 (top padding 줄임 + hero를 바로 시작) */}
               <div className="relative w-full h-[380px] md:h-[440px] rounded-2xl overflow-hidden shadow-xl">
                 <Image src="/a2026.jpg" alt="Hero" fill className="object-cover" priority />
                 <div className="absolute inset-0 bg-gradient-to-b from-black/15 via-black/55 to-black/80" />
@@ -407,18 +389,15 @@ export default function HomeTabs() {
                 </div>
               </div>
 
-              {/* ✅ 여기만 수정: Featured를 “두 박스 아래”로 빼기 위해, 그리드를 1개 섹션으로 분리 */}
               <div className="space-y-10">
-                {/* 상단 2칸: ABOUT / PROFILE */}
                 <div className="grid gap-8 items-start grid-cols-1 lg:grid-cols-12">
-                  {/* LEFT: ABOUT */}
+                  {/* LEFT: ABOUT (박스 유지 여부는 너가 이미 정한 그대로에서 안 건드림) */}
                   <div className="lg:col-span-8 space-y-8">
                     <section className="rounded-2xl bg-[#f5ebe0] border border-[#e3d5ca] px-6 py-6 sm:px-8 sm:py-7">
                       <h3 className="text-sm font-extrabold tracking-wide text-stone-700 mb-3">
                         ABOUT
                       </h3>
 
-                      {/* ✅ 멘트 절대 수정 안 함 */}
                       <div className="space-y-3 text-[15px] leading-7 text-stone-800 font-medium max-w-5xl">
                         <p>
                           심리학을 기반으로 데이터 분석을 수행하며, 브랜드·리서치 데이터를 볼 때
@@ -429,19 +408,20 @@ export default function HomeTabs() {
 
                         <p>
                           프로젝트를 할 때는 기획 단계에서 문제를 정의하고, 조사·데이터 설계 →
-                          모델링 → 대시보드·리포트까지 하나의 흐름으로 이어지도록 설계해 왔습니다.
+                          모델링 → 대시보드·리포트까지 하나의 흐름으로 이어지도록 설계해 왔어요.
                           숫자 자체보다 “누가 이 결과를 어떻게 활용할지”를 상상하면서 구조를
                           짜는 편입니다.
                         </p>
 
                         <p>
+                          반복해서 쓰이는 분석은 EXE 툴, 웹 대시보드, 챗봇 등으로 자동화·도구화해서
+                          팀 누구나 다시 돌려볼 수 있는 형태로 남기고 있습니다.
                           최근에는 세그멘테이션, 수요 예측, 캠페인 효과 분석 같은 작업에 LLM·RAG를
                           결합해서, 단순 보고서가 아니라 질문하면 맥락을 설명해 주는
-                          AI 서비스 형태로 만드는 실험을 하고 있습니다.
+                          AI 서비스 형태로 만드는 실험을 하고 있어요.
                         </p>
                       </div>
 
-                      {/* mini info 4개: ABOUT 안에서만 */}
                       <div className="mt-6 border-t border-[#e3d5ca] pt-4">
                         <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
                           <MiniInfoCard title="Education" icon={MdSchool} items={EDUCATION} />
@@ -461,7 +441,13 @@ export default function HomeTabs() {
                       </div>
 
                       <h3 className="text-2xl font-black text-stone-900">Jihee Cho</h3>
-                      <div className="text-sm font-bold text-[#8C5E35] mb-5">
+
+                      {/* ✅ 생년월일/지역: 프로필 박스로 이동 */}
+                      <div className="text-sm font-bold text-stone-500 mt-1">
+                        Jan.25.1991 / Seoul
+                      </div>
+
+                      <div className="text-sm font-bold text-[#8C5E35] mb-5 mt-2">
                         Analytics · Build · LLM
                       </div>
 
@@ -478,7 +464,6 @@ export default function HomeTabs() {
                         </a>
                       </div>
 
-                      {/* SKILLS: 프로필 아래 */}
                       <div className="pt-5 border-t border-stone-200">
                         <div className="text-xs font-black text-stone-700 tracking-wide mb-2">
                           SKILLS
@@ -494,12 +479,7 @@ export default function HomeTabs() {
                           ))}
                         </div>
 
-                        <div className="flex gap-2 justify-center pt-5">
-                          <SocialBtn href={LINKS.linkedin} icon={FaLinkedin} />
-                          <SocialBtn href={LINKS.github} icon={FaGithub} />
-                          <SocialBtn href={LINKS.hf} icon={SiHuggingface} />
-                          <SocialBtn href={LINKS.velog} icon={SiVelog} />
-                        </div>
+                        {/* ✅ 프로필 박스 내 소셜 버튼 줄 삭제 (상단 네비에 있으니까) */}
 
                         <a
                           href={LINKS.resumePdf}
@@ -514,7 +494,7 @@ export default function HomeTabs() {
                   </div>
                 </div>
 
-                {/* ✅ 핵심 프로젝트: “두 박스 아래”에서 일렬 */}
+                {/* Featured Projects */}
                 {featured.length > 0 && (
                   <section className="space-y-4">
                     <div className="flex items-center justify-between">
