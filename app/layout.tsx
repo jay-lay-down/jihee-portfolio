@@ -1,10 +1,5 @@
-// app/layout.tsx
-
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
-import "./globals.css";
-
-const inter = Inter({ subsets: ["latin"] });
+import "./globals.css"; // 여기서 Pretendard 폰트를 불러옴
 
 export const metadata: Metadata = {
   title: "Jihee Cho Portfolio",
@@ -18,16 +13,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={inter.className}>
-        {/* 여기에 혹시 <Header />나 <Navbar />가 있었다면 삭제! 
-           우리는 page.tsx에서 헤더를 다 컨트롤하니까 여기는 비워둬야 함.
-        */}
-        
+      {/* 폰트 설정은 globals.css에서 처리했으므로 className에서 제거함 */}
+      {/* 배경색(bg-[#FDFBF7])은 그대로 유지 */}
+      <body className="antialiased bg-[#FDFBF7]">
         <main className="min-h-screen max-w-screen-xl mx-auto px-6 py-12 md:px-12 md:py-20 lg:px-24 lg:py-0">
           {children}
         </main>
-
-        {/* 여기에 <Footer />가 있었다면 삭제! */}
       </body>
     </html>
   );
