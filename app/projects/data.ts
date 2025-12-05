@@ -1,66 +1,122 @@
-export type Category = "LLM" | "Forecasting" | "Bayesian" | "Segmentation" | "Other";
+export type ProjectLink = {
+  label: string;
+  href: string;
+};
 
 export type Project = {
   slug: string;
   title: string;
   oneLiner: string;
-  category: Category;
+  category: "LLM" | "Segmentation" | "Bayesian" | "Forecasting" | "Other";
   featured?: boolean;
-  repo?: string;
-  demo?: string;
-  blog?: string;
-  cover?: string;
   stack: string[];
+  links: ProjectLink[];
+  cover?: string; // 이미지 경로 추가
 };
 
 export const PROJECTS: Project[] = [
   {
-    // [im2.jpg] LLM Chatbot
-    slug: "ai-llm-chatbot",
-    title: "AI/LLM-powered Analytics Chatbot",
-    oneLiner: "Persona fine-tuning + self-hosting (QLoRA / Quantization)",
+    slug: "AI Chatbot",
+    title: "🤖 AI/LLM-powered Analytics Chatbot",
+    oneLiner: "Persona fine-tuning + quantization 기반 self-hosting, 운영비 절감",
     category: "LLM",
     featured: true,
-    repo: "https://github.com/jay-lay-down/jaychatbot_2nd",
-    demo: "http://www.duboobanmo.site",
-    blog: "https://velog.io/@jaylaydown/series/side-project-1",
+    stack: ["Python", "PyTorch", "Transformers", "QLoRA", "HF Hub", "Gradio"],
     cover: "/im2.jpg",
-    stack: ["Python", "PyTorch", "Transformers", "QLoRA", "Gradio", "HF Hub"],
+    links: [
+      { label: "Repo", href: "https://github.com/jay-lay-down/jaychatbot_2nd" },
+      { label: "Demo", href: "http://www.duboobanmo.site" },
+      { label: "Blog", href: "https://velog.io/@jaylaydown/series/side-project-1" },
+    ],
   },
   {
-    // [im1.jpg] Social Animal Test
     slug: "animal-test",
-    title: "Social Animal Type Test",
-    oneLiner: "Metacognition & situation-reading type test (11 types) with deployment",
+    title: "🐾 Social Animal Type Test",
+    oneLiner: "11가지 사회적 동물 유형 테스트: 설계–채점–UI/UX–배포 end-to-end",
     category: "Other",
     featured: true,
-    repo: "https://github.com/jay-lay-down/animal_test",
-    demo: "https://myanimaltest.site/",
-    blog: "https://velog.io/@jaylaydown/%EB%82%98%EB%A7%8C%EC%9D%98-%EC%8B%AC%EB%A6%AC-%ED%85%8C%EC%8A%A4%ED%8A%B8-%EB%A7%8C%EB%93%A4%EA%B8%B0-%EB%8F%99%EB%AC%BC-%EC%9C%A0%ED%98%95-%ED%85%8C%EC%8A%A4%ED%8A%B8-%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8",
+    stack: ["Python", "Gradio", "HTML/CSS", "HF Spaces"],
     cover: "/im1.jpg",
-    stack: ["Python", "Gradio", "HTML/CSS", "Hugging Face Spaces"],
+    links: [
+      { label: "Repo", href: "https://github.com/jay-lay-down/animal_test" },
+      { label: "Demo", href: "https://myanimaltest.site/" },
+      { label: "Space", href: "https://huggingface.co/spaces/Jay1121/animal_test" },
+    ],
   },
   {
-    // [im3.jpg] Auto Segment Tool (Demand Space로 텍스트 수정됨)
-    slug: "auto-segment",
-    title: "Auto Segment Tool (Desktop EXE)",
-    oneLiner: "Data → PCA/FA → Demand Space Segmentation → Viz → Excel report automation",
+    slug: "auto-segment-tool",
+    title: "🔧 Auto Segment Tool (EXE)",
+    oneLiner: "데이터 로딩→PCA→결정트리 세그→시각화/Excel 자동 리포트 + AI Assistant 기능 추가",
     category: "Segmentation",
     featured: true,
-    repo: "https://github.com/jay-lay-down/auto_segment",
+    stack: ["Python", "PySide6", "scikit-learn", "Pandas", "PyInstaller"],
     cover: "/im3.jpg",
-    stack: ["Python", "PySide6", "scikit-learn", "pandas", "PyInstaller", "Excel Automation"],
+    links: [
+      { label: "Repo", href: "https://github.com/jay-lay-down/auto_segment" },
+      { label: "Download", href: "https://drive.google.com/uc?id=1l6dMl6QHx7fJAeh8zL3xPIJX572mtnum&export=download" },
+    ],
   },
   {
-    // [im4.jpg] Bayesian Dashboard
     slug: "bayesian-dashboard",
-    title: "Bayesian Modeling & Dashboard",
-    oneLiner: "Hierarchical Bayesian funnel dashboard (Preference → Recommend → Intent → Purchase)",
+    title: "🌐 Bayesian Modeling & Dashboard",
+    oneLiner: "계층적 베이지안으로 전환 퍼널 분석 + 대시보드(불확실성 기반 해석)",
     category: "Bayesian",
     featured: true,
-    repo: "https://github.com/jay-lay-down/bayesian_dashboard",
-    demo: "https://jay1121-bayesian-dashboard.hf.space",
+    stack: ["Python", "PyMC", "ArviZ", "pandas", "Plotly/Dash"],
     cover: "/im4.jpg",
-    stack: ["Python", "PyMC", "ArviZ", "pandas", "Dashboard"],
+    links: [
+      { label: "Repo", href: "https://github.com/jay-lay-down/bayesian_dashboard" },
+      { label: "Dashboard", href: "https://jay1121-bayesian-dashboard.hf.space" },
+    ],
+  },
+  {
+    slug: "bayesian-norms",
+    title: "📈 Brand Image Evaluation (Bayesian)",
+    oneLiner: "소셜+설문 결합 & 데이터 증강 기반 브랜드 이미지 평가 대시보드",
+    category: "Bayesian",
+    stack: ["Python", "pandas", "scikit-learn", "PyMC", "VBA"],
+    links: [
+      { label: "Repo", href: "https://github.com/jay-lay-down/bayesian_norm" },
+      { label: "Blog", href: "https://velog.io/@jaylaydown/BayesianAdjectiveNorm" },
+    ],
+  },
+  {
+    slug: "demand-forecasting",
+    title: "📊 Demand Forecasting Pipeline",
+    oneLiner: "SARIMAX 파이프라인 + R 패키지 개발(MAPE 0.9~7.5%)",
+    category: "Forecasting",
+    featured: true,
+    stack: ["R", "forecast", "caret", "devtools", "roxygen2"],
+    links: [
+      { label: "Repo", href: "https://github.com/jay-lay-down/demand_forecasting" },
+      { label: "Slides", href: "https://github.com/jay-lay-down/demand_forecasting/blob/main/assets/Example_Forecasting%20Projects.pdf" },
+    ],
+  },
+  {
+    slug: "brand-share-forecasting",
+    title: "☑ Brand Share% Forecasting",
+    oneLiner: "Softmax 최적화 + LSTM(Additive Attention)로 점유율 예측",
+    category: "Forecasting",
+    stack: ["Python", "TensorFlow", "LSTM", "Attention", "NumPy"],
+    links: [{ label: "Repo", href: "https://github.com/jay-lay-down/seq2seq_softmax" }],
+  },
+  {
+    slug: "employee-engagement",
+    title: "👥 Drivers of Employee Engagement",
+    oneLiner: "LPA로 몰입/이직 패턴 세분화 → 실행 가능한 조직 전략 도출",
+    category: "Segmentation",
+    stack: ["R", "lavaan", "tidyLPA/mclust"],
+    links: [
+      { label: "Repo", href: "https://github.com/jay-lay-down/LPA_synthetic_vars" },
+      { label: "Slides", href: "https://github.com/jay-lay-down/LPA_synthetic_vars/blob/main/assets/LPA_example.pdf" },
+    ],
+  },
+  {
+    slug: "other-projects",
+    title: "🔢 Other Projects Archive",
+    oneLiner: "소셜마이닝/제안서 등 다양한 프로젝트 슬라이드 모음",
+    category: "Other",
+    stack: ["Slides", "PDF"],
+    links: [{ label: "Slides PDF", href: "https://github.com/jay-lay-down/jay-lay-down/blob/main/assets/Example_projects.pdf" }],
   },
 ];
