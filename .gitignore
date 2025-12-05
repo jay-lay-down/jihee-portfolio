@@ -1,0 +1,12 @@
+# 환경 변수 및 중요 파일
+.env.local
+.env.development.local
+.env.production.local
+
+# Next.js 빌드 관련
+/node_modules
+/.next
+/out
+
+# 타입스크립트 캐시
+.tsbuildinfo
