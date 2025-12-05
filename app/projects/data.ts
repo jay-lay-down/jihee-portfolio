@@ -11,12 +11,12 @@ export type Project = {
   featured?: boolean;
   stack: string[];
   links: ProjectLink[];
-  cover?: string; // 이미지 경로 추가
+  cover?: string;
 };
 
 export const PROJECTS: Project[] = [
   {
-    slug: "AI Chatbot",
+    slug: "ddolbae",
     title: "🤖 AI/LLM-powered Analytics Chatbot",
     oneLiner: "Persona fine-tuning + quantization 기반 self-hosting, 운영비 절감",
     category: "LLM",
@@ -46,7 +46,7 @@ export const PROJECTS: Project[] = [
   {
     slug: "auto-segment-tool",
     title: "🔧 Auto Segment Tool (EXE)",
-    oneLiner: "데이터 로딩→PCA→결정트리 세그→시각화/Excel 자동 리포트 + AI Assistant 기능 추가",
+    oneLiner: "데이터 로딩→PCA→결정트리 세그→시각화/Excel 자동 리포트 GUI",
     category: "Segmentation",
     featured: true,
     stack: ["Python", "PySide6", "scikit-learn", "Pandas", "PyInstaller"],
