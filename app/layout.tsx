@@ -26,9 +26,9 @@ export default function RootLayout({
             '"Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, Roboto, "Helvetica Neue", "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif',
         }}
       >
-        <main className="min-h-screen w-full flex justify-center">
-          {/* ✅ 가운데 정렬 + 최대 폭 제한 */}
-          <div className="w-full max-w-[1800px]">
+        {/* ✅ 전체 가로 폭 사용 */}
+        <main className="min-h-screen w-full">
+          <div className="w-full">
             {children}
           </div>
         </main>
