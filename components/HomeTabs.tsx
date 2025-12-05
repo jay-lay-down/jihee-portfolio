@@ -46,7 +46,7 @@ function cn(...xs: Array<string | false | undefined | null>) {
   return xs.filter(Boolean).join(" ");
 }
 
-// 꽉 찬 탭 버튼
+// 탭 버튼
 function FullWidthTab({
   active,
   onClick,
@@ -75,7 +75,6 @@ function FullWidthTab({
 function ProjectCard({ p }: { p: any }) {
   return (
     <div className="group flex flex-col bg-white rounded-2xl border border-stone-200 overflow-hidden hover:shadow-xl transition-all duration-300 h-full hover:border-[#d4a373]/50">
-      {/* 썸네일 영역 */}
       <div className="relative aspect-[16/9] overflow-hidden">
         {p.cover ? (
           <Image
@@ -95,7 +94,6 @@ function ProjectCard({ p }: { p: any }) {
         )}
       </div>
 
-      {/* 내용 */}
       <div className="p-6 flex flex-col flex-1">
         <div className="flex justify-between items-start mb-2">
           <span className="text-xs font-bold text-[#8C5E35] bg-[#8C5E35]/10 px-2 py-1 rounded uppercase tracking-wide">
@@ -199,7 +197,13 @@ export default function HomeTabs() {
       .from("guestbook")
       .select("*")
       .order("created_at", { ascending: false });
-    if (!error) setPosts((data as Post[]) || []);
+
+    if (error) {
+      console.error("Supabase select error:", error);
+      setPosts([]);
+    } else {
+      setPosts((data as Post[]) || []);
+    }
     setLoading(false);
   };
 
@@ -210,16 +214,20 @@ export default function HomeTabs() {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!inputName.trim() || !inputContent.trim()) return;
+
     const { error } = await supabase.from("guestbook").insert([
       { author: inputName, content: inputContent, category: inputCategory },
     ]);
+
     if (error) {
-      alert("Error!");
-    } else {
-      setInputName("");
-      setInputContent("");
-      fetchPosts();
+      console.error("Supabase insert error:", error);
+      alert(`Error: ${error.message}`);
+      return;
     }
+
+    setInputName("");
+    setInputContent("");
+    fetchPosts();
   };
 
   // --- Projects 데이터 ---
@@ -264,7 +272,8 @@ export default function HomeTabs() {
   ];
 
   return (
-    <div className="min-h-screen font-sans text-stone-800 pb-20">
+    // ⬇ 여기서 font-sans 제거해서 body의 Pretendard가 그대로 적용되게
+    <div className="min-h-screen text-stone-800 pb-20">
       {/* 상단 헤더 - 폭 1400px */}
       <header className="py-10 flex flex-col sm:flex-row items-center justify-between gap-2 md:gap-4 w-full max-w-[1400px] mx-auto px-4 md:px-2">
         <div>
@@ -284,7 +293,7 @@ export default function HomeTabs() {
         </button>
       </header>
 
-      {/* 탭 내비 - 폭 1400px */}
+      {/* 탭 내비 */}
       <nav className="flex w-full max-w-[1400px] mx-auto border border-stone-200 rounded-t-xl overflow-hidden shadow-sm mb-0">
         <FullWidthTab label="Home" active={tab === "Home"} onClick={() => setTab("Home")} />
         <FullWidthTab
@@ -296,7 +305,7 @@ export default function HomeTabs() {
         <FullWidthTab label="Board" active={tab === "Board"} onClick={() => setTab("Board")} />
       </nav>
 
-      {/* 메인 카드 - 폭 1400px */}
+      {/* 메인 카드 */}
       <main className="animate-in fade-in slide-in-from-bottom-2 duration-500 shadow-xl rounded-b-xl overflow-hidden w-full max-w-[1400px] mx-auto">
         {/* HOME */}
         {tab === "Home" && (
@@ -314,7 +323,7 @@ export default function HomeTabs() {
                   <h2 className="text-4xl sm:text-5xl font-black mb-6 leading-tight drop-shadow-lg">
                     Portfolio
                     <br />
-                    <span className="text-[var(--accent)]">Jihee Cho</span>
+                    <span className="text-[#ffba49]">Jihee Cho</span>
                   </h2>
                   <p className="text-white/90 text-sm sm:text-lg font-medium max-w-xl drop-shadow-md">
                     데이터 분석과 시장조사 경험을 바탕으로
@@ -324,24 +333,24 @@ export default function HomeTabs() {
                 </div>
               </div>
 
-              {/* ABOUT 블록 (설명 교체됨) */}
+              {/* ABOUT 블록 */}
               <section className="rounded-2xl bg-[#f5ebe0] border border-[#e3d5ca] px-6 py-6 sm:px-8 sm:py-7">
                 <h3 className="text-xs sm:text-sm font-extrabold tracking-wide text-stone-700 mb-2">
                   ABOUT
                 </h3>
                 <p className="text-sm sm:text-[15px] leading-7 text-stone-800 font-medium max-w-5xl">
-                  다양한 가전 / FMCG / 광고효과 조사 프로젝트를 담당해 왔으며, 정량·정성 데이터
-                  분석을 통한 인사이트 도출에 강점이 있습니다. 가전 시장 POS 데이터 분석과 고객사
-                  매니지먼트를 통해, 클라이언트가 체감할 수 있는 인사이트를 도출하고 실제 액션으로
-                  이어지게 한 경험이 있습니다.
+                  다양한 가전/FMCG/광고효과 조사 프로젝트 담당 경험이 있으며, 정량/정성 데이터
+                  분석을 통한 인사이트 도출에 강점이 있습니다. 가전시장 POS 데이터 분석 및
+                  고객사 매니지먼트를 통해 고객사에게 만족스러운 인사이트를 도출한 경험이
+                  있습니다.
                   <br />
                   <br />
-                  현재는 LLM / RAG 등 기술과 분석을 결합하여, 결과를 시각화하고 서비스 형태로
+                  현재는 LLM/RAG 등 기술과 분석을 결합하여, 결과를 시각화하고 서비스 형태로
                   제작하는 다양한 실험을 하고 있습니다.
                 </p>
               </section>
 
-              {/* Featured + 프로필 그리드 */}
+              {/* Featured + Profile */}
               <div
                 className={cn(
                   "grid gap-10",
@@ -423,9 +432,203 @@ export default function HomeTabs() {
           </div>
         )}
 
-        {/* PROJECTS / INFO / BOARD 부분은 이전 코드에서 폭만 1400px 기준으로 맞춰져 있으니, 위 코드 그대로 쓰면 됨 */}
-        {/* (생략 없이 쓰고 싶으면 말해주면 전체도 다시 풀로 줄게) */}
+        {/* PROJECTS */}
+        {tab === "Projects" && (
+          <div className="bg-stone-200/60 p-8 sm:p-10 rounded-b-xl border-x border-b border-stone-200/50 min-h-[600px]">
+            <div className="space-y-8">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+                <h2 className="text-2xl font-black text-stone-900">All Projects</h2>
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    onClick={() => setFilter("All")}
+                    className={cn(
+                      "px-4 py-2 rounded-full text-sm font-bold transition border",
+                      filter === "All"
+                        ? "bg-[#8C5E35] text-white border-[#8C5E35]"
+                        : "bg-white text-stone-500 border-stone-300 hover:border-[#8C5E35] hover:text-[#8C5E35]"
+                    )}
+                  >
+                    All
+                  </button>
+                  {categories.map((c) => (
+                    <button
+                      key={String(c)}
+                      onClick={() => setFilter(c as Filter)}
+                      className={cn(
+                        "px-4 py-2 rounded-full text-sm font-bold transition border",
+                        filter === c
+                          ? "bg-[#8C5E35] text-white border-[#8C5E35]"
+                          : "bg-white text-stone-500 border-stone-300 hover:border-[#8C5E35] hover:text-[#8C5E35]"
+                      )}
+                    >
+                      {String(c)}
+                    </button>
+                  ))}
+                </div>
+              </div>
 
+              <div
+                className={cn(
+                  "grid gap-8",
+                  isMobileView ? "grid-cols-1" : "grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
+                )}
+              >
+                {filteredProjects.map((p: any) => (
+                  <ProjectCard key={p.slug} p={p} />
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* INFO */}
+        {tab === "Info" && (
+          <div className="bg-stone-800 p-8 sm:p-12 rounded-b-xl min-h-[800px] border-x border-b border-stone-800">
+            <div className="mb-12">
+              <div className="bg-white/5 border border-white/10 rounded-2xl p-8 relative overflow-hidden">
+                <FaQuoteLeft className="absolute top-6 left-6 text-white/5 text-6xl" />
+                <h2 className="text-2xl font-black text-white mb-6 relative z-10">
+                  Professional Summary
+                </h2>
+                <p className="text-stone-300 leading-9 text-lg font-medium relative z-10 max-w-4xl">
+                  데이터 분석과 시장조사 경험을 기반으로, 의사결정을 실질적으로 지원하는 결과물을
+                  만듭니다.
+                  <br />
+                  요구사항을 문제 정의–분석 설계–모델링–시각화–리포팅까지 한 흐름으로 설계하고
+                  구현해 왔습니다.
+                  <br />
+                  반복되는 분석 업무는 자동화·표준화하고, LLM 파인튜닝·배포 및 RAG 워크플로우
+                  적용을 통해 분석을 서비스 형태로 확장하고 있습니다.
+                </p>
+                <div className="mt-8 flex flex-wrap gap-2 relative z-10">
+                  {SKILLS.map((s) => (
+                    <span
+                      key={s}
+                      className="px-3 py-1.5 rounded-lg bg-white/10 border border-white/10 text-stone-300 text-xs font-bold"
+                    >
+                      {s}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div
+              className={cn(
+                "grid gap-x-16 gap-y-12",
+                isMobileView ? "grid-cols-1" : "grid-cols-1 lg:grid-cols-2"
+              )}
+            >
+              <InfoSection title="Education" icon={MdSchool} items={EDUCATION} />
+              <InfoSection title="Experience" icon={MdWork} items={EXPERIENCE} />
+              <div className={cn(isMobileView ? "col-span-1" : "lg:col-span-2")}>
+                <InfoSection title="Awards & Honors" icon={MdEmojiEvents} items={AWARDS} />
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* BOARD */}
+        {tab === "Board" && (
+          <div className="bg-stone-100/80 p-8 sm:p-10 rounded-b-xl border-x border-b border-stone-200/50 min-h-[600px]">
+            <div
+              className={cn(
+                "grid gap-10",
+                isMobileView ? "grid-cols-1" : "grid-cols-1 lg:grid-cols-3"
+              )}
+            >
+              <div className="lg:col-span-1">
+                <div className="bg-white p-6 rounded-2xl border border-stone-200 shadow-sm lg:sticky lg:top-8">
+                  <h3 className="text-lg font-black text-stone-800 mb-4 flex items-center gap-2">
+                    <FaPen className="text-[#8C5E35] text-sm" /> Write a Post
+                  </h3>
+                  <form onSubmit={handleSubmit} className="space-y-4">
+                    <div className="flex gap-2">
+                      {["Guestbook", "Q&A"].map((c) => (
+                        <button
+                          key={c}
+                          type="button"
+                          onClick={() => setInputCategory(c as "Guestbook" | "Q&A")}
+                          className={cn(
+                            "flex-1 py-2 text-xs font-bold rounded-lg border transition duration-300",
+                            inputCategory === c
+                              ? "bg-[#8C5E35] text-white border-[#8C5E35]"
+                              : "bg-stone-50 text-stone-500 border-stone-200 hover:border-[#8C5E35] hover:text-[#8C5E35]"
+                          )}
+                        >
+                          {c}
+                        </button>
+                      ))}
+                    </div>
+                    <input
+                      type="text"
+                      value={inputName}
+                      onChange={(e) => setInputName(e.target.value)}
+                      className="w-full px-4 py-3 bg-stone-50 border border-stone-200 rounded-lg text-sm focus:ring-2 focus:ring-[#8C5E35] focus:border-transparent outline-none transition"
+                      placeholder="Your name"
+                      required
+                    />
+                    <textarea
+                      value={inputContent}
+                      onChange={(e) => setInputContent(e.target.value)}
+                      rows={4}
+                      className="w-full px-4 py-3 bg-stone-50 border border-stone-200 rounded-lg text-sm focus:ring-2 focus:ring-[#8C5E35] focus:border-transparent outline-none transition resize-none"
+                      placeholder="Leave a message..."
+                      required
+                    />
+                    <button
+                      type="submit"
+                      className="w-full py-3 bg-[#8C5E35] text-white font-bold rounded-xl hover:bg-[#6B4628] transition shadow-md duration-300"
+                    >
+                      Post Message
+                    </button>
+                  </form>
+                </div>
+              </div>
+
+              <div className="lg:col-span-2 space-y-4">
+                <h3 className="text-lg font-black text-stone-800 mb-4 flex items-center gap-2 border-b border-stone-200 pb-2">
+                  <MdArticle className="text-[#8C5E35]" /> Recent Posts
+                </h3>
+                {loading ? (
+                  <div className="py-20 text-center text-stone-400">Loading...</div>
+                ) : (
+                  posts.map((post) => (
+                    <div
+                      key={post.id}
+                      className="bg-white p-6 rounded-2xl border border-stone-200 shadow-sm hover:shadow-md transition"
+                    >
+                      <div className="flex justify-between mb-4 items-center">
+                        <div className="flex gap-3 items-center">
+                          <FaUserCircle className="text-stone-300 text-3xl" />
+                          <div>
+                            <div className="font-bold text-stone-900">{post.author}</div>
+                            <div className="text-xs text-stone-400">
+                              {new Date(post.created_at).toLocaleDateString()}
+                            </div>
+                          </div>
+                        </div>
+                        <span
+                          className={cn(
+                            "text-[10px] font-bold px-2.5 py-1 rounded-full border",
+                            post.category === "Q&A"
+                              ? "bg-blue-50 text-blue-600 border-blue-100"
+                              : "bg-[#8C5E35]/10 text-[#8C5E35] border-[#8C5E35]/20"
+                          )}
+                        >
+                          {post.category}
+                        </span>
+                      </div>
+                      <p className="text-sm text-stone-700 pl-11 leading-relaxed whitespace-pre-wrap">
+                        {post.content}
+                      </p>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+          </div>
+        )}
       </main>
 
       <footer className="mt-20 pt-8 border-t border-stone-200 text-center text-xs font-medium text-stone-500">
