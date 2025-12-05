@@ -3,28 +3,30 @@
 // 임시 mock – 실제 DB 연결 안 하고
 // select/insert 호출해도 항상 빈 데이터/성공만 반환하는 버전
 
-export const supabase = {
+// any로 박아서 TypeScript가 세세하게 타입 추론 안 하게 막기
+export const supabase: any = {
   from(_table: string) {
     return {
-      // select 뒤에 .order(...) 체이닝을 할 수 있도록 구현
+      // select 뒤에 .order(...) 체이닝을 할 수 있도록 모양만 맞춰줌
       select(_columns?: string) {
         return {
           order(
             _column: string,
             _opts?: { ascending?: boolean }
-          ): Promise<{ data: any[]; error: null }> {
-            return Promise.resolve({ data: [], error: null });
+          ) {
+            return Promise.resolve({ data: [] as any[], error: null });
           },
         };
       },
 
-      // insert는 바로 Promise를 리턴
-      insert(_values: any): Promise<{ error: null }> {
+      // insert는 에러 없이 성공했다고만 알려줌
+      insert(_values: any) {
         return Promise.resolve({ error: null });
       },
     };
   },
 };
+
 
 
 
