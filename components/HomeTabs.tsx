@@ -28,6 +28,20 @@ const LINKS = {
   resumePdf: "/resume.pdf",
 };
 
+const ABOUT_SKILLS = [
+  "Python",
+  "PyTorch",
+  "TensorFlow",
+  "R",
+  "SQL",
+  "Tableau",
+  "Hadoop",
+  "Excel",
+  "PowerPoint",
+  "Hugging Face",
+  "SPSS",
+];
+
 // --- 타입 ---
 type TabKey = "Home" | "Projects" | "Board";
 type ProjectCategory = (typeof PROJECTS)[number]["category"];
@@ -48,32 +62,91 @@ function cn(...xs: Array<string | false | undefined | null>) {
   return xs.filter(Boolean).join(" ");
 }
 
-// 탭 버튼
-function FullWidthTab({
-  active,
-  onClick,
-  label,
+// ✅ 상단 텍스트형 네비게이션 (네모박스 삭제 + 글자/아이콘 살짝 업)
+function TopNav({
+  tab,
+  setTab,
 }: {
-  active: boolean;
-  onClick: () => void;
-  label: string;
+  tab: TabKey;
+  setTab: (t: TabKey) => void;
 }) {
-  return (
+  const NavBtn = ({ k, label }: { k: TabKey; label: string }) => (
     <button
-      onClick={onClick}
+      type="button"
+      onClick={() => setTab(k)}
       className={cn(
-        "flex-1 py-4 text-base font-bold transition-all duration-300 border-b-[3px]",
-        active
-          ? "bg-stone-800 text-[#d4a373] border-[#d4a373]"
-          : "bg-stone-100 text-stone-400 border-stone-200 hover:bg-stone-200 hover:text-stone-600"
+        "relative px-2 py-2 text-[15px] md:text-base font-extrabold tracking-wide transition",
+        tab === k ? "text-stone-900" : "text-stone-400 hover:text-stone-700"
       )}
     >
       {label}
+      <span
+        className={cn(
+          "absolute left-2 right-2 -bottom-1 h-[2px] rounded-full transition",
+          tab === k ? "bg-[#8C5E35]" : "bg-transparent"
+        )}
+      />
     </button>
+  );
+
+  const IconLink = ({
+    href,
+    label,
+    children,
+  }: {
+    href: string;
+    label: string;
+    children: React.ReactNode;
+  }) => (
+    <a
+      href={href}
+      target="_blank"
+      rel="noreferrer"
+      aria-label={label}
+      title={label}
+      className="inline-flex items-center justify-center w-11 h-11 rounded-full text-stone-500 hover:text-[#8C5E35] hover:bg-stone-100 transition"
+    >
+      {children}
+    </a>
+  );
+
+  return (
+    <div className="sticky top-0 z-50 w-full bg-white/85 backdrop-blur border-b border-stone-200">
+      <div className="px-6 lg:px-10 py-3 flex items-center justify-between gap-4">
+        {/* 왼쪽: 섹션 네비 (텍스트형) */}
+        <div className="flex items-center gap-4">
+          <NavBtn k="Home" label="HOME" />
+          <NavBtn k="Projects" label="PROJECTS" />
+          <NavBtn k="Board" label="게시판" />
+        </div>
+
+        {/* 오른쪽: 외부 링크 아이콘 (크기 업) */}
+        <div className="flex items-center gap-1">
+          <IconLink href={LINKS.linkedin} label="LinkedIn">
+            <FaLinkedin className="text-[22px]" />
+          </IconLink>
+          <IconLink href={LINKS.github} label="GitHub">
+            <FaGithub className="text-[22px]" />
+          </IconLink>
+          <IconLink href={LINKS.hf} label="Hugging Face">
+            <SiHuggingface className="text-[22px]" />
+          </IconLink>
+          <IconLink href={LINKS.velog} label="Velog">
+            <SiVelog className="text-[22px]" />
+          </IconLink>
+          <IconLink href={LINKS.resumePdf} label="Resume PDF">
+            <FaDownload className="text-[20px]" />
+          </IconLink>
+          <IconLink href={`mailto:${LINKS.email}`} label="Email">
+            <MdEmail className="text-[22px]" />
+          </IconLink>
+        </div>
+      </div>
+    </div>
   );
 }
 
-// 프로젝트 카드 (썸네일 없으면 그라데이션)
+// 프로젝트 카드
 function ProjectCard({ p }: { p: any }) {
   return (
     <div className="group flex flex-col bg-white rounded-2xl border border-stone-200 overflow-hidden hover:shadow-xl transition-all duration-300 h-full hover:border-[#d4a373]/50">
@@ -156,8 +229,8 @@ function SocialBtn({ href, icon: Icon }: { href: string; icon: any }) {
   );
 }
 
-// Home용 Info 섹션(라이트 톤)
-function InfoSectionLight({
+// ABOUT 아래 “작은 Info 카드”
+function MiniInfoCard({
   title,
   icon: Icon,
   items,
@@ -167,21 +240,17 @@ function InfoSectionLight({
   items: InfoItem[];
 }) {
   return (
-    <div className="bg-white rounded-2xl border border-stone-200 p-6 shadow-sm">
-      <div className="flex items-center gap-2 mb-4 pb-3 border-b border-stone-100">
-        <Icon className="text-[#8C5E35] text-xl" />
-        <h3 className="text-base font-black text-stone-900 tracking-wide">{title}</h3>
+    <div className="rounded-xl bg-white/70 border border-[#e3d5ca] px-4 py-3">
+      <div className="flex items-center gap-2">
+        <Icon className="text-[#8C5E35]" />
+        <div className="text-xs font-black text-stone-800">{title}</div>
       </div>
-      <div className="space-y-4">
-        {items.map((x, i) => (
-          <div key={i} className="flex gap-4">
-            <div className="w-14 shrink-0 text-xs font-black text-stone-400 pt-1">
-              {x.year ? x.year : "•"}
-            </div>
-            <div>
-              <div className="text-sm font-bold text-stone-800">{x.label}</div>
-              {x.sub && <div className="text-xs text-stone-500 mt-1 font-medium">{x.sub}</div>}
-            </div>
+
+      <div className="mt-2 space-y-1">
+        {items.slice(0, 2).map((x, i) => (
+          <div key={i} className="text-[11px] leading-4 text-stone-600 font-medium">
+            <span className="font-bold text-stone-700">{x.year ? `${x.year} · ` : ""}</span>
+            {x.label}
           </div>
         ))}
       </div>
@@ -192,7 +261,6 @@ function InfoSectionLight({
 export default function HomeTabs() {
   const [tab, setTab] = useState<TabKey>("Home");
   const [filter, setFilter] = useState<Filter>("All");
-  const [isMobileView, setIsMobileView] = useState(false);
 
   // --- Board ---
   const [posts, setPosts] = useState<Post[]>([]);
@@ -211,14 +279,14 @@ export default function HomeTabs() {
 
       if (error) {
         console.error("Supabase select error:", error);
-        alert("게시판을 불러오는 중 오류가 발생했어. (콘솔 로그 확인)");
+        alert("게시판을 불러오는 중 오류가 발생했습니다. (콘솔 로그 확인)");
         setPosts([]);
       } else {
         setPosts((data as Post[]) || []);
       }
     } catch (err) {
       console.error("Supabase select exception:", err);
-      alert("네트워크 문제로 게시판을 불러오지 못했어. 잠시 후 다시 시도해줘.");
+      alert("네트워크 문제로 게시판을 불러오지 못했습니다. 잠시 후 다시 시도해 주십시오.");
       setPosts([]);
     } finally {
       setLoading(false);
@@ -240,7 +308,7 @@ export default function HomeTabs() {
 
       if (error) {
         console.error("Supabase insert error:", error);
-        alert("게시글 저장 중 오류가 발생했어.");
+        alert("게시글 저장 중 오류가 발생했습니다.");
         return;
       }
 
@@ -249,28 +317,26 @@ export default function HomeTabs() {
       void fetchPosts();
     } catch (err) {
       console.error("Supabase insert exception:", err);
-      alert("네트워크 오류로 게시글을 저장하지 못했어.");
+      alert("네트워크 오류로 게시글을 저장하지 못했습니다.");
     }
   };
 
   // --- Projects 데이터 ---
   const featured = useMemo(() => PROJECTS.filter((p: any) => p.featured), []);
-  const categories = useMemo(() => {
-    const set = new Set<ProjectCategory>();
-    PROJECTS.forEach((p) => set.add(p.category));
-    return Array.from(set);
-  }, []);
-
-  const filteredProjects = useMemo(() => {
-    return filter === "All" ? PROJECTS : PROJECTS.filter((p: any) => p.category === filter);
-  }, [filter]);
+  const categories = useMemo(
+    () => Array.from(new Set(PROJECTS.map((p: any) => p.category))) as ProjectCategory[],
+    []
+  );
+  const filteredProjects = useMemo(
+    () => (filter === "All" ? PROJECTS : PROJECTS.filter((p: any) => p.category === filter)),
+    [filter]
+  );
 
   // --- Static Info ---
   const EDUCATION: InfoItem[] = [
     { label: "서울여자대학교 일반대학원", sub: "아동심리학 전공 (석사)" },
     { label: "서울여자대학교", sub: "아동학과 (학사)" },
   ];
-
   const EXPERIENCE: InfoItem[] = [
     { label: "Kantar Korea", sub: "Analytics" },
     { label: "NIQ-GfK", sub: "Global Strategic Account Management" },
@@ -278,14 +344,12 @@ export default function HomeTabs() {
     { label: "MnM Research", sub: "연구사업본부" },
     { label: "서울대학교병원", sub: "소아정신과 의생명연구원" },
   ];
-
   const AWARDS: InfoItem[] = [
     { year: 2024, label: "3Q Night Out in Town" },
     { year: 2021, label: "인적자원위원회 최우수 보고서 선정" },
     { year: 2018, label: "KCI 등재 학술지 제1저자(논문)" },
     { year: 2016, label: "한국장학재단 우수연구계획서 선정" },
   ];
-
   const LICENSES: InfoItem[] = [
     { label: "사회조사분석사 2급" },
     { label: "빅데이터분석기사" },
@@ -295,38 +359,18 @@ export default function HomeTabs() {
 
   return (
     <div className="min-h-screen text-stone-800 pb-20 w-full">
-      {/* 상단 헤더 */}
-      <header className="py-10 flex flex-col sm:flex-row items-center justify-between gap-2 md:gap-4 w-full px-0">
-        <div className="px-6 lg:px-10 w-full flex justify-between items-center">
+      {/* ✅ 맨 상단 텍스트 네비 + 외부 링크 */}
+      <TopNav tab={tab} setTab={setTab} />
+
+      {/* 상단 헤더 (토글 삭제만) */}
+      <header className="py-10 w-full px-0">
+        <div className="px-6 lg:px-10 w-full flex items-start justify-between gap-6">
           <div>
             <h1 className="text-4xl font-black tracking-tight text-stone-900">Jihee Cho</h1>
-            <p className="text-sm text-stone-500 font-semibold mt-1">Jan.25.1991 / Seoul</p>
+            <p className="text-[15px] text-stone-500 font-semibold mt-1">Jan.25.1991 / Seoul</p>
           </div>
-
-          <button
-            onClick={() => setIsMobileView((prev) => !prev)}
-            className={cn(
-              "text-xs font-bold border rounded-full px-4 py-2 transition duration-300",
-              isMobileView
-                ? "bg-[#8C5E35] text-white border-[#8C5E35]"
-                : "bg-white text-stone-500 border-stone-300 hover:border-[#8C5E35] hover:text-[#8C5E35]"
-            )}
-          >
-            {isMobileView ? "📱 Mobile View (ON)" : "💻 PC View"}
-          </button>
         </div>
       </header>
-
-      {/* 탭 내비 */}
-      <nav className="flex w-full border border-stone-200 rounded-t-xl overflow-hidden shadow-sm mb-0">
-        <FullWidthTab label="Home" active={tab === "Home"} onClick={() => setTab("Home")} />
-        <FullWidthTab
-          label="Projects"
-          active={tab === "Projects"}
-          onClick={() => setTab("Projects")}
-        />
-        <FullWidthTab label="Board" active={tab === "Board"} onClick={() => setTab("Board")} />
-      </nav>
 
       <main className="animate-in fade-in slide-in-from-bottom-2 duration-500 shadow-xl rounded-b-xl overflow-hidden w-full">
         {/* HOME */}
@@ -350,116 +394,62 @@ export default function HomeTabs() {
                 </div>
               </div>
 
-              {/* Home 본문: 좌(콘텐츠) / 우(프로필) */}
-              <div
-                className={cn(
-                  "grid gap-8 items-start",
-                  isMobileView ? "grid-cols-1" : "grid-cols-1 lg:grid-cols-12"
-                )}
-              >
+              {/* Home 본문: 좌(ABOUT+mini info+featured) / 우(프로필+스킬) */}
+              <div className="grid gap-8 items-start grid-cols-1 lg:grid-cols-12">
                 {/* LEFT */}
-                <div className={cn(isMobileView ? "col-span-1" : "lg:col-span-8", "space-y-8")}>
+                <div className="lg:col-span-8 space-y-8">
                   {/* ABOUT 블록 */}
                   <section className="rounded-2xl bg-[#f5ebe0] border border-[#e3d5ca] px-6 py-6 sm:px-8 sm:py-7">
-                    <h3 className="text-xs sm:text-sm font-extrabold tracking-wide text-stone-700 mb-3">
+                    <h3 className="text-sm font-extrabold tracking-wide text-stone-700 mb-3">
                       ABOUT
                     </h3>
 
-                    <div className="space-y-3 text-sm sm:text-[15px] leading-7 text-stone-800 font-medium max-w-5xl">
+                    <div className="space-y-3 text-[15px] leading-7 text-stone-800 font-medium max-w-5xl">
                       <p>
                         심리학을 베이스로 한 데이터 분석가로, 브랜드·리서치 데이터를 볼 때
-                        &nbsp;“이 숫자로 무엇을 결정할 수 있을까?”부터 생각해요. 단순히 지표를
+                        이 숫자로 무엇을 결정할 수 있을까?”부터 생각합니다. 단순히 지표를
                         나열하기보다는, 실제 의사결정에 도움이 되는 인사이트를 정리하는 일을 더
                         중요하게 여깁니다.
                       </p>
 
                       <p>
                         프로젝트를 할 때는 기획 단계에서 문제를 정의하고, 조사·데이터 설계 →
-                        모델링 → 대시보드·리포트까지 하나의 흐름으로 이어지도록 설계해 왔어요.
+                        모델링 → 대시보드·리포트까지 하나의 흐름으로 이어지도록 설계해 왔습니다.
                         숫자 자체보다 “누가 이 결과를 어떻게 활용할지”를 상상하면서 구조를 짜는
                         편입니다.
                       </p>
 
                       <p>
-                        반복해서 쓰이는 분석은 EXE 툴, 웹 대시보드, 챗봇 등으로 자동화·도구화해서
-                        팀 누구나 다시 돌려볼 수 있는 형태로 남기고 있습니다. 최근에는 세그멘테이션,
-                        수요 예측, 캠페인 효과 분석 같은 작업에 LLM·RAG를 결합해서, 단순 보고서가
-                        아니라 질문하면 맥락을 설명해 주는 AI 서비스 형태로 만드는 실험을 하고 있어요.
+                        최근에는 세그멘테이션, 수요 예측, 캠페인 효과 분석 같은 작업에 LLM·RAG를 결합해서, 단순 보고서가
+                        아니라 질문하면 맥락을 설명해 주는 AI 서비스 형태를 만드는 실험을 하고 있습니다.
                       </p>
                     </div>
 
-                    {/* SKILLS 뱃지 */}
+                    {/* mini info 4개: ABOUT 안에서만, 일렬 */}
                     <div className="mt-6 border-t border-[#e3d5ca] pt-4">
-                      <h4 className="text-xs sm:text-sm font-extrabold tracking-wide text-stone-700 mb-2">
-                        SKILLS
-                      </h4>
-                      <div className="flex flex-wrap gap-2">
-                        {[
-                          "Python",
-                          "PyTorch",
-                          "TensorFlow",
-                          "R",
-                          "SQL",
-                          "Tableau",
-                          "Hadoop",
-                          "Excel",
-                          "PowerPoint",
-                          "Hugging Face",
-                          "SPSS",
-                        ].map((s) => (
-                          <span
-                            key={s}
-                            className="px-3 py-1.5 rounded-full text-xs font-semibold bg-white/70 text-stone-700 border border-[#e3d5ca] shadow-[0_1px_2px_rgba(0,0,0,0.04)]"
-                          >
-                            {s}
-                          </span>
-                        ))}
+                      <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+                        <MiniInfoCard title="Education" icon={MdSchool} items={EDUCATION} />
+                        <MiniInfoCard title="Experience" icon={MdWork} items={EXPERIENCE} />
+                        <MiniInfoCard title="Awards" icon={MdEmojiEvents} items={AWARDS} />
+                        <MiniInfoCard title="Licenses" icon={MdEmojiEvents} items={LICENSES} />
                       </div>
                     </div>
                   </section>
 
-                  {/* 학력/경력/수상/자격증: 2x2 그리드 */}
-                  <section className="space-y-3">
-                    <div className="flex items-baseline justify-between">
-                      <h3 className="text-base sm:text-lg font-black text-stone-900">Info</h3>
-                      <div className="text-xs text-stone-500 font-semibold">
-                        (Home에 합쳐서 “휑함” 없앰)
-                      </div>
-                    </div>
-
-                    <div
-                      className={cn(
-                        "grid gap-6",
-                        isMobileView ? "grid-cols-1" : "grid-cols-1 md:grid-cols-2"
-                      )}
-                    >
-                      <InfoSectionLight title="Education" icon={MdSchool} items={EDUCATION} />
-                      <InfoSectionLight title="Experience" icon={MdWork} items={EXPERIENCE} />
-                      <InfoSectionLight title="Licenses" icon={MdEmojiEvents} items={LICENSES} />
-                      <InfoSectionLight title="Awards" icon={MdEmojiEvents} items={AWARDS} />
-                    </div>
-                  </section>
-
-                  {/* Featured Projects (있으면 홈에서 맛보기) */}
+                  {/* Featured Projects: 4개 일렬 유지 */}
                   {featured.length > 0 && (
                     <section className="space-y-4">
                       <div className="flex items-center justify-between">
-                        <h3 className="text-base sm:text-lg font-black text-stone-900">
-                          Featured Projects
-                        </h3>
+                        <h3 className="text-lg font-black text-stone-900">Featured Projects</h3>
                         <button
                           onClick={() => setTab("Projects")}
-                          className="text-xs font-bold text-[#8C5E35] hover:underline"
+                          className="text-sm font-extrabold text-[#8C5E35] hover:underline underline-offset-4"
                         >
                           View all →
                         </button>
                       </div>
-                      <div
-                        className={cn(
-                          "grid gap-6",
-                          isMobileView ? "grid-cols-1" : "grid-cols-1 md:grid-cols-2"
-                        )}
-                      >
+
+                      <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
                         {featured.slice(0, 4).map((p: any) => (
                           <ProjectCard key={p.slug} p={p} />
                         ))}
@@ -469,8 +459,8 @@ export default function HomeTabs() {
                 </div>
 
                 {/* RIGHT: Profile 카드 */}
-                <div className={cn(isMobileView ? "col-span-1" : "lg:col-span-4")}>
-                  <div className="lg:sticky lg:top-8 bg-white/85 backdrop-blur-sm rounded-2xl p-8 border border-stone-200 shadow-sm">
+                <div className="lg:col-span-4">
+                  <div className="lg:sticky lg:top-20 bg-white/85 backdrop-blur-sm rounded-2xl p-8 border border-stone-200 shadow-sm">
                     <div className="relative w-24 h-24 rounded-full border-4 border-white shadow-md mb-5 overflow-hidden">
                       <Image src="/avatar.jpg" alt="Avatar" fill className="object-cover" />
                     </div>
@@ -480,7 +470,7 @@ export default function HomeTabs() {
                       Analytics · Build · LLM
                     </div>
 
-                    <div className="space-y-3 mb-8">
+                    <div className="space-y-3 mb-6">
                       <div className="flex items-center gap-3 text-sm text-stone-600 font-bold bg-stone-50 p-3 rounded-xl border border-stone-100">
                         <IoLocationSharp className="text-lg text-stone-400" /> Seoul, South Korea
                       </div>
@@ -493,21 +483,38 @@ export default function HomeTabs() {
                       </a>
                     </div>
 
-                    <div className="flex gap-2 justify-center pt-2">
-                      <SocialBtn href={LINKS.linkedin} icon={FaLinkedin} />
-                      <SocialBtn href={LINKS.github} icon={FaGithub} />
-                      <SocialBtn href={LINKS.hf} icon={SiHuggingface} />
-                      <SocialBtn href={LINKS.velog} icon={SiVelog} />
-                    </div>
+                    {/* SKILLS: 프로필 아래 */}
+                    <div className="pt-5 border-t border-stone-200">
+                      <div className="text-xs font-black text-stone-700 tracking-wide mb-2">
+                        SKILLS
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        {ABOUT_SKILLS.map((s) => (
+                          <span
+                            key={s}
+                            className="px-3 py-1.5 rounded-full text-[11px] font-semibold bg-stone-50 text-stone-700 border border-stone-200"
+                          >
+                            {s}
+                          </span>
+                        ))}
+                      </div>
 
-                    <a
-                      href={LINKS.resumePdf}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="mt-6 block w-full py-3 bg-[#8C5E35] text-white text-center text-sm font-bold rounded-xl hover:bg-[#6B4628] transition shadow-md"
-                    >
-                      Download Resume
-                    </a>
+                      <div className="flex gap-2 justify-center pt-5">
+                        <SocialBtn href={LINKS.linkedin} icon={FaLinkedin} />
+                        <SocialBtn href={LINKS.github} icon={FaGithub} />
+                        <SocialBtn href={LINKS.hf} icon={SiHuggingface} />
+                        <SocialBtn href={LINKS.velog} icon={SiVelog} />
+                      </div>
+
+                      <a
+                        href={LINKS.resumePdf}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="mt-6 block w-full py-3 bg-[#8C5E35] text-white text-center text-sm font-bold rounded-xl hover:bg-[#6B4628] transition shadow-md"
+                      >
+                        Download Resume
+                      </a>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -538,7 +545,7 @@ export default function HomeTabs() {
                   {categories.map((c) => (
                     <button
                       key={String(c)}
-                      onClick={() => setFilter(c)}
+                      onClick={() => setFilter(c as Filter)}
                       className={cn(
                         "px-4 py-2 rounded-full text-sm font-bold transition border",
                         filter === c
@@ -552,12 +559,7 @@ export default function HomeTabs() {
                 </div>
               </div>
 
-              <div
-                className={cn(
-                  "grid gap-8",
-                  isMobileView ? "grid-cols-1" : "grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
-                )}
-              >
+              <div className="grid gap-8 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
                 {filteredProjects.map((p: any) => (
                   <ProjectCard key={p.slug} p={p} />
                 ))}
@@ -569,14 +571,9 @@ export default function HomeTabs() {
         {/* BOARD */}
         {tab === "Board" && (
           <div className="bg-stone-100/80 pt-8 pb-10 px-0 rounded-b-xl border-x border-b border-stone-200/50 min-h-[600px]">
-            <div
-              className={cn(
-                "grid gap-10 px-6 lg:px-10",
-                isMobileView ? "grid-cols-1" : "grid-cols-1 lg:grid-cols-3"
-              )}
-            >
+            <div className="grid gap-10 px-6 lg:px-10 grid-cols-1 lg:grid-cols-3">
               <div className="lg:col-span-1">
-                <div className="bg-white p-6 rounded-2xl border border-stone-200 shadow-sm lg:sticky lg:top-8">
+                <div className="bg-white p-6 rounded-2xl border border-stone-200 shadow-sm lg:sticky lg:top-20">
                   <h3 className="text-lg font-black text-stone-800 mb-4 flex items-center gap-2">
                     <FaPen className="text-[#8C5E35] text-sm" /> Write a Post
                   </h3>
