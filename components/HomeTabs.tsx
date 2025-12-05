@@ -1,7 +1,14 @@
 "use client";
 
 import Image from "next/image";
-import { useMemo, useState, useEffect, FormEvent, useCallback } from "react";
+import {
+  useMemo,
+  useState,
+  useEffect,
+  FormEvent,
+  useCallback,
+  type ReactNode,
+} from "react";
 import { PROJECTS } from "@/app/projects/data";
 import { supabase } from "@/lib/supabase";
 
@@ -96,7 +103,7 @@ function TopNav({
   }: {
     href: string;
     label: string;
-    children: React.ReactNode;
+    children: ReactNode;
   }) => (
     <a
       href={href}
@@ -246,11 +253,17 @@ function MiniInfoCard({
         <div className="text-xs font-black text-stone-800">{title}</div>
       </div>
 
-      <div className="mt-2 space-y-1">
-        {items.slice(0, 2).map((x, i) => (
+      {/* ✅ 여기만 수정: slice(0,2) 제거해서 전부 표시 */}
+      <div className="mt-2 space-y-2">
+        {items.map((x, i) => (
           <div key={i} className="text-[11px] leading-4 text-stone-600 font-medium">
-            <span className="font-bold text-stone-700">{x.year ? `${x.year} · ` : ""}</span>
-            {x.label}
+            <div className="flex gap-2">
+              {x.year ? (
+                <span className="font-extrabold text-stone-700 shrink-0">{x.year}</span>
+              ) : null}
+              <span className="font-bold text-stone-700">{x.label}</span>
+            </div>
+            {x.sub ? <div className="text-[11px] text-stone-500 mt-0.5">{x.sub}</div> : null}
           </div>
         ))}
       </div>
@@ -362,7 +375,7 @@ export default function HomeTabs() {
       {/* ✅ 맨 상단 텍스트 네비 + 외부 링크 */}
       <TopNav tab={tab} setTab={setTab} />
 
-      {/* 상단 헤더 (토글 삭제만) */}
+      {/* 상단 헤더 */}
       <header className="py-10 w-full px-0">
         <div className="px-6 lg:px-10 w-full flex items-start justify-between gap-6">
           <div>
@@ -394,129 +407,133 @@ export default function HomeTabs() {
                 </div>
               </div>
 
-              {/* Home 본문: 좌(ABOUT+mini info+featured) / 우(프로필+스킬) */}
-              <div className="grid gap-8 items-start grid-cols-1 lg:grid-cols-12">
-                {/* LEFT */}
-                <div className="lg:col-span-8 space-y-8">
-                  {/* ABOUT 블록 */}
-                  <section className="rounded-2xl bg-[#f5ebe0] border border-[#e3d5ca] px-6 py-6 sm:px-8 sm:py-7">
-                    <h3 className="text-sm font-extrabold tracking-wide text-stone-700 mb-3">
-                      ABOUT
-                    </h3>
+              {/* ✅ 여기만 수정: Featured를 “두 박스 아래”로 빼기 위해, 그리드를 1개 섹션으로 분리 */}
+              <div className="space-y-10">
+                {/* 상단 2칸: ABOUT / PROFILE */}
+                <div className="grid gap-8 items-start grid-cols-1 lg:grid-cols-12">
+                  {/* LEFT: ABOUT */}
+                  <div className="lg:col-span-8 space-y-8">
+                    <section className="rounded-2xl bg-[#f5ebe0] border border-[#e3d5ca] px-6 py-6 sm:px-8 sm:py-7">
+                      <h3 className="text-sm font-extrabold tracking-wide text-stone-700 mb-3">
+                        ABOUT
+                      </h3>
 
-                    <div className="space-y-3 text-[15px] leading-7 text-stone-800 font-medium max-w-5xl">
-                      <p>
-                        심리학을 베이스로 한 데이터 분석가로, 브랜드·리서치 데이터를 볼 때
-                        이 숫자로 무엇을 결정할 수 있을까?”부터 생각합니다. 단순히 지표를
-                        나열하기보다는, 실제 의사결정에 도움이 되는 인사이트를 정리하는 일을 더
-                        중요하게 여깁니다.
-                      </p>
+                      {/* ✅ 멘트 절대 수정 안 함 */}
+                      <div className="space-y-3 text-[15px] leading-7 text-stone-800 font-medium max-w-5xl">
+                        <p>
+                          심리학을 기반으로 데이터 분석을 수행하며, 브랜드·리서치 데이터를 볼 때
+                          &nbsp;“이 숫자로 무엇을 결정할 수 있을까?”부터 생각해요.
+                          단순히 지표를 나열하기보다는, 실제 의사결정에 도움이 되는 인사이트를
+                          정리하는 일을 더 중요하게 여깁니다.
+                        </p>
 
-                      <p>
-                        프로젝트를 할 때는 기획 단계에서 문제를 정의하고, 조사·데이터 설계 →
-                        모델링 → 대시보드·리포트까지 하나의 흐름으로 이어지도록 설계해 왔습니다.
-                        숫자 자체보다 “누가 이 결과를 어떻게 활용할지”를 상상하면서 구조를 짜는
-                        편입니다.
-                      </p>
+                        <p>
+                          프로젝트를 할 때는 기획 단계에서 문제를 정의하고, 조사·데이터 설계 →
+                          모델링 → 대시보드·리포트까지 하나의 흐름으로 이어지도록 설계해 왔습니다.
+                          숫자 자체보다 “누가 이 결과를 어떻게 활용할지”를 상상하면서 구조를
+                          짜는 편입니다.
+                        </p>
 
-                      <p>
-                        최근에는 세그멘테이션, 수요 예측, 캠페인 효과 분석 같은 작업에 LLM·RAG를 결합해서, 단순 보고서가
-                        아니라 질문하면 맥락을 설명해 주는 AI 서비스 형태를 만드는 실험을 하고 있습니다.
-                      </p>
-                    </div>
-
-                    {/* mini info 4개: ABOUT 안에서만, 일렬 */}
-                    <div className="mt-6 border-t border-[#e3d5ca] pt-4">
-                      <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
-                        <MiniInfoCard title="Education" icon={MdSchool} items={EDUCATION} />
-                        <MiniInfoCard title="Experience" icon={MdWork} items={EXPERIENCE} />
-                        <MiniInfoCard title="Awards" icon={MdEmojiEvents} items={AWARDS} />
-                        <MiniInfoCard title="Licenses" icon={MdEmojiEvents} items={LICENSES} />
-                      </div>
-                    </div>
-                  </section>
-
-                  {/* Featured Projects: 4개 일렬 유지 */}
-                  {featured.length > 0 && (
-                    <section className="space-y-4">
-                      <div className="flex items-center justify-between">
-                        <h3 className="text-lg font-black text-stone-900">Featured Projects</h3>
-                        <button
-                          onClick={() => setTab("Projects")}
-                          className="text-sm font-extrabold text-[#8C5E35] hover:underline underline-offset-4"
-                        >
-                          View all →
-                        </button>
+                        <p>
+                          최근에는 세그멘테이션, 수요 예측, 캠페인 효과 분석 같은 작업에 LLM·RAG를
+                          결합해서, 단순 보고서가 아니라 질문하면 맥락을 설명해 주는
+                          AI 서비스 형태로 만드는 실험을 하고 있습니다.
+                        </p>
                       </div>
 
-                      <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
-                        {featured.slice(0, 4).map((p: any) => (
-                          <ProjectCard key={p.slug} p={p} />
-                        ))}
+                      {/* mini info 4개: ABOUT 안에서만 */}
+                      <div className="mt-6 border-t border-[#e3d5ca] pt-4">
+                        <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+                          <MiniInfoCard title="Education" icon={MdSchool} items={EDUCATION} />
+                          <MiniInfoCard title="Experience" icon={MdWork} items={EXPERIENCE} />
+                          <MiniInfoCard title="Awards" icon={MdEmojiEvents} items={AWARDS} />
+                          <MiniInfoCard title="Licenses" icon={MdEmojiEvents} items={LICENSES} />
+                        </div>
                       </div>
                     </section>
-                  )}
-                </div>
+                  </div>
 
-                {/* RIGHT: Profile 카드 */}
-                <div className="lg:col-span-4">
-                  <div className="lg:sticky lg:top-20 bg-white/85 backdrop-blur-sm rounded-2xl p-8 border border-stone-200 shadow-sm">
-                    <div className="relative w-24 h-24 rounded-full border-4 border-white shadow-md mb-5 overflow-hidden">
-                      <Image src="/avatar.jpg" alt="Avatar" fill className="object-cover" />
-                    </div>
-
-                    <h3 className="text-2xl font-black text-stone-900">Jihee Cho</h3>
-                    <div className="text-sm font-bold text-[#8C5E35] mb-5">
-                      Analytics · Build · LLM
-                    </div>
-
-                    <div className="space-y-3 mb-6">
-                      <div className="flex items-center gap-3 text-sm text-stone-600 font-bold bg-stone-50 p-3 rounded-xl border border-stone-100">
-                        <IoLocationSharp className="text-lg text-stone-400" /> Seoul, South Korea
-                      </div>
-                      <a
-                        href={`mailto:${LINKS.email}`}
-                        className="flex items-center gap-3 text-sm text-stone-600 font-bold bg-stone-50 p-3 rounded-xl border border-stone-100 hover:bg-[#8C5E35] hover:text-white hover:border-[#8C5E35] transition"
-                      >
-                        <MdEmail className="text-lg" />
-                        {LINKS.email}
-                      </a>
-                    </div>
-
-                    {/* SKILLS: 프로필 아래 */}
-                    <div className="pt-5 border-t border-stone-200">
-                      <div className="text-xs font-black text-stone-700 tracking-wide mb-2">
-                        SKILLS
-                      </div>
-                      <div className="flex flex-wrap gap-2">
-                        {ABOUT_SKILLS.map((s) => (
-                          <span
-                            key={s}
-                            className="px-3 py-1.5 rounded-full text-[11px] font-semibold bg-stone-50 text-stone-700 border border-stone-200"
-                          >
-                            {s}
-                          </span>
-                        ))}
+                  {/* RIGHT: Profile 카드 */}
+                  <div className="lg:col-span-4">
+                    <div className="lg:sticky lg:top-20 bg-white/85 backdrop-blur-sm rounded-2xl p-8 border border-stone-200 shadow-sm">
+                      <div className="relative w-24 h-24 rounded-full border-4 border-white shadow-md mb-5 overflow-hidden">
+                        <Image src="/avatar.jpg" alt="Avatar" fill className="object-cover" />
                       </div>
 
-                      <div className="flex gap-2 justify-center pt-5">
-                        <SocialBtn href={LINKS.linkedin} icon={FaLinkedin} />
-                        <SocialBtn href={LINKS.github} icon={FaGithub} />
-                        <SocialBtn href={LINKS.hf} icon={SiHuggingface} />
-                        <SocialBtn href={LINKS.velog} icon={SiVelog} />
+                      <h3 className="text-2xl font-black text-stone-900">Jihee Cho</h3>
+                      <div className="text-sm font-bold text-[#8C5E35] mb-5">
+                        Analytics · Build · LLM
                       </div>
 
-                      <a
-                        href={LINKS.resumePdf}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="mt-6 block w-full py-3 bg-[#8C5E35] text-white text-center text-sm font-bold rounded-xl hover:bg-[#6B4628] transition shadow-md"
-                      >
-                        Download Resume
-                      </a>
+                      <div className="space-y-3 mb-6">
+                        <div className="flex items-center gap-3 text-sm text-stone-600 font-bold bg-stone-50 p-3 rounded-xl border border-stone-100">
+                          <IoLocationSharp className="text-lg text-stone-400" /> Seoul, South Korea
+                        </div>
+                        <a
+                          href={`mailto:${LINKS.email}`}
+                          className="flex items-center gap-3 text-sm text-stone-600 font-bold bg-stone-50 p-3 rounded-xl border border-stone-100 hover:bg-[#8C5E35] hover:text-white hover:border-[#8C5E35] transition"
+                        >
+                          <MdEmail className="text-lg" />
+                          {LINKS.email}
+                        </a>
+                      </div>
+
+                      {/* SKILLS: 프로필 아래 */}
+                      <div className="pt-5 border-t border-stone-200">
+                        <div className="text-xs font-black text-stone-700 tracking-wide mb-2">
+                          SKILLS
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                          {ABOUT_SKILLS.map((s) => (
+                            <span
+                              key={s}
+                              className="px-3 py-1.5 rounded-full text-[11px] font-semibold bg-stone-50 text-stone-700 border border-stone-200"
+                            >
+                              {s}
+                            </span>
+                          ))}
+                        </div>
+
+                        <div className="flex gap-2 justify-center pt-5">
+                          <SocialBtn href={LINKS.linkedin} icon={FaLinkedin} />
+                          <SocialBtn href={LINKS.github} icon={FaGithub} />
+                          <SocialBtn href={LINKS.hf} icon={SiHuggingface} />
+                          <SocialBtn href={LINKS.velog} icon={SiVelog} />
+                        </div>
+
+                        <a
+                          href={LINKS.resumePdf}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="mt-6 block w-full py-3 bg-[#8C5E35] text-white text-center text-sm font-bold rounded-xl hover:bg-[#6B4628] transition shadow-md"
+                        >
+                          Download Resume
+                        </a>
+                      </div>
                     </div>
                   </div>
                 </div>
+
+                {/* ✅ 핵심 프로젝트: “두 박스 아래”에서 일렬 */}
+                {featured.length > 0 && (
+                  <section className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-lg font-black text-stone-900">Featured Projects</h3>
+                      <button
+                        onClick={() => setTab("Projects")}
+                        className="text-sm font-extrabold text-[#8C5E35] hover:underline underline-offset-4"
+                      >
+                        View all →
+                      </button>
+                    </div>
+
+                    <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+                      {featured.slice(0, 4).map((p: any) => (
+                        <ProjectCard key={p.slug} p={p} />
+                      ))}
+                    </div>
+                  </section>
+                )}
               </div>
             </div>
           </div>
