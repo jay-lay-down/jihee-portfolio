@@ -240,14 +240,14 @@ function MiniInfoCard({
 
       <div className="mt-2 space-y-2">
         {items.map((x, i) => (
-          <div key={i} className="text-[11px] leading-4 text-stone-600 font-medium">
+          <div key={i} className="text-[12px] leading-4 text-stone-600 font-medium">
             <div className="flex gap-2">
               {x.year ? (
                 <span className="font-extrabold text-stone-700 shrink-0">{x.year}</span>
               ) : null}
               <span className="font-bold text-stone-700">{x.label}</span>
             </div>
-            {x.sub ? <div className="text-[11px] text-stone-500 mt-0.5">{x.sub}</div> : null}
+            {x.sub ? <div className="text-[12px] text-stone-500 mt-0.5">{x.sub}</div> : null}
           </div>
         ))}
       </div>
@@ -390,7 +390,7 @@ export default function HomeTabs() {
                         ABOUT
                       </h3>
 
-                      <div className="space-y-3 text-[15px] leading-7 text-stone-800 font-medium max-w-5xl">
+                      <div className="space-y-3 text-[16px] leading-8 text-stone-800 font-medium max-w-5xl">
                         <p>
                           심리학을 기반으로 데이터 분석을 수행하며, 브랜드·리서치 데이터를 볼 때
                           &nbsp;“이 숫자로 무엇을 결정할 수 있을까?”부터 생각합니다.
