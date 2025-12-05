@@ -28,7 +28,7 @@ export default function RootLayout({
       >
         <main className="min-h-screen w-full flex justify-center">
           {/* ✅ 가운데 정렬 + 최대 폭 제한 */}
-          <div className="w-full max-w-[1600px]">
+          <div className="w-full max-w-[1800px]">
             {children}
           </div>
         </main>
