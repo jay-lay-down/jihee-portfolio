@@ -27,7 +27,7 @@ type Filter = "All" | "LLM" | "Segmentation" | "Bayesian" | "Forecasting" | "Oth
 type Post = { id: number; author: string; content: string; created_at: string; category: "Q&A" | "Guestbook"; };
 type InfoItem = { year?: number; label: string; sub?: string };
 
-// --- [중요] 유틸리티 함수 (이게 빠져서 에러가 났었어요!) ---
+// --- 유틸리티 함수 ---
 function cn(...xs: Array<string | false | undefined | null>) {
   return xs.filter(Boolean).join(" ");
 }
