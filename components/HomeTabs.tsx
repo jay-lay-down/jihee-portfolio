@@ -29,6 +29,13 @@ const LINKS = {
   resumePdf: "/resume.pdf",
 };
 
+const TAB_ITEMS: { key: TabKey; label: string }[] = [
+  { key: "Home", label: "Home" },
+  { key: "Projects", label: "Projects" },
+  { key: "Info", label: "Info" },
+  { key: "Board", label: "Board" },
+];
+
 // --- 타입 ---
 type TabKey = "Home" | "Projects" | "Info" | "Board";
 type Filter = "All" | "LLM" | "Segmentation" | "Bayesian" | "Forecasting" | "Other";
@@ -46,7 +53,7 @@ function cn(...xs: Array<string | false | undefined | null>) {
   return xs.filter(Boolean).join(" ");
 }
 
-// 탭 버튼
+// 탭 버튼 (예전 풀박스 탭은 남겨두지만 안 씀: 혹시 나중에 쓸 수 있으니까)
 function FullWidthTab({
   active,
   onClick,
@@ -74,7 +81,7 @@ function FullWidthTab({
 // 프로젝트 카드 (썸네일 없으면 그라데이션)
 function ProjectCard({ p }: { p: any }) {
   return (
-    <div className="group flex flex-col bg-white rounded-2xl border border-stone-200 overflow-hidden hover:shadow-xl transition-all duration-300 h-full hover:border-[#d4a373]/50">
+    <div className="group flex flex-col bg-white/90 rounded-2xl border border-stone-200/70 overflow-hidden hover:shadow-xl transition-all duration-300 h-full hover:border-[#d4a373]/60">
       <div className="relative aspect-[16/9] overflow-hidden">
         {p.cover ? (
           <Image
@@ -94,32 +101,32 @@ function ProjectCard({ p }: { p: any }) {
         )}
       </div>
 
-      <div className="p-6 flex flex-col flex-1">
+      <div className="p-5 flex flex-col flex-1">
         <div className="flex justify-between items-start mb-2">
-          <span className="text-xs font-bold text-[#8C5E35] bg-[#8C5E35]/10 px-2 py-1 rounded uppercase tracking-wide">
+          <span className="text-[11px] font-bold text-[#8C5E35] bg-[#8C5E35]/10 px-2 py-1 rounded uppercase tracking-wide">
             {p.category}
           </span>
         </div>
-        <h3 className="text-lg font-black text-stone-900 leading-tight mb-3 group-hover:text-[#8C5E35] transition">
+        <h3 className="text-base font-black text-stone-900 leading-tight mb-2 group-hover:text-[#8C5E35] transition">
           {p.title}
         </h3>
-        <p className="text-sm text-stone-600 leading-relaxed mb-5 line-clamp-2">
+        <p className="text-sm text-stone-600 leading-relaxed mb-4 line-clamp-2">
           {p.oneLiner}
         </p>
 
-        <div className="flex flex-wrap gap-1.5 mb-6">
+        <div className="flex flex-wrap gap-1.5 mb-5">
           {Array.isArray(p.stack) &&
-            p.stack.slice(0, 5).map((s: string) => (
+            p.stack.slice(0, 4).map((s: string) => (
               <span
                 key={s}
-                className="px-2 py-1 bg-stone-100 text-stone-600 text-[10px] font-bold rounded-md border border-stone-200"
+                className="px-2 py-1 bg-stone-50 text-stone-600 text-[10px] font-bold rounded-md border border-stone-200/70"
               >
                 {s}
               </span>
             ))}
         </div>
 
-        <div className="mt-auto flex flex-wrap gap-2 pt-4 border-t border-stone-100">
+        <div className="mt-auto flex flex-wrap gap-2 pt-3 border-t border-stone-100">
           {Array.isArray(p.links) &&
             p.links.map((link: any) => (
               <a
@@ -127,7 +134,7 @@ function ProjectCard({ p }: { p: any }) {
                 href={link.href}
                 target="_blank"
                 rel="noreferrer"
-                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-lg border border-stone-300 text-stone-600 hover:bg-[#8C5E35] hover:text-white hover:border-[#8C5E35] transition-colors duration-300"
+                className="flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-bold rounded-lg border border-stone-300 text-stone-600 hover:bg-[#8C5E35] hover:text-white hover:border-[#8C5E35] transition-colors duration-300"
               >
                 {link.label === "Download" ? <FaDownload /> : <FaExternalLinkAlt />}
                 {link.label}
@@ -182,7 +189,6 @@ function SocialBtn({ href, icon: Icon }: { href: string; icon: any }) {
 export default function HomeTabs() {
   const [tab, setTab] = useState<TabKey>("Home");
   const [filter, setFilter] = useState<Filter>("All");
-  const [isMobileView, setIsMobileView] = useState(false);
 
   // --- Board ---
   const [posts, setPosts] = useState<Post[]>([]);
@@ -191,7 +197,7 @@ export default function HomeTabs() {
   const [inputContent, setInputContent] = useState("");
   const [inputCategory, setInputCategory] = useState<"Q&A" | "Guestbook">("Guestbook");
 
-  // ✅ 게시판 읽기: 네트워크 에러까지 안전하게 처리
+  // 게시판 읽기
   const fetchPosts = async () => {
     setLoading(true);
     try {
@@ -220,7 +226,7 @@ export default function HomeTabs() {
     if (tab === "Board") fetchPosts();
   }, [tab]);
 
-  // ✅ 게시글 저장: Failed to fetch 도 잡아서 메시지 깔끔하게
+  // 게시글 저장
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!inputName.trim() || !inputContent.trim()) return;
@@ -291,133 +297,117 @@ export default function HomeTabs() {
   ];
 
   return (
-    // font-sans 제거 → layout.tsx에서 준 Pretendard 그대로 사용
-    <div className="min-h-screen text-stone-800 pb-20">
-      {/* 상단 헤더 - 전체 폭 사용 (좌우만 살짝 패딩) */}
-      <header className="py-10 flex flex-col sm:flex-row items-center justify-between gap-2 md:gap-4 w-full px-6 lg:px-16">
-        <div>
-          <h1 className="text-4xl font-black tracking-tight text-stone-900">Jihee Cho</h1>
-          <p className="text-sm text-stone-500 font-semibold mt-1">Jan.25.1991 / Seoul</p>
-        </div>
-        <button
-          onClick={() => setIsMobileView((prev) => !prev)}
-          className={cn(
-            "text-xs font-bold border rounded-full px-4 py-2 transition duration-300",
-            isMobileView
-              ? "bg-[#8C5E35] text-white border-[#8C5E35]"
-              : "bg-white text-stone-500 border-stone-300 hover:border-[#8C5E35] hover:text-[#8C5E35]"
-          )}
-        >
-          {isMobileView ? "📱 Mobile View (ON)" : "💻 PC View"}
-        </button>
-      </header>
-
-      {/* 탭 내비 - 가로 꽉 차게 (px 제거) */}
-      <nav className="flex w-full border border-stone-200 rounded-t-xl overflow-hidden shadow-sm mb-0">
-        <FullWidthTab label="Home" active={tab === "Home"} onClick={() => setTab("Home")} />
-        <FullWidthTab
-          label="Projects"
-          active={tab === "Projects"}
-          onClick={() => setTab("Projects")}
-        />
-        <FullWidthTab label="Info" active={tab === "Info"} onClick={() => setTab("Info")} />
-        <FullWidthTab label="Board" active={tab === "Board"} onClick={() => setTab("Board")} />
-      </nav>
-
-      {/* 메인 카드 - 가로 전체 사용 (패딩 없음, 안쪽 섹션에서 패딩) */}
-      <main className="animate-in fade-in slide-in-from-bottom-2 duration-500 shadow-xl rounded-b-xl overflow-hidden w-full">
-        {/* HOME */}
-        {tab === "Home" && (
-          <div className="bg-stone-100/80 pt-8 pb-12 px-6 sm:px-10 border-x border-b border-stone-200/50">
-            <div className="space-y-10">
-              {/* Hero */}
-              <div className="relative w-full h-[380px] md:h-[440px] rounded-2xl overflow-hidden shadow-xl">
-                <Image src="/a2026.jpg" alt="Hero" fill className="object-cover" priority />
-                <div className="absolute inset-0 bg-gradient-to-b from-black/15 via-black/55 to-black/80" />
-                <div className="absolute inset-0 p-8 sm:p-10 flex flex-col justify-center text-white">
-                  <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/20 backdrop-blur-md text-xs font-bold w-fit mb-5 border border-white/30">
-                    <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
-                    Available for new projects
-                  </div>
-                  <h2 className="text-4xl sm:text-5xl font-black mb-6 leading-tight drop-shadow-lg">
-                    Portfolio
-                    <br />
-                    <span className="text-[#ffba49]">Jihee Cho</span>
-                  </h2>
-                  <p className="text-white/90 text-sm sm:text-lg font-medium max-w-xl drop-shadow-md">
-                    데이터 분석과 시장조사 경험을 바탕으로
-                    <br />
-                    의사결정을 실질적으로 지원하는 결과물을 만듭니다.
-                  </p>
-                </div>
-              </div>
-
-              {/* ABOUT 블록 */}
-              <section className="rounded-2xl bg-[#f5ebe0] border border-[#e3d5ca] px-6 py-6 sm:px-8 sm:py-7">
-                <h3 className="text-xs sm:text-sm font-extrabold tracking-wide text-stone-700 mb-2">
-                  ABOUT
-                </h3>
-                <p className="text-sm sm:text-[15px] leading-7 text-stone-800 font-medium max-w-5xl">
-                  다양한 가전/FMCG/광고효과 조사 프로젝트 담당 경험이 있으며, 정량/정성 데이터
-                  분석을 통한 인사이트 도출에 강점이 있습니다. 가전시장 POS 데이터 분석 및
-                  고객사 매니지먼트를 통해 고객사에게 만족스러운 인사이트를 도출한 경험이
-                  있습니다.
-                  <br />
-                  <br />
-                  현재는 LLM/RAG 등 기술과 분석을 결합하여, 결과를 시각화하고 서비스 형태로
-                  제작하는 다양한 실험을 하고 있습니다.
-                </p>
-              </section>
-
-              {/* Featured + Profile */}
-              <div
+    <div className="min-h-screen bg-[#fdf4e6] text-stone-800">
+      <div className="max-w-6xl mx-auto px-6 pb-20">
+        {/* 상단 헤더 + 텍스트 네비게이션 */}
+        <header className="py-8 flex items-center justify-between gap-6">
+          <div>
+            <h1 className="text-3xl font-black tracking-tight text-stone-900">Jihee Cho</h1>
+            <p className="text-xs sm:text-sm text-stone-500 font-semibold mt-1">
+              Jan.25.1991 / Seoul
+            </p>
+          </div>
+          <nav className="flex items-center gap-6 text-xs sm:text-sm font-semibold text-stone-500">
+            {TAB_ITEMS.map((t) => (
+              <button
+                key={t.key}
+                onClick={() => setTab(t.key)}
                 className={cn(
-                  "grid gap-10",
-                  isMobileView ? "grid-cols-1" : "grid-cols-1 lg:grid-cols-12"
+                  "relative pb-1.5 transition-colors",
+                  tab === t.key
+                    ? "text-stone-900"
+                    : "text-stone-400 hover:text-stone-700"
                 )}
               >
-                {/* Featured */}
-                <div className={cn(isMobileView ? "col-span-1" : "lg:col-span-8")}>
-                  <div className="flex items-center justify-between mb-4 sm:mb-6 border-b border-stone-200 pb-3">
-                    <div className="flex items-center gap-2">
-                      <span className="text-lg">🔥</span>
-                      <h3 className="text-xl font-black text-stone-800">Featured Projects</h3>
+                {t.label}
+                {tab === t.key && (
+                  <span className="absolute left-0 right-0 -bottom-0.5 mx-auto h-[2px] w-full rounded-full bg-stone-900" />
+                )}
+              </button>
+            ))}
+          </nav>
+        </header>
+
+        {/* 메인 */}
+        <main className="animate-in fade-in slide-in-from-bottom-2 duration-500">
+          {/* HOME */}
+          {tab === "Home" && (
+            <div className="space-y-10">
+              {/* Hero: 2026 크게, 배경과 자연스럽게 */}
+              <section className="relative rounded-3xl overflow-hidden min-h-[320px] sm:min-h-[360px] bg-[#111] shadow-2xl">
+                <Image
+                  src="/a2026.jpg"
+                  alt="2026"
+                  fill
+                  priority
+                  className="object-cover scale-110 opacity-80"
+                />
+                <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/65 to-black/30" />
+                <div className="relative z-10 flex flex-col justify-between h-full p-8 sm:p-10 lg:p-12">
+                  <div className="space-y-5">
+                    <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/15 backdrop-blur-md text-[11px] font-bold w-fit border border-white/25">
+                      <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                      Available for new projects
                     </div>
-                    <button
-                      onClick={() => setTab("Projects")}
-                      className="text-sm font-bold text-stone-500 hover:text-[#8C5E35] transition underline underline-offset-4"
-                    >
-                      View all
-                    </button>
+                    <div>
+                      <p className="text-xs text-white/70 font-semibold mb-2">
+                        Portfolio · Analytics · Build
+                      </p>
+                      <h2 className="text-3xl sm:text-4xl lg:text-[2.7rem] font-black leading-tight text-white drop-shadow-[0_10px_25px_rgba(0,0,0,0.65)]">
+                        데이터 분석과 시장조사 경험으로
+                        <br />
+                        <span className="text-[#ffba49]">의사결정을 설계하고 구현합니다.</span>
+                      </h2>
+                    </div>
+                    <p className="text-sm sm:text-[15px] text-white/85 leading-7 max-w-xl">
+                      브랜드·리서치 데이터를 바탕으로, 분석 결과가{" "}
+                      <span className="font-semibold">실제 액션과 제품</span>으로 이어지도록 설계하는
+                      일에 집중합니다.
+                    </p>
                   </div>
-                  <div
-                    className={cn(
-                      "grid gap-6",
-                      isMobileView ? "grid-cols-1" : "grid-cols-1 sm:grid-cols-2"
-                    )}
-                  >
-                    {featured.slice(0, 4).map((p: any) => (
-                      <ProjectCard key={p.slug} p={p} />
-                    ))}
-                  </div>
+                </div>
+              </section>
+
+              {/* ABOUT + Profile 2단 구성 (스크롤 덜 하게 압축) */}
+              <section className="grid gap-8 lg:grid-cols-[1.4fr_minmax(0,1fr)] items-start">
+                {/* ABOUT */}
+                <div className="rounded-2xl bg-[#f7e8d8] border border-[#e3d5ca] px-6 py-6 sm:px-7 sm:py-7 shadow-[0_10px_30px_rgba(0,0,0,0.03)]">
+                  <h3 className="text-xs sm:text-sm font-extrabold tracking-[0.12em] text-stone-700 mb-3">
+                    ABOUT
+                  </h3>
+                  <p className="text-sm sm:text-[15px] leading-7 text-stone-800 font-medium">
+                    다양한 가전/FMCG/광고효과 조사 프로젝트 담당 경험이 있으며, 정량/정성 데이터
+                    분석을 통한 인사이트 도출에 강점이 있습니다. 가전시장 POS 데이터 분석 및
+                    고객사 매니지먼트를 통해 고객사에게 만족스러운 인사이트를 도출한 경험이
+                    있습니다.
+                    <br />
+                    <br />
+                    현재는 LLM/RAG 등 기술과 분석을 결합하여, 결과를 시각화하고 서비스 형태로
+                    제작하는 다양한 실험을 하고 있습니다.
+                  </p>
                 </div>
 
                 {/* Profile 카드 */}
-                <div className={cn(isMobileView ? "col-span-1" : "lg:col-span-4")}>
-                  <div className="lg:sticky lg:top-8 bg-white/85 backdrop-blur-sm rounded-2xl p-8 border border-stone-200 shadow-sm">
-                    <div className="relative w-24 h-24 rounded-full border-4 border-white shadow-md mb-5 overflow-hidden">
-                      <Image src="/avatar.jpg" alt="Avatar" fill className="object-cover" />
+                <div>
+                  <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-7 border border-stone-200 shadow-[0_10px_30px_rgba(15,23,42,0.06)]">
+                    <div className="flex items-center gap-4 mb-5">
+                      <div className="relative w-20 h-20 rounded-full border-4 border-white shadow-md overflow-hidden">
+                        <Image src="/avatar.jpg" alt="Avatar" fill className="object-cover" />
+                      </div>
+                      <div>
+                        <h3 className="text-xl font-black text-stone-900">Jihee Cho</h3>
+                        <div className="text-xs font-bold text-[#8C5E35] mt-1">
+                          Analytics · Build · LLM
+                        </div>
+                      </div>
                     </div>
-                    <h3 className="text-2xl font-black text-stone-900">Jihee Cho</h3>
-                    <div className="text-sm font-bold text-[#8C5E35] mb-5">
-                      Analytics · Build · LLM
-                    </div>
-                    <p className="text-sm text-stone-600 leading-7 font-medium mb-8">
+
+                    <p className="text-sm text-stone-600 leading-7 font-medium mb-6">
                       기획–모델링–대시보드까지 하나의 스토리로 묶어서 설계하고, 누구나 다시
                       돌려볼 수 있는 형태의 분석 산출물을 만드는 데 관심이 있습니다.
                     </p>
 
-                    <div className="space-y-3 mb-8">
+                    <div className="space-y-3 mb-6">
                       <div className="flex items-center gap-3 text-sm text-stone-600 font-bold bg-stone-50 p-3 rounded-xl border border-stone-100">
                         <IoLocationSharp className="text-lg text-stone-400" /> Seoul, South Korea
                       </div>
@@ -430,7 +420,7 @@ export default function HomeTabs() {
                       </a>
                     </div>
 
-                    <div className="flex gap-2 justify-center pt-2">
+                    <div className="flex gap-2 justify-center pt-1">
                       <SocialBtn href={LINKS.linkedin} icon={FaLinkedin} />
                       <SocialBtn href={LINKS.github} icon={FaGithub} />
                       <SocialBtn href={LINKS.hf} icon={SiHuggingface} />
@@ -446,213 +436,221 @@ export default function HomeTabs() {
                     </a>
                   </div>
                 </div>
-              </div>
-            </div>
-          </div>
-        )}
+              </section>
 
-        {/* PROJECTS */}
-        {tab === "Projects" && (
-          <div className="bg-stone-200/60 p-8 sm:p-10 rounded-b-xl border-x border-b border-stone-200/50 min-h-[600px]">
-            <div className="space-y-8">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
-                <h2 className="text-2xl font-black text-stone-900">All Projects</h2>
-                <div className="flex flex-wrap gap-2">
+              {/* Featured Projects – 처음 화면에서 4개 다 보이도록 압축 */}
+              <section className="space-y-5">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="text-lg">🔥</span>
+                    <h3 className="text-lg sm:text-xl font-black text-stone-800">
+                      Featured Projects
+                    </h3>
+                  </div>
                   <button
-                    onClick={() => setFilter("All")}
-                    className={cn(
-                      "px-4 py-2 rounded-full text-sm font-bold transition border",
-                      filter === "All"
-                        ? "bg-[#8C5E35] text-white border-[#8C5E35]"
-                        : "bg-white text-stone-500 border-stone-300 hover:border-[#8C5E35] hover:text-[#8C5E35]"
-                    )}
+                    onClick={() => setTab("Projects")}
+                    className="text-xs sm:text-sm font-bold text-stone-500 hover:text-[#8C5E35] transition underline underline-offset-4"
                   >
-                    All
+                    View all
                   </button>
-                  {categories.map((c) => (
+                </div>
+                <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+                  {featured.slice(0, 4).map((p: any) => (
+                    <ProjectCard key={p.slug} p={p} />
+                  ))}
+                </div>
+              </section>
+            </div>
+          )}
+
+          {/* PROJECTS */}
+          {tab === "Projects" && (
+            <div className="bg-stone-200/50 mt-4 p-7 sm:p-9 rounded-3xl border border-stone-200/70 shadow-[0_15px_40px_rgba(15,23,42,0.08)] min-h-[600px]">
+              <div className="space-y-8">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+                  <h2 className="text-2xl font-black text-stone-900">All Projects</h2>
+                  <div className="flex flex-wrap gap-2">
                     <button
-                      key={String(c)}
-                      onClick={() => setFilter(c as Filter)}
+                      onClick={() => setFilter("All")}
                       className={cn(
-                        "px-4 py-2 rounded-full text-sm font-bold transition border",
-                        filter === c
+                        "px-4 py-2 rounded-full text-xs sm:text-sm font-bold transition border",
+                        filter === "All"
                           ? "bg-[#8C5E35] text-white border-[#8C5E35]"
                           : "bg-white text-stone-500 border-stone-300 hover:border-[#8C5E35] hover:text-[#8C5E35]"
                       )}
                     >
-                      {String(c)}
+                      All
                     </button>
-                  ))}
+                    {categories.map((c) => (
+                      <button
+                        key={String(c)}
+                        onClick={() => setFilter(c as Filter)}
+                        className={cn(
+                          "px-4 py-2 rounded-full text-xs sm:text-sm font-bold transition border",
+                          filter === c
+                            ? "bg-[#8C5E35] text-white border-[#8C5E35]"
+                            : "bg-white text-stone-500 border-stone-300 hover:border-[#8C5E35] hover:text-[#8C5E35]"
+                        )}
+                      >
+                        {String(c)}
+                      </button>
+                    ))}
+                  </div>
                 </div>
-              </div>
 
-              <div
-                className={cn(
-                  "grid gap-8",
-                  isMobileView ? "grid-cols-1" : "grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
-                )}
-              >
-                {filteredProjects.map((p: any) => (
-                  <ProjectCard key={p.slug} p={p} />
-                ))}
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* INFO */}
-        {tab === "Info" && (
-          <div className="bg-stone-800 p-8 sm:p-12 rounded-b-xl min-h-[800px] border-x border-b border-stone-800">
-            <div className="mb-12">
-              <div className="bg-white/5 border border-white/10 rounded-2xl p-8 relative overflow-hidden">
-                <FaQuoteLeft className="absolute top-6 left-6 text-white/5 text-6xl" />
-                <h2 className="text-2xl font-black text-white mb-6 relative z-10">
-                  Professional Summary
-                </h2>
-                <p className="text-stone-300 leading-9 text-lg font-medium relative z-10 max-w-4xl">
-                  데이터 분석과 시장조사 경험을 기반으로, 의사결정을 실질적으로 지원하는 결과물을
-                  만듭니다.
-                  <br />
-                  요구사항을 문제 정의–분석 설계–모델링–시각화–리포팅까지 한 흐름으로 설계하고
-                  구현해 왔습니다.
-                  <br />
-                  반복되는 분석 업무는 자동화·표준화하고, LLM 파인튜닝·배포 및 RAG 워크플로우
-                  적용을 통해 분석을 서비스 형태로 확장하고 있습니다.
-                </p>
-                <div className="mt-8 flex flex-wrap gap-2 relative z-10">
-                  {SKILLS.map((s) => (
-                    <span
-                      key={s}
-                      className="px-3 py-1.5 rounded-lg bg-white/10 border border-white/10 text-stone-300 text-xs font-bold"
-                    >
-                      {s}
-                    </span>
+                <div className="grid gap-8 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+                  {filteredProjects.map((p: any) => (
+                    <ProjectCard key={p.slug} p={p} />
                   ))}
                 </div>
               </div>
             </div>
+          )}
 
-            <div
-              className={cn(
-                "grid gap-x-16 gap-y-12",
-                isMobileView ? "grid-cols-1" : "grid-cols-1 lg:grid-cols-2"
-              )}
-            >
-              <InfoSection title="Education" icon={MdSchool} items={EDUCATION} />
-              <InfoSection title="Experience" icon={MdWork} items={EXPERIENCE} />
-              <div className={cn(isMobileView ? "col-span-1" : "lg:col-span-2")}>
-                <InfoSection title="Awards & Honors" icon={MdEmojiEvents} items={AWARDS} />
+          {/* INFO */}
+          {tab === "Info" && (
+            <div className="bg-stone-900 mt-4 p-8 sm:p-12 rounded-3xl min-h-[800px] border border-stone-900 shadow-[0_18px_45px_rgba(0,0,0,0.45)]">
+              <div className="mb-12">
+                <div className="bg-white/5 border border-white/10 rounded-2xl p-8 relative overflow-hidden">
+                  <FaQuoteLeft className="absolute top-6 left-6 text-white/5 text-6xl" />
+                  <h2 className="text-2xl font-black text-white mb-6 relative z-10">
+                    Professional Summary
+                  </h2>
+                  <p className="text-stone-300 leading-9 text-lg font-medium relative z-10 max-w-4xl">
+                    데이터 분석과 시장조사 경험을 기반으로, 의사결정을 실질적으로 지원하는 결과물을
+                    만듭니다.
+                    <br />
+                    요구사항을 문제 정의–분석 설계–모델링–시각화–리포팅까지 한 흐름으로 설계하고
+                    구현해 왔습니다.
+                    <br />
+                    반복되는 분석 업무는 자동화·표준화하고, LLM 파인튜닝·배포 및 RAG 워크플로우
+                    적용을 통해 분석을 서비스 형태로 확장하고 있습니다.
+                  </p>
+                  <div className="mt-8 flex flex-wrap gap-2 relative z-10">
+                    {SKILLS.map((s) => (
+                      <span
+                        key={s}
+                        className="px-3 py-1.5 rounded-lg bg-white/10 border border-white/10 text-stone-300 text-xs font-bold"
+                      >
+                        {s}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid gap-x-16 gap-y-12 grid-cols-1 lg:grid-cols-2">
+                <InfoSection title="Education" icon={MdSchool} items={EDUCATION} />
+                <InfoSection title="Experience" icon={MdWork} items={EXPERIENCE} />
+                <div className="lg:col-span-2">
+                  <InfoSection title="Awards & Honors" icon={MdEmojiEvents} items={AWARDS} />
+                </div>
               </div>
             </div>
-          </div>
-        )}
+          )}
 
-        {/* BOARD */}
-        {tab === "Board" && (
-          <div className="bg-stone-100/80 p-8 sm:p-10 rounded-b-xl border-x border-b border-stone-200/50 min-h-[600px]">
-            <div
-              className={cn(
-                "grid gap-10",
-                isMobileView ? "grid-cols-1" : "grid-cols-1 lg:grid-cols-3"
-              )}
-            >
-              <div className="lg:col-span-1">
-                <div className="bg-white p-6 rounded-2xl border border-stone-200 shadow-sm lg:sticky lg:top-8">
-                  <h3 className="text-lg font-black text-stone-800 mb-4 flex items-center gap-2">
-                    <FaPen className="text-[#8C5E35] text-sm" /> Write a Post
+          {/* BOARD */}
+          {tab === "Board" && (
+            <div className="bg-stone-100/80 mt-4 p-8 sm:p-10 rounded-3xl border border-stone-200/70 shadow-[0_15px_40px_rgba(15,23,42,0.08)] min-h-[600px]">
+              <div className="grid gap-10 grid-cols-1 lg:grid-cols-3">
+                <div className="lg:col-span-1">
+                  <div className="bg-white p-6 rounded-2xl border border-stone-200 shadow-sm lg:sticky lg:top-6">
+                    <h3 className="text-lg font-black text-stone-800 mb-4 flex items-center gap-2">
+                      <FaPen className="text-[#8C5E35] text-sm" /> Write a Post
+                    </h3>
+                    <form onSubmit={handleSubmit} className="space-y-4">
+                      <div className="flex gap-2">
+                        {["Guestbook", "Q&A"].map((c) => (
+                          <button
+                            key={c}
+                            type="button"
+                            onClick={() => setInputCategory(c as "Guestbook" | "Q&A")}
+                            className={cn(
+                              "flex-1 py-2 text-xs font-bold rounded-lg border transition duration-300",
+                              inputCategory === c
+                                ? "bg-[#8C5E35] text-white border-[#8C5E35]"
+                                : "bg-stone-50 text-stone-500 border-stone-200 hover:border-[#8C5E35] hover:text-[#8C5E35]"
+                            )}
+                          >
+                            {c}
+                          </button>
+                        ))}
+                      </div>
+                      <input
+                        type="text"
+                        value={inputName}
+                        onChange={(e) => setInputName(e.target.value)}
+                        className="w-full px-4 py-3 bg-stone-50 border border-stone-200 rounded-lg text-sm focus:ring-2 focus:ring-[#8C5E35] focus:border-transparent outline-none transition"
+                        placeholder="Your name"
+                        required
+                      />
+                      <textarea
+                        value={inputContent}
+                        onChange={(e) => setInputContent(e.target.value)}
+                        rows={4}
+                        className="w-full px-4 py-3 bg-stone-50 border border-stone-200 rounded-lg text-sm focus:ring-2 focus:ring-[#8C5E35] focus:border-transparent outline-none transition resize-none"
+                        placeholder="Leave a message..."
+                        required
+                      />
+                      <button
+                        type="submit"
+                        className="w-full py-3 bg-[#8C5E35] text-white font-bold rounded-xl hover:bg-[#6B4628] transition shadow-md duration-300"
+                      >
+                        Post Message
+                      </button>
+                    </form>
+                  </div>
+                </div>
+
+                <div className="lg:col-span-2 space-y-4">
+                  <h3 className="text-lg font-black text-stone-800 mb-4 flex items-center gap-2 border-b border-stone-200 pb-2">
+                    <MdArticle className="text-[#8C5E35]" /> Recent Posts
                   </h3>
-                  <form onSubmit={handleSubmit} className="space-y-4">
-                    <div className="flex gap-2">
-                      {["Guestbook", "Q&A"].map((c) => (
-                        <button
-                          key={c}
-                          type="button"
-                          onClick={() => setInputCategory(c as "Guestbook" | "Q&A")}
-                          className={cn(
-                            "flex-1 py-2 text-xs font-bold rounded-lg border transition duration-300",
-                            inputCategory === c
-                              ? "bg-[#8C5E35] text-white border-[#8C5E35]"
-                              : "bg-stone-50 text-stone-500 border-stone-200 hover:border-[#8C5E35] hover:text-[#8C5E35]"
-                          )}
-                        >
-                          {c}
-                        </button>
-                      ))}
-                    </div>
-                    <input
-                      type="text"
-                      value={inputName}
-                      onChange={(e) => setInputName(e.target.value)}
-                      className="w-full px-4 py-3 bg-stone-50 border border-stone-200 rounded-lg text-sm focus:ring-2 focus:ring-[#8C5E35] focus:border-transparent outline-none transition"
-                      placeholder="Your name"
-                      required
-                    />
-                    <textarea
-                      value={inputContent}
-                      onChange={(e) => setInputContent(e.target.value)}
-                      rows={4}
-                      className="w-full px-4 py-3 bg-stone-50 border border-stone-200 rounded-lg text-sm focus:ring-2 focus:ring-[#8C5E35] focus:border-transparent outline-none transition resize-none"
-                      placeholder="Leave a message..."
-                      required
-                    />
-                    <button
-                      type="submit"
-                      className="w-full py-3 bg-[#8C5E35] text-white font-bold rounded-xl hover:bg-[#6B4628] transition shadow-md duration-300"
-                    >
-                      Post Message
-                    </button>
-                  </form>
-                </div>
-              </div>
-
-              <div className="lg:col-span-2 space-y-4">
-                <h3 className="text-lg font-black text-stone-800 mb-4 flex items-center gap-2 border-b border-stone-200 pb-2">
-                  <MdArticle className="text-[#8C5E35]" /> Recent Posts
-                </h3>
-                {loading ? (
-                  <div className="py-20 text-center text-stone-400">Loading...</div>
-                ) : (
-                  posts.map((post) => (
-                    <div
-                      key={post.id}
-                      className="bg-white p-6 rounded-2xl border border-stone-200 shadow-sm hover:shadow-md transition"
-                    >
-                      <div className="flex justify-between mb-4 items-center">
-                        <div className="flex gap-3 items-center">
-                          <FaUserCircle className="text-stone-300 text-3xl" />
-                          <div>
-                            <div className="font-bold text-stone-900">{post.author}</div>
-                            <div className="text-xs text-stone-400">
-                              {new Date(post.created_at).toLocaleDateString()}
+                  {loading ? (
+                    <div className="py-20 text-center text-stone-400">Loading...</div>
+                  ) : (
+                    posts.map((post) => (
+                      <div
+                        key={post.id}
+                        className="bg-white p-6 rounded-2xl border border-stone-200 shadow-sm hover:shadow-md transition"
+                      >
+                        <div className="flex justify-between mb-4 items-center">
+                          <div className="flex gap-3 items-center">
+                            <FaUserCircle className="text-stone-300 text-3xl" />
+                            <div>
+                              <div className="font-bold text-stone-900">{post.author}</div>
+                              <div className="text-xs text-stone-400">
+                                {new Date(post.created_at).toLocaleDateString()}
+                              </div>
                             </div>
                           </div>
+                          <span
+                            className={cn(
+                              "text-[10px] font-bold px-2.5 py-1 rounded-full border",
+                              post.category === "Q&A"
+                                ? "bg-blue-50 text-blue-600 border-blue-100"
+                                : "bg-[#8C5E35]/10 text-[#8C5E35] border-[#8C5E35]/20"
+                            )}
+                          >
+                            {post.category}
+                          </span>
                         </div>
-                        <span
-                          className={cn(
-                            "text-[10px] font-bold px-2.5 py-1 rounded-full border",
-                            post.category === "Q&A"
-                              ? "bg-blue-50 text-blue-600 border-blue-100"
-                              : "bg-[#8C5E35]/10 text-[#8C5E35] border-[#8C5E35]/20"
-                          )}
-                        >
-                          {post.category}
-                        </span>
+                        <p className="text-sm text-stone-700 pl-11 leading-relaxed whitespace-pre-wrap">
+                          {post.content}
+                        </p>
                       </div>
-                      <p className="text-sm text-stone-700 pl-11 leading-relaxed whitespace-pre-wrap">
-                        {post.content}
-                      </p>
-                    </div>
-                  ))
-                )}
+                    ))
+                  )}
+                </div>
               </div>
             </div>
-          </div>
-        )}
-      </main>
+          )}
+        </main>
 
-      <footer className="mt-20 pt-8 border-t border-stone-200 text-center text-xs font-medium text-stone-500">
-        © {new Date().getFullYear()} Jihee Cho. All rights reserved.
-      </footer>
+        <footer className="mt-16 pt-8 border-t border-stone-200/70 text-center text-xs font-medium text-stone-500">
+          © {new Date().getFullYear()} Jihee Cho. All rights reserved.
+        </footer>
+      </div>
     </div>
   );
 }
