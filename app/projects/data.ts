@@ -1,3 +1,5 @@
+// app/projects/data.ts
+
 export type ProjectLink = {
   label: string;
   href: string;
@@ -22,7 +24,7 @@ export const PROJECTS: Project[] = [
     category: "LLM",
     featured: true,
     stack: ["Python", "PyTorch", "Transformers", "QLoRA", "HF Hub", "Gradio"],
-    cover: "/im2.jpg",
+    cover: "/im2.jpg", // ilya-pavlov
     links: [
       { label: "Repo", href: "https://github.com/jay-lay-down/jaychatbot_2nd" },
       { label: "Demo", href: "http://www.duboobanmo.site" },
@@ -36,7 +38,7 @@ export const PROJECTS: Project[] = [
     category: "Other",
     featured: true,
     stack: ["Python", "Gradio", "HTML/CSS", "HF Spaces"],
-    cover: "/im1.jpg",
+    cover: "/im1.jpg", // joanna-kosinska
     links: [
       { label: "Repo", href: "https://github.com/jay-lay-down/animal_test" },
       { label: "Demo", href: "https://myanimaltest.site/" },
@@ -50,7 +52,7 @@ export const PROJECTS: Project[] = [
     category: "Segmentation",
     featured: true,
     stack: ["Python", "PySide6", "scikit-learn", "Pandas", "PyInstaller"],
-    cover: "/im3.jpg",
+    cover: "/im3.jpg", // hal-gatewood
     links: [
       { label: "Repo", href: "https://github.com/jay-lay-down/auto_segment" },
       { label: "Download", href: "https://drive.google.com/uc?id=1l6dMl6QHx7fJAeh8zL3xPIJX572mtnum&export=download" },
@@ -63,7 +65,7 @@ export const PROJECTS: Project[] = [
     category: "Bayesian",
     featured: true,
     stack: ["Python", "PyMC", "ArviZ", "pandas", "Plotly/Dash"],
-    cover: "/im4.jpg",
+    cover: "/im4.jpg", // carlos-muza
     links: [
       { label: "Repo", href: "https://github.com/jay-lay-down/bayesian_dashboard" },
       { label: "Dashboard", href: "https://jay1121-bayesian-dashboard.hf.space" },
