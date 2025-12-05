@@ -1,12 +1,27 @@
-// 임시 mock – 실제 DB 연결 안 하고 그냥 빈 데이터/성공만 돌려줌
-export const supabase = {
-  from() {
-    return {
-      // SELECT 호출 시: 빈 배열 + 에러 없음
-      select: async () => ({ data: [], error: null }),
+// lib/supabase.ts
 
-      // INSERT 호출 시: 그냥 성공했다고만 리턴
-      insert: async () => ({ error: null }),
+// 임시 mock – 실제 DB 연결 안 하고
+// select/insert 호출해도 항상 빈 데이터/성공만 반환하는 버전
+
+export const supabase = {
+  from(_table: string) {
+    return {
+      // select 뒤에 .order(...) 체이닝을 할 수 있도록 구현
+      select(_columns?: string) {
+        return {
+          order(
+            _column: string,
+            _opts?: { ascending?: boolean }
+          ): Promise<{ data: any[]; error: null }> {
+            return Promise.resolve({ data: [], error: null });
+          },
+        };
+      },
+
+      // insert는 바로 Promise를 리턴
+      insert(_values: any): Promise<{ error: null }> {
+        return Promise.resolve({ error: null });
+      },
     };
   },
 };
