@@ -67,9 +67,11 @@ function Pill({
   const base =
     "inline-flex items-center rounded-full border px-4 sm:px-5 py-2 sm:py-2.5 text-sm font-extrabold transition select-none";
   const tones: Record<Tone, string> = {
-    neutral: "border-[var(--line)] bg-white/70 text-[var(--muted)] hover:text-[var(--fg)]",
+    neutral:
+      "border-[var(--line)] bg-white/70 text-[var(--muted)] hover:text-[var(--fg)]",
     dark: "border-black/20 bg-black text-white hover:opacity-90",
-    accent: "border-black/10 bg-[rgba(255,186,73,.22)] text-[var(--fg)] hover:opacity-90",
+    accent:
+      "border-black/10 bg-[rgba(255,186,73,.22)] text-[var(--fg)] hover:opacity-90",
   };
   return (
     <button
@@ -112,7 +114,15 @@ function thumbBg(slug: string) {
   return THUMB_PATTERNS[hashToIndex(slug, THUMB_PATTERNS.length)];
 }
 
-function Thumb({ slug, cover, label }: { slug: string; cover?: string; label: string }) {
+function Thumb({
+  slug,
+  cover,
+  label,
+}: {
+  slug: string;
+  cover?: string;
+  label: string;
+}) {
   return (
     <div className="relative w-full overflow-hidden rounded-2xl border border-black/15 aspect-[16/10] bg-black/5">
       {cover ? (
@@ -152,13 +162,13 @@ const AWARDS: InfoItem[] = [
 ].sort((a, b) => (b.year ?? -1) - (a.year ?? -1));
 
 const INFO_SUMMARY =
-  "데이터 분석과 시장조사 기반으로, 의사결정을 실질적으로 지원하는 결과물을 만듭니다. 요구사항을 문제 정의–분석 설계–모델링–시각화–리포팅까지 한 흐름으로 묶어 설계하고 구현합니다. 반복 업무는 자동화로 표준화하고, LLM 파인튜닝/배포 및 RAG 워크플로우 적용으로 분석을 서비스 형태로 확장해 왔습니다.";
+  "데이터 분석과 시장조사를 바탕으로, 의사결정을 실질적으로 지원하는 결과물을 만듭니다. 요구사항을 문제 정의–분석 설계–모델링–시각화–리포팅까지 한 흐름으로 설계하고 구현해 왔습니다. 반복되는 분석 업무는 자동화·표준화하고, LLM 파인튜닝·배포 및 RAG 워크플로우 적용을 통해 분석을 서비스 형태로 확장하고 있습니다.";
 
 function InfoBlock({ title, items }: { title: string; items: InfoItem[] }) {
   return (
     <div className="rounded-3xl border border-[var(--line)] bg-white/70 p-6">
       <div className="text-sm font-black tracking-tight">{title}</div>
-      <div className="mt-3 space-y-2 text-sm text-[var(--muted)] leading-7">
+      <div className="mt-3 space-y-2 text-sm text-[var(--muted)] leading-7 font-medium">
         {items.map((x, i) => (
           <div key={`${title}-${i}`} className="flex gap-3">
             <div className="w-14 shrink-0 text-xs font-extrabold text-black/70">
@@ -166,7 +176,9 @@ function InfoBlock({ title, items }: { title: string; items: InfoItem[] }) {
             </div>
             <div className="min-w-0">
               <div className="font-semibold text-black/90">{x.label}</div>
-              {x.sub ? <div className="text-[var(--muted)]">{x.sub}</div> : null}
+              {x.sub ? (
+                <div className="text-[var(--muted)]">{x.sub}</div>
+              ) : null}
             </div>
           </div>
         ))}
@@ -190,35 +202,53 @@ function ProjectCard({ p }: { p: ProjectItem }) {
     >
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 lg:gap-6 items-start">
         <div className="lg:col-span-7 min-w-0">
-          <div className="text-xs font-extrabold text-black/60">{String(p.category)}</div>
-          <div className="mt-1 text-xl sm:text-2xl font-black tracking-tight">{anyP.title}</div>
-          <div className="mt-2 text-[15px] text-[var(--muted)] leading-7">{anyP.oneLiner}</div>
+          <div className="text-xs font-extrabold text-black/60">
+            {String(p.category)}
+          </div>
+          <div className="mt-1 text-xl sm:text-2xl font-black tracking-tight">
+            {anyP.title}
+          </div>
+          <div className="mt-2 text-[15px] text-[var(--muted)] leading-7 font-medium">
+            {anyP.oneLiner}
+          </div>
 
           <div className="mt-4 flex flex-wrap gap-2">
-            {(Array.isArray(anyP.stack) ? anyP.stack : []).slice(0, 10).map((s: string) => (
-              <span
-                key={s}
-                className="text-xs font-semibold px-2.5 py-1 rounded-full border border-[var(--line)] bg-white/80 text-[var(--muted)]"
-              >
-                {s}
-              </span>
-            ))}
+            {(Array.isArray(anyP.stack) ? anyP.stack : [])
+              .slice(0, 10)
+              .map((s: string) => (
+                <span
+                  key={s}
+                  className="text-xs font-semibold px-2.5 py-1 rounded-full border border-[var(--line)] bg-white/80 text-[var(--muted)]"
+                >
+                  {s}
+                </span>
+              ))}
           </div>
 
           <div className="mt-5 text-sm font-extrabold underline underline-offset-4 group-hover:opacity-90">
-            {(anyP.repo ? "Repo" : anyP.demo ? "Demo" : anyP.blog ? "Blog" : "Open") + " ↗"}
+            {(anyP.repo
+              ? "Repo"
+              : anyP.demo
+              ? "Demo"
+              : anyP.blog
+              ? "Blog"
+              : "Open") + " ↗"}
           </div>
         </div>
 
         <div className="lg:col-span-5">
-          <Thumb slug={anyP.slug} cover={anyP.cover} label={`${anyP.title} thumbnail`} />
+          <Thumb
+            slug={anyP.slug}
+            cover={anyP.cover}
+            label={`${anyP.title} thumbnail`}
+          />
         </div>
       </div>
     </a>
   );
 }
 
-/** Featured: 가로 임팩트 카드(캐러셀 전용) */
+/** Featured: Home용 임팩트 카드 (그리드에서 사용) */
 function FeaturedTile({ p }: { p: ProjectItem }) {
   const href = pickPrimaryLink(p);
   const external = isExternal(href);
@@ -229,19 +259,25 @@ function FeaturedTile({ p }: { p: ProjectItem }) {
       href={href}
       target={external ? "_blank" : undefined}
       rel={external ? "noreferrer" : undefined}
-      className="snap-start shrink-0 w-[86vw] sm:w-[460px] md:w-[520px] group"
+      className="group"
     >
       <div className="rounded-[28px] border border-[var(--line)] bg-white/70 overflow-hidden hover:shadow-[0_18px_60px_rgba(0,0,0,0.10)] transition">
         <div className="p-5 sm:p-6">
           <div className="flex items-center justify-between gap-4">
-            <div className="text-xs font-extrabold text-black/60">{String(p.category)}</div>
-            <div className="text-xs font-extrabold text-[var(--muted)]">Open ↗</div>
+            <div className="text-xs font-extrabold text-black/60">
+              {String(p.category)}
+            </div>
+            <div className="text-xs font-extrabold text-[var(--muted)]">
+              Open ↗
+            </div>
           </div>
 
-          <div className="mt-2 text-xl sm:text-2xl font-black tracking-tight">{anyP.title}</div>
+          <div className="mt-2 text-xl sm:text-2xl font-black tracking-tight">
+            {anyP.title}
+          </div>
 
           <p
-            className="mt-2 text-sm sm:text-[15px] text-[var(--muted)] leading-7"
+            className="mt-2 text-sm sm:text-[15px] text-[var(--muted)] leading-7 font-medium"
             style={{
               display: "-webkit-box",
               WebkitLineClamp: 2,
@@ -253,7 +289,11 @@ function FeaturedTile({ p }: { p: ProjectItem }) {
           </p>
 
           <div className="mt-4">
-            <Thumb slug={anyP.slug} cover={anyP.cover} label={`${anyP.title} cover`} />
+            <Thumb
+              slug={anyP.slug}
+              cover={anyP.cover}
+              label={`${anyP.title} cover`}
+            />
           </div>
         </div>
       </div>
@@ -295,19 +335,32 @@ export default function HomeTabs() {
   const wmY = useTransform(scrollY, [0, 800], [0, -70]);
   const wmX = useTransform(scrollY, [0, 800], [0, 26]);
 
-  /** Info 탭 Skill chips (카테고리 있는 것만 cat 부여해도 됨) */
+  /** Info 탭 Skill chips (카테고리 있는 것만 cat 부여) */
   const skillset = useMemo<Chip[]>(() => {
     const has = (c: string) => categories.includes(c as any);
-    const cat = (c: string) => (has(c) ? (c as any as CategoryKey) : undefined);
+    const cat = (c: string) =>
+      has(c) ? (c as unknown as CategoryKey) : undefined;
 
     return [
       { label: "Analytics planning / research design", tone: "accent" },
       { label: "Market research (survey/POS/panel)", tone: "accent" },
       { label: "Segmentation", cat: cat("Segmentation"), tone: "dark" },
       { label: "SEM", cat: cat("Bayesian"), tone: "neutral" },
-      { label: "PCA / Factor analysis", cat: cat("Segmentation"), tone: "neutral" },
-      { label: "Causal time series (Granger)", cat: cat("Forecasting"), tone: "neutral" },
-      { label: "Forecasting (SARIMAX)", cat: cat("Forecasting"), tone: "dark" },
+      {
+        label: "PCA / Factor analysis",
+        cat: cat("Segmentation"),
+        tone: "neutral",
+      },
+      {
+        label: "Causal time series (Granger)",
+        cat: cat("Forecasting"),
+        tone: "neutral",
+      },
+      {
+        label: "Forecasting (SARIMAX)",
+        cat: cat("Forecasting"),
+        tone: "dark",
+      },
       { label: "Bayesian (PyMC)", cat: cat("Bayesian"), tone: "dark" },
       { label: "Automation → productization", tone: "neutral" },
       { label: "LLM fine-tuning (LoRA)", cat: cat("LLM"), tone: "dark" },
@@ -352,7 +405,7 @@ export default function HomeTabs() {
         </div>
       </header>
 
-      {/* HOME (Hero + Featured carousel) */}
+      {/* HOME (Hero + Featured grid) */}
       {tab === "Home" && (
         <section className="relative overflow-hidden rounded-[32px] border border-[var(--line)] bg-white/55 shadow-[0_18px_60px_rgba(0,0,0,0.08)]">
           <motion.div
@@ -375,17 +428,24 @@ export default function HomeTabs() {
                 <span className="block text-[var(--accent2)]">Jihee Cho</span>
               </h1>
 
-              <p className="mt-5 text-[15px] sm:text-[17px] leading-8 text-[var(--muted)] max-w-[72ch]">
-                데이터 분석과 시장조사 기반으로, 의사결정을 실질적으로 지원하는 결과물을 만듭니다.
+              <p className="mt-5 text-[15px] sm:text-[17px] leading-8 text-[var(--muted)] max-w-[72ch] font-medium">
+                데이터 분석과 시장조사 경험을 기반으로, 의사결정을 실질적으로
+                지원하는 결과물을 만듭니다.
                 <br />
-                기획부터 모델링, 시각화까지 전반적 흐름을 설계하고 구현합니다.
+                기획부터 모델링, 시각화까지의 흐름을 하나의 스토리로 설계하고
+                구현하는 데 집중해 왔습니다.
                 <span className="block mt-2">
-                  아래는 대표 프로젝트이며, 전체는 <b className="text-black">Projects</b>에서 확인할 수 있습니다.
+                  아래는 대표 프로젝트이고, 전체 목록은{" "}
+                  <b className="text-black">Projects</b> 탭에서 확인하실 수
+                  있습니다.
                 </span>
               </p>
 
               <div className="mt-6 flex flex-wrap gap-2">
-                <LinkChip href={LINKS.github} className="bg-black text-white border-black/20">
+                <LinkChip
+                  href={LINKS.github}
+                  className="bg-black text-white border-black/20"
+                >
                   GitHub
                 </LinkChip>
                 <LinkChip href={LINKS.hf}>Hugging Face</LinkChip>
@@ -397,8 +457,12 @@ export default function HomeTabs() {
               <div className="mt-9">
                 <div className="flex items-end justify-between">
                   <div>
-                    <div className="text-sm font-black tracking-tight">Featured</div>
-                    <div className="mt-1 text-sm text-[var(--muted)]">대표 프로젝트</div>
+                    <div className="text-sm font-black tracking-tight">
+                      Featured
+                    </div>
+                    <div className="mt-1 text-sm text-[var(--muted)]">
+                      대표 프로젝트
+                    </div>
                   </div>
                   <button
                     type="button"
@@ -409,16 +473,24 @@ export default function HomeTabs() {
                   </button>
                 </div>
 
-                {/* 가로 캐러셀 */}
-                <div className="mt-4 -mx-6 sm:mx-0">
-                  <div className="flex gap-4 overflow-x-auto pb-2 px-6 sm:px-0 snap-x snap-mandatory">
-                    {featured.map((p) => (
+                {/* 가로 캐러셀 대신 2×2 그리드 */}
+                <div className="mt-4">
+                  <div className="grid gap-4 sm:gap-5 sm:grid-cols-2">
+                    {featured.slice(0, 4).map((p) => (
                       <FeaturedTile key={(p as any).slug} p={p} />
                     ))}
                   </div>
-                  <div className="mt-2 text-xs text-[var(--muted)]">
-                    좌우로 스크롤해서 더 볼 수 있어.
-                  </div>
+                  <p className="mt-3 text-xs text-[var(--muted)] font-medium">
+                    더 많은 프로젝트는{" "}
+                    <button
+                      type="button"
+                      onClick={() => setTab("Projects")}
+                      className="font-semibold underline underline-offset-4 hover:opacity-80"
+                    >
+                      Projects 탭
+                    </button>
+                    에서 모두 확인하실 수 있습니다.
+                  </p>
                 </div>
               </div>
             </div>
@@ -426,16 +498,29 @@ export default function HomeTabs() {
             {/* right hero image */}
             <div className="lg:col-span-5">
               <div className="relative h-[380px] sm:h-[520px] lg:h-[640px] rounded-[28px] overflow-hidden border border-black/15 bg-black/5">
-                <Image src="/a2026.jpg" alt="Hero image" fill className="object-cover" priority />
+                <Image
+                  src="/a2026.jpg"
+                  alt="Hero image"
+                  fill
+                  className="object-cover"
+                  priority
+                />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/18 to-transparent" />
 
                 <div className="absolute bottom-6 left-6 right-6">
                   <div className="flex items-center gap-4">
                     <div className="relative h-16 w-16 rounded-full overflow-hidden border border-white/30">
-                      <Image src="/avatar.jpg" alt="Avatar" fill className="object-cover" />
+                      <Image
+                        src="/avatar.jpg"
+                        alt="Avatar"
+                        fill
+                        className="object-cover"
+                      />
                     </div>
                     <div className="min-w-0">
-                      <div className="text-white text-xl font-black leading-tight">Jihee Cho</div>
+                      <div className="text-white text-xl font-black leading-tight">
+                        Jihee Cho
+                      </div>
                       <div className="text-white/80 text-sm font-semibold">
                         Analytics · Bayesian · Forecasting · LLM
                       </div>
@@ -443,7 +528,11 @@ export default function HomeTabs() {
                   </div>
 
                   <div className="mt-5 flex flex-wrap gap-2">
-                    {["Decision-ready outputs", "Automation → productization", "Fine-tuning / RAG"].map((x) => (
+                    {[
+                      "Decision-ready outputs",
+                      "Automation → productization",
+                      "Fine-tuning / RAG",
+                    ].map((x) => (
                       <span
                         key={x}
                         className="inline-flex items-center rounded-full bg-white/15 border border-white/25 px-3 py-1 text-xs font-extrabold text-white backdrop-blur"
@@ -464,15 +553,22 @@ export default function HomeTabs() {
         <section className="rounded-[32px] border border-[var(--line)] bg-white/55 p-6 sm:p-10 shadow-[0_18px_60px_rgba(0,0,0,0.08)]">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
             <div>
-              <h2 className="text-3xl sm:text-4xl font-black tracking-tight">Projects</h2>
-              <p className="mt-3 text-[15px] text-[var(--muted)] leading-8">
-                카드를 클릭하면 Repo가 우선으로 열립니다. (Repo가 없으면 Demo → Blog 순)
+              <h2 className="text-3xl sm:text-4xl font-black tracking-tight">
+                Projects
+              </h2>
+              <p className="mt-3 text-[15px] text-[var(--muted)] leading-8 font-medium">
+                카드를 클릭하면 Repo가 우선으로 열립니다. Repo가 없는
+                프로젝트는 Demo, 그다음 Blog 순으로 연결됩니다.
               </p>
             </div>
           </div>
 
           <div className="mt-5 flex flex-wrap gap-2">
-            <Pill active={filter === "All"} onClick={() => setFilter("All")} tone="neutral">
+            <Pill
+              active={filter === "All"}
+              onClick={() => setFilter("All")}
+              tone="neutral"
+            >
               All
             </Pill>
             {categories.map((k) => (
@@ -500,13 +596,21 @@ export default function HomeTabs() {
         <section className="rounded-[32px] border border-[var(--line)] bg-white/55 p-6 sm:p-10 shadow-[0_18px_60px_rgba(0,0,0,0.08)]">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
             <div>
-              <h2 className="text-3xl sm:text-4xl font-black tracking-tight">Info</h2>
-              <p className="mt-3 text-[15px] text-[var(--muted)] leading-8">
-                좌측은 약력, 우측은 요약/스킬/코어강점. 카테고리 칩을 누르면 Projects로 이동해서 자동 필터돼.
+              <h2 className="text-3xl sm:text-4xl font-black tracking-tight">
+                Info
+              </h2>
+              <p className="mt-3 text-[15px] text-[var(--muted)] leading-8 font-medium">
+                왼쪽에는 학력·경력·수상 내역을, 오른쪽에는 요약·스킬·코어
+                강점을 정리했습니다. 카테고리 칩을 클릭하면{" "}
+                <b>Projects</b> 탭으로 이동하면서 해당 카테고리로 자동
+                필터링됩니다.
               </p>
             </div>
             <div className="flex flex-wrap items-center gap-2">
-              <LinkChip href={LINKS.resumePdf} className="bg-black text-white border-black/20">
+              <LinkChip
+                href={LINKS.resumePdf}
+                className="bg-black text-white border-black/20"
+              >
                 Resume PDF
               </LinkChip>
               <LinkChip href={`mailto:${LINKS.email}`}>Contact</LinkChip>
@@ -519,10 +623,18 @@ export default function HomeTabs() {
               <div className="rounded-3xl border border-[var(--line)] bg-white/70 p-6">
                 <div className="flex items-center gap-4">
                   <div className="relative h-16 w-16 overflow-hidden rounded-2xl border border-black/15 bg-black/5">
-                    <Image src="/avatar.jpg" alt="avatar" fill className="object-cover" priority />
+                    <Image
+                      src="/avatar.jpg"
+                      alt="avatar"
+                      fill
+                      className="object-cover"
+                      priority
+                    />
                   </div>
                   <div className="min-w-0">
-                    <div className="text-lg font-black tracking-tight">Jihee Cho</div>
+                    <div className="text-lg font-black tracking-tight">
+                      Jihee Cho
+                    </div>
                     <div className="text-sm text-[var(--muted)] font-semibold">
                       Analytics · Bayesian · Forecasting · LLM
                     </div>
@@ -545,11 +657,15 @@ export default function HomeTabs() {
             <div className="lg:col-span-7 space-y-4">
               <div className="rounded-3xl border border-[var(--line)] bg-white/70 p-7">
                 <div className="text-sm font-black tracking-tight">Summary</div>
-                <p className="mt-3 text-[15px] text-[var(--muted)] leading-8">{INFO_SUMMARY}</p>
+                <p className="mt-3 text-[15px] text-[var(--muted)] leading-8 font-medium">
+                  {INFO_SUMMARY}
+                </p>
               </div>
 
               <div className="rounded-3xl border border-[var(--line)] bg-white/70 p-7">
-                <div className="text-sm font-black tracking-tight">Skillset</div>
+                <div className="text-sm font-black tracking-tight">
+                  Skillset
+                </div>
                 <div className="mt-4 flex flex-wrap gap-2">
                   {skillset.map((c) => (
                     <Pill
@@ -563,14 +679,20 @@ export default function HomeTabs() {
                       }}
                     >
                       {c.label}
-                      {c.cat ? <span className="ml-2 text-[11px] text-black/60">({String(c.cat)})</span> : null}
+                      {c.cat ? (
+                        <span className="ml-2 text-[11px] text-black/60">
+                          ({String(c.cat)})
+                        </span>
+                      ) : null}
                     </Pill>
                   ))}
                 </div>
               </div>
 
               <div className="rounded-3xl border border-[var(--line)] bg-white/70 p-7">
-                <div className="text-sm font-black tracking-tight">Core strengths</div>
+                <div className="text-sm font-black tracking-tight">
+                  Core strengths
+                </div>
                 <div className="mt-4 flex flex-wrap gap-2">
                   {core.map((c) => (
                     <Pill key={c.label} tone={c.tone ?? "neutral"}>
@@ -595,13 +717,19 @@ export default function HomeTabs() {
         <section className="rounded-[32px] border border-[var(--line)] bg-white/55 p-6 sm:p-10 shadow-[0_18px_60px_rgba(0,0,0,0.08)]">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
             <div>
-              <h2 className="text-3xl sm:text-4xl font-black tracking-tight">Board</h2>
-              <p className="mt-3 text-[15px] text-[var(--muted)] leading-8">
-                업데이트/노트/링크를 모아두는 공간. 나중에 블로그 목록이나 Velog 연동으로 확장하면 돼.
+              <h2 className="text-3xl sm:text-4xl font-black tracking-tight">
+                Board
+              </h2>
+              <p className="mt-3 text-[15px] text-[var(--muted)] leading-8 font-medium">
+                업데이트, 노트, 외부 링크를 모아두는 공간입니다. 이후에는
+                블로그 글 목록이나 Velog 연동 등으로 확장할 예정입니다.
               </p>
             </div>
             <div className="flex flex-wrap items-center gap-2">
-              <LinkChip href={LINKS.velog} className="bg-black text-white border-black/20">
+              <LinkChip
+                href={LINKS.velog}
+                className="bg-black text-white border-black/20"
+              >
                 Velog
               </LinkChip>
               <LinkChip href={LINKS.github}>GitHub</LinkChip>
@@ -610,13 +738,29 @@ export default function HomeTabs() {
 
           <div className="mt-7 grid grid-cols-1 md:grid-cols-3 gap-4">
             {[
-              { title: "Pinned", body: "대표 글 / 발표자료 / 링크 모음" },
-              { title: "Notes", body: "실험/리서치 노트, 짧은 정리" },
-              { title: "Updates", body: "개선 사항 / 배포 기록" },
+              {
+                title: "Pinned",
+                body: "대표 글, 발표 자료, 주요 링크를 고정해두는 영역입니다.",
+              },
+              {
+                title: "Notes",
+                body: "실험·리서치 노트와 짧은 인사이트를 정리합니다.",
+              },
+              {
+                title: "Updates",
+                body: "포트폴리오 개선 사항과 배포 기록을 기록합니다.",
+              },
             ].map((x) => (
-              <div key={x.title} className="rounded-3xl border border-[var(--line)] bg-white/70 p-7">
-                <div className="text-sm font-black tracking-tight">{x.title}</div>
-                <div className="mt-2 text-sm text-[var(--muted)] leading-7">{x.body}</div>
+              <div
+                key={x.title}
+                className="rounded-3xl border border-[var(--line)] bg-white/70 p-7"
+              >
+                <div className="text-sm font-black tracking-tight">
+                  {x.title}
+                </div>
+                <div className="mt-2 text-sm text-[var(--muted)] leading-7 font-medium">
+                  {x.body}
+                </div>
               </div>
             ))}
           </div>
@@ -627,13 +771,26 @@ export default function HomeTabs() {
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <div>© {new Date().getFullYear()} Jihee Cho</div>
           <div className="flex flex-wrap items-center gap-4">
-            <a className="underline underline-offset-4 hover:opacity-80" href={LINKS.hf} target="_blank" rel="noreferrer">
+            <a
+              className="underline underline-offset-4 hover:opacity-80"
+              href={LINKS.hf}
+              target="_blank"
+              rel="noreferrer"
+            >
               Hugging Face
             </a>
-            <a className="underline underline-offset-4 hover:opacity-80" href={LINKS.velog} target="_blank" rel="noreferrer">
+            <a
+              className="underline underline-offset-4 hover:opacity-80"
+              href={LINKS.velog}
+              target="_blank"
+              rel="noreferrer"
+            >
               Velog
             </a>
-            <a className="underline underline-offset-4 hover:opacity-80" href={`mailto:${LINKS.email}`}>
+            <a
+              className="underline underline-offset-4 hover:opacity-80"
+              href={`mailto:${LINKS.email}`}
+            >
               Contact
             </a>
           </div>
