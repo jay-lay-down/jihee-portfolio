@@ -9,9 +9,8 @@ const config: Config = {
   theme: {
     extend: {
       fontFamily: {
-        // 기본 sans 폰트를 Pretendard 계열로 고정
+        // body 에서 font-sans 쓰면 이 세팅이 적용됨
         sans: [
-          "Pretendard Variable",
           "Pretendard",
           "-apple-system",
           "BlinkMacSystemFont",
