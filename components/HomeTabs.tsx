@@ -16,13 +16,7 @@ import {
   FaQuoteLeft,
 } from "react-icons/fa";
 import { SiHuggingface, SiVelog } from "react-icons/si";
-import {
-  MdEmail,
-  MdArticle,
-  MdSchool,
-  MdWork,
-  MdEmojiEvents,
-} from "react-icons/md";
+import { MdEmail, MdArticle, MdSchool, MdWork, MdEmojiEvents } from "react-icons/md";
 import { IoLocationSharp } from "react-icons/io5";
 
 // --- 상수 ---
@@ -37,13 +31,7 @@ const LINKS = {
 
 // --- 타입 ---
 type TabKey = "Home" | "Projects" | "Info" | "Board";
-type Filter =
-  | "All"
-  | "LLM"
-  | "Segmentation"
-  | "Bayesian"
-  | "Forecasting"
-  | "Other";
+type Filter = "All" | "LLM" | "Segmentation" | "Bayesian" | "Forecasting" | "Other";
 type Post = {
   id: number;
   author: string;
@@ -56,6 +44,31 @@ type InfoItem = { year?: number; label: string; sub?: string };
 // --- 유틸 ---
 function cn(...xs: Array<string | false | undefined | null>) {
   return xs.filter(Boolean).join(" ");
+}
+
+// 탭 버튼
+function FullWidthTab({
+  active,
+  onClick,
+  label,
+}: {
+  active: boolean;
+  onClick: () => void;
+  label: string;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className={cn(
+        "flex-1 py-4 text-base font-bold transition-all duration-300 border-b-[3px]",
+        active
+          ? "bg-stone-800 text-[#d4a373] border-[#d4a373]"
+          : "bg-stone-100 text-stone-400 border-stone-200 hover:bg-stone-200 hover:text-stone-600"
+      )}
+    >
+      {label}
+    </button>
+  );
 }
 
 // 프로젝트 카드 (썸네일 없으면 그라데이션)
@@ -126,19 +139,11 @@ function ProjectCard({ p }: { p: any }) {
   );
 }
 
-// Info 섹션
-function InfoSection({
-  title,
-  icon: Icon,
-  items,
-}: {
-  title: string;
-  icon: any;
-  items: InfoItem[];
-}) {
+// Info 섹션 카드
+function InfoSection({ title, icon: Icon, items }: { title: string; icon: any; items: InfoItem[] }) {
   return (
-    <div className="mb-8">
-      <div className="flex items-center gap-2 mb-4 border-b border-white/10 pb-2">
+    <div className="bg-white/5 border border-white/10 rounded-2xl p-6 sm:p-7 shadow-md">
+      <div className="flex items-center gap-2 mb-4 pb-2 border-b border-white/10">
         <Icon className="text-[#d4a373] text-xl" />
         <h3 className="text-lg font-bold text-white tracking-wide">{title}</h3>
       </div>
@@ -152,11 +157,7 @@ function InfoSection({
               <div className="text-base font-bold text-stone-200 group-hover:text-white transition">
                 {x.label}
               </div>
-              {x.sub && (
-                <div className="text-sm text-stone-400 mt-1 font-medium">
-                  {x.sub}
-                </div>
-              )}
+              {x.sub && <div className="text-sm text-stone-400 mt-1 font-medium">{x.sub}</div>}
             </div>
           </div>
         ))}
@@ -178,31 +179,23 @@ function SocialBtn({ href, icon: Icon }: { href: string; icon: any }) {
   );
 }
 
-const NAV_ITEMS: { key: TabKey; label: string }[] = [
-  { key: "Home", label: "Home" },
-  { key: "Projects", label: "Projects" },
-  { key: "Info", label: "Info" },
-  { key: "Board", label: "Board" },
-];
-
 export default function HomeTabs() {
   const [tab, setTab] = useState<TabKey>("Home");
   const [filter, setFilter] = useState<Filter>("All");
+  const [isMobileView, setIsMobileView] = useState(false);
 
   // --- Board ---
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(false);
   const [inputName, setInputName] = useState("");
   const [inputContent, setInputContent] = useState("");
-  const [inputCategory, setInputCategory] = useState<"Q&A" | "Guestbook">(
-    "Guestbook",
-  );
+  const [inputCategory, setInputCategory] = useState<"Q&A" | "Guestbook">("Guestbook");
 
-  // 게시판 읽기
+  // ✅ 게시판 읽기
   const fetchPosts = async () => {
     setLoading(true);
     try {
-      const { data, error }: any = await supabase
+      const { data, error } = await (supabase as any)
         .from("guestbook")
         .select("*")
         .order("created_at", { ascending: false });
@@ -227,54 +220,40 @@ export default function HomeTabs() {
     if (tab === "Board") fetchPosts();
   }, [tab]);
 
-  // 게시글 저장
+  // ✅ 게시글 저장
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!inputName.trim() || !inputContent.trim()) return;
 
     try {
-      const { error }: any = await supabase.from("guestbook").insert([
-        { author: inputName, content: inputContent, category: inputCategory },
-      ]);
+      const { error }: { error: any } = await (supabase as any)
+        .from("guestbook")
+        .insert([{ author: inputName, content: inputContent, category: inputCategory }]);
 
       if (error) {
         console.error("Supabase insert error:", error);
-        alert(
-          `게시글 저장 중 오류가 발생했어요: ${
-            (error && (error as any).message) || "알 수 없는 오류"
-          }`,
-        );
+        alert("게시글 저장 중 오류가 발생했어요.");
         return;
       }
 
       setInputName("");
       setInputContent("");
       fetchPosts();
-    } catch (err: any) {
+    } catch (err) {
       console.error("Supabase insert exception:", err);
-      const msg =
-        typeof err?.message === "string"
-          ? err.message
-          : "네트워크 오류로 게시글을 저장하지 못했어요.";
-      alert(`Error: ${msg}`);
+      alert("네트워크 오류로 게시글을 저장하지 못했어요.");
     }
   };
 
   // --- Projects 데이터 ---
-  const featured = useMemo(
-    () => PROJECTS.filter((p: any) => p.featured),
-    [],
-  );
+  const featured = useMemo(() => PROJECTS.filter((p: any) => p.featured), []);
   const filteredProjects = useMemo(
-    () =>
-      filter === "All"
-        ? PROJECTS
-        : PROJECTS.filter((p: any) => p.category === filter),
-    [filter],
+    () => (filter === "All" ? PROJECTS : PROJECTS.filter((p: any) => p.category === filter)),
+    [filter]
   );
   const categories = useMemo(
     () => Array.from(new Set(PROJECTS.map((p: any) => p.category))),
-    [],
+    []
   );
 
   // --- Static Info ---
@@ -284,10 +263,7 @@ export default function HomeTabs() {
   ];
   const EXPERIENCE: InfoItem[] = [
     { label: "Kantar Korea", sub: "Analytics" },
-    {
-      label: "NIQ-GfK",
-      sub: "Global Strategic Account Management",
-    },
+    { label: "NIQ-GfK", sub: "Global Strategic Account Management" },
     { label: "Macromill Embrain", sub: "리서치 1부서 3팀" },
     { label: "MnM Research", sub: "연구사업본부" },
     { label: "서울대학교병원", sub: "소아정신과 의생명연구원" },
@@ -304,7 +280,7 @@ export default function HomeTabs() {
     { label: "데이터분석준전문가(AdsP)" },
     { label: "구글 애널리틱스(GAIQ)" },
   ];
-  const SKILLS = [
+  const SUMMARY_SKILLS = [
     "Analytics planning",
     "Market research",
     "Demand Space",
@@ -315,52 +291,64 @@ export default function HomeTabs() {
     "LLM fine-tuning",
     "RAG workflows",
   ];
+  const ABOUT_SKILLS = [
+    "Python",
+    "PyTorch",
+    "TensorFlow",
+    "R",
+    "SQL",
+    "Tableau",
+    "Hadoop",
+    "Excel",
+    "PowerPoint",
+    "Hugging Face",
+    "SPSS",
+  ];
 
   return (
     <div className="min-h-screen text-stone-800 pb-20 w-full">
-      {/* 상단 헤더: 왼쪽 이름, 오른쪽 텍스트 메뉴 */}
-      <header className="py-8 w-full px-6 lg:px-16 flex items-center justify-between">
-        <div>
-          <h1 className="text-4xl font-black tracking-tight text-stone-900">
-            Jihee Cho
-          </h1>
-          <p className="text-sm text-stone-500 font-semibold mt-1">
-            Jan.25.1991 / Seoul
-          </p>
+      {/* 상단 헤더 */}
+      <header className="py-10 flex flex-col sm:flex-row items-center justify-between gap-2 md:gap-4 w-full px-0">
+        <div className="px-6 lg:px-10 w-full flex justify-between items-center">
+          <div>
+            <h1 className="text-4xl font-black tracking-tight text-stone-900">Jihee Cho</h1>
+            <p className="text-sm text-stone-500 font-semibold mt-1">Jan.25.1991 / Seoul</p>
+          </div>
+          <button
+            onClick={() => setIsMobileView((prev) => !prev)}
+            className={cn(
+              "text-xs font-bold border rounded-full px-4 py-2 transition duration-300",
+              isMobileView
+                ? "bg-[#8C5E35] text-white border-[#8C5E35]"
+                : "bg-white text-stone-500 border-stone-300 hover:border-[#8C5E35] hover:text-[#8C5E35]"
+            )}
+          >
+            {isMobileView ? "📱 Mobile View (ON)" : "💻 PC View"}
+          </button>
         </div>
-        <nav className="flex gap-8 text-sm font-semibold text-stone-500">
-          {NAV_ITEMS.map((item) => (
-            <button
-              key={item.key}
-              onClick={() => setTab(item.key)}
-              className={cn(
-                "relative pb-1 transition",
-                tab === item.key
-                  ? "text-stone-900 after:absolute after:left-0 after:right-0 after:-bottom-0.5 after:h-[2px] after:bg-stone-900"
-                  : "hover:text-stone-900",
-              )}
-            >
-              {item.label}
-            </button>
-          ))}
-        </nav>
       </header>
 
+      {/* 탭 내비 */}
+      <nav className="flex w-full border border-stone-200 rounded-t-xl overflow-hidden shadow-sm mb-0">
+        <FullWidthTab label="Home" active={tab === "Home"} onClick={() => setTab("Home")} />
+        <FullWidthTab
+          label="Projects"
+          active={tab === "Projects"}
+          onClick={() => setTab("Projects")}
+        />
+        <FullWidthTab label="Info" active={tab === "Info"} onClick={() => setTab("Info")} />
+        <FullWidthTab label="Board" active={tab === "Board"} onClick={() => setTab("Board")} />
+      </nav>
+
       {/* 메인 카드 */}
-      <main className="animate-in fade-in slide-in-from-bottom-2 duration-500 shadow-xl rounded-t-2xl rounded-b-xl overflow-hidden w-full border border-stone-200/70 bg-white/60">
+      <main className="animate-in fade-in slide-in-from-bottom-2 duration-500 shadow-xl rounded-b-xl overflow-hidden w-full">
         {/* HOME */}
         {tab === "Home" && (
-          <div className="bg-stone-100/80 pt-8 pb-12 px-0 border-b border-stone-200/50">
+          <div className="bg-stone-100/80 pt-8 pb-12 px-0 border-x border-b border-stone-200/50">
             <div className="space-y-10 px-6 lg:px-10">
               {/* Hero */}
               <div className="relative w-full h-[380px] md:h-[440px] rounded-2xl overflow-hidden shadow-xl">
-                <Image
-                  src="/a2026.jpg"
-                  alt="Hero"
-                  fill
-                  className="object-cover"
-                  priority
-                />
+                <Image src="/a2026.jpg" alt="Hero" fill className="object-cover" priority />
                 <div className="absolute inset-0 bg-gradient-to-b from-black/15 via-black/55 to-black/80" />
                 <div className="absolute inset-0 p-8 sm:p-10 flex flex-col justify-center text-white">
                   <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/20 backdrop-blur-md text-xs font-bold w-fit mb-5 border border-white/30">
@@ -372,61 +360,101 @@ export default function HomeTabs() {
                     <br />
                     <span className="text-[#ffba49]">Jihee Cho</span>
                   </h2>
-                  {/* 아래 설명 문단은 요청대로 제거 */}
+                  {/* 히어로 줄글 제거 */}
                 </div>
               </div>
 
-              {/* ABOUT + Profile 한 줄 */}
-              <div className="grid gap-8 lg:grid-cols-12">
-                {/* ABOUT */}
-                <section className="lg:col-span-8 rounded-2xl bg-[#f5ebe0] border border-[#e3d5ca] px-6 py-6 sm:px-8 sm:py-7">
-                  <h3 className="text-xs sm:text-sm font-extrabold tracking-wide text-stone-700 mb-3">
-                    ABOUT
-                  </h3>
-                  <div className="text-sm sm:text-[15px] leading-7 text-stone-800 font-medium max-w-5xl space-y-4">
-                    <p>
-                      브랜드·리서치 데이터를 가지고 무엇을 결정할 수 있을지부터
-                      생각합니다. 단순 지표 나열보다는, 실질적인 도움이 되는
-                      인사이트를 도출하는 데 관심이 많습니다.
-                    </p>
-                    <p>
-                      프로젝트를 할 때는 문제 정의 → 분석 설계 → 모델링 →
-                      대시보드·리포트 → 자동화·도구화까지 한 흐름으로 묶어서
-                      설계해 왔습니다. 반복해서 쓰이는 분석은 EXE·웹
-                      대시보드·챗봇 등으로 제품화해서, 팀 내 누구나 다시 돌려볼
-                      수 있는 형태로 남기고 있습니다.
-                    </p>
-                    <p>
-                      최근에는 세그멘테이션, 수요 예측, 캠페인 효과 분석 같은
-                      작업에 LLM·RAG를 결합해서, 분석 결과를 단순 보고서가 아니라
-                      “질문하면 맥락을 설명해 주는 AI 서비스” 형태로 제작하는
-                      실험을 하고 있습니다.
-                    </p>
+              {/* ABOUT 블록 + Skills */}
+              <section className="rounded-2xl bg-[#f5ebe0] border border-[#e3d5ca] px-6 py-6 sm:px-8 sm:py-7">
+                <h3 className="text-xs sm:text-sm font-extrabold tracking-wide text-stone-700 mb-2">
+                  ABOUT
+                </h3>
+                <div className="text-sm sm:text-[15px] leading-7 text-stone-800 font-medium max-w-5xl">
+                <p>
+                심리학을 전공한 데이터 분석가로, 브랜드·리서치 데이터를 볼 때
+                “이 숫자로 무엇을 결정할 수 있을까?”부터 생각합니다. 
+                단순히 지표를 나열하기보다는, 실제 의사결정에 바로 쓰일 수 있는 인사이트를
+                도출하는 일이 가장 중요하다고 생각합니다. 
+                </p>
+                <p className="mt-3">
+                프로젝트를 할 때는 기획 단계에서 문제를 정의하고, 조사/데이터 설계–모델링–
+                대시보드·리포트까지 하나의 흐름으로 이어지게 설계하는 데 강합니다.
+                숫자 자체보다 “누가 이 결과를 어떻게 활용할지”를 상상하면서 구조를 잡는 편입니다.
+                </p>
+                <p className="mt-3">
+                반복해서 돌리는 분석은 EXE 툴 등으로 자동화·도구화해서
+                누구나 다시 재생산할 수 있는 형태로 남겨 두고 있습니다. 
+                최근에는 세그멘테이션, 수요 예측, 캠페인 효과 분석 같은 작업에 LLM·RAG를 결합해서,
+                분석 한 번으로 끝나는 결과가 아니라 질문하면 맥락을 설명해 주는
+                AI 서비스 형태로 만드는 실험을 하고 있습니다.
+                </p>
+
+                  {/* Skills 칩 */}
+                  <div className="mt-6">
+                    <h4 className="text-xs font-extrabold tracking-wide text-stone-700 mb-2">
+                      SKILLS
+                    </h4>
+                    <div className="flex flex-wrap gap-2">
+                      {ABOUT_SKILLS.map((s) => (
+                        <span
+                          key={s}
+                          className="px-3 py-1.5 rounded-full bg-white/70 border border-[#e3d5ca] text-[11px] font-bold text-stone-700"
+                        >
+                          {s}
+                        </span>
+                      ))}
+                    </div>
                   </div>
-                </section>
+                </div>
+              </section>
+
+              {/* Featured + Profile */}
+              <div
+                className={cn(
+                  "grid gap-10",
+                  isMobileView ? "grid-cols-1" : "grid-cols-1 lg:grid-cols-12"
+                )}
+              >
+                {/* Featured */}
+                <div className={cn(isMobileView ? "col-span-1" : "lg:col-span-8")}>
+                  <div className="flex items-center justify-between mb-4 sm:mb-6 border-b border-stone-200 pb-3">
+                    <div className="flex items-center gap-2">
+                      <span className="text-lg">🔥</span>
+                      <h3 className="text-xl font-black text-stone-800">Featured Projects</h3>
+                    </div>
+                    <button
+                      onClick={() => setTab("Projects")}
+                      className="text-sm font-bold text-stone-500 hover:text-[#8C5E35] transition underline underline-offset-4"
+                    >
+                      View all
+                    </button>
+                  </div>
+                  <div
+                    className={cn(
+                      "grid gap-6",
+                      isMobileView ? "grid-cols-1" : "grid-cols-1 sm:grid-cols-2"
+                    )}
+                  >
+                    {featured.slice(0, 4).map((p: any) => (
+                      <ProjectCard key={p.slug} p={p} />
+                    ))}
+                  </div>
+                </div>
 
                 {/* Profile 카드 */}
-                <div className="lg:col-span-4">
-                  <div className="lg:sticky lg:top-8 bg-white/90 backdrop-blur-sm rounded-2xl p-8 border border-stone-200 shadow-sm">
+                <div className={cn(isMobileView ? "col-span-1" : "lg:col-span-4")}>
+                  <div className="lg:sticky lg:top-8 bg-white/85 backdrop-blur-sm rounded-2xl p-8 border border-stone-200 shadow-sm">
                     <div className="relative w-24 h-24 rounded-full border-4 border-white shadow-md mb-5 overflow-hidden">
-                      <Image
-                        src="/avatar.jpg"
-                        alt="Avatar"
-                        fill
-                        className="object-cover"
-                      />
+                      <Image src="/avatar.jpg" alt="Avatar" fill className="object-cover" />
                     </div>
-                    <h3 className="text-2xl font-black text-stone-900">
-                      Jihee Cho
-                    </h3>
+                    <h3 className="text-2xl font-black text-stone-900">Jihee Cho</h3>
                     <div className="text-sm font-bold text-[#8C5E35] mb-5">
                       Analytics · Build · LLM
                     </div>
 
                     <div className="space-y-3 mb-8">
                       <div className="flex items-center gap-3 text-sm text-stone-600 font-bold bg-stone-50 p-3 rounded-xl border border-stone-100">
-                        <IoLocationSharp className="text-lg text-stone-400" />{" "}
-                        Seoul, South Korea
+                        <IoLocationSharp className="text-lg text-stone-400" /> Seoul, South Korea
                       </div>
                       <a
                         href={`mailto:${LINKS.email}`}
@@ -454,41 +482,16 @@ export default function HomeTabs() {
                   </div>
                 </div>
               </div>
-
-              {/* Featured Projects – 넓은 화면에서 4개 가로 */}
-              <section className="space-y-6">
-                <div className="flex items-center justify-between border-b border-stone-200 pb-3">
-                  <div className="flex items-center gap-2">
-                    <span className="text-lg">🔥</span>
-                    <h3 className="text-xl font-black text-stone-800">
-                      Featured Projects
-                    </h3>
-                  </div>
-                  <button
-                    onClick={() => setTab("Projects")}
-                    className="text-sm font-bold text-stone-500 hover:text-[#8C5E35] transition underline underline-offset-4"
-                  >
-                    View all
-                  </button>
-                </div>
-                <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 xl:grid-cols-4">
-                  {featured.slice(0, 4).map((p: any) => (
-                    <ProjectCard key={p.slug} p={p} />
-                  ))}
-                </div>
-              </section>
             </div>
           </div>
         )}
 
         {/* PROJECTS */}
         {tab === "Projects" && (
-          <div className="bg-stone-200/60 pt-8 pb-10 px-0 rounded-b-xl border-t border-stone-200/50">
+          <div className="bg-stone-200/60 pt-8 pb-10 px-0 rounded-b-xl border-x border-b border-stone-200/50 min-h-[600px]">
             <div className="space-y-8 px-6 lg:px-10">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
-                <h2 className="text-2xl font-black text-stone-900">
-                  All Projects
-                </h2>
+                <h2 className="text-2xl font-black text-stone-900">All Projects</h2>
                 <div className="flex flex-wrap gap-2">
                   <button
                     onClick={() => setFilter("All")}
@@ -496,7 +499,7 @@ export default function HomeTabs() {
                       "px-4 py-2 rounded-full text-sm font-bold transition border",
                       filter === "All"
                         ? "bg-[#8C5E35] text-white border-[#8C5E35]"
-                        : "bg-white text-stone-500 border-stone-300 hover:border-[#8C5E35] hover:text-[#8C5E35]",
+                        : "bg-white text-stone-500 border-stone-300 hover:border-[#8C5E35] hover:text-[#8C5E35]"
                     )}
                   >
                     All
@@ -509,7 +512,7 @@ export default function HomeTabs() {
                         "px-4 py-2 rounded-full text-sm font-bold transition border",
                         filter === c
                           ? "bg-[#8C5E35] text-white border-[#8C5E35]"
-                          : "bg-white text-stone-500 border-stone-300 hover:border-[#8C5E35] hover:text-[#8C5E35]",
+                          : "bg-white text-stone-500 border-stone-300 hover:border-[#8C5E35] hover:text-[#8C5E35]"
                       )}
                     >
                       {String(c)}
@@ -518,7 +521,12 @@ export default function HomeTabs() {
                 </div>
               </div>
 
-              <div className="grid gap-8 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+              <div
+                className={cn(
+                  "grid gap-8",
+                  isMobileView ? "grid-cols-1" : "grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
+                )}
+              >
                 {filteredProjects.map((p: any) => (
                   <ProjectCard key={p.slug} p={p} />
                 ))}
@@ -529,70 +537,67 @@ export default function HomeTabs() {
 
         {/* INFO */}
         {tab === "Info" && (
-          <div className="bg-stone-800 pt-8 pb-12 px-0 rounded-b-xl border-t border-stone-800">
-            <div className="px-6 lg:px-10">
-              {/* 위에 요약 카드 + 아바타 */}
-              <div className="mb-12">
-                <div className="bg-white/5 border border-white/10 rounded-2xl p-8 relative overflow-hidden">
-                  <FaQuoteLeft className="absolute top-6 left-6 text-white/5 text-6xl" />
-                  <div className="relative z-10 flex flex-col md:flex-row gap-6 md:items-center">
-                    <div className="relative w-20 h-20 rounded-full border-4 border-white/20 shadow-md overflow-hidden shrink-0">
-                      <Image
-                        src="/avatar.jpg"
-                        alt="Avatar"
-                        fill
-                        className="object-cover"
-                      />
+          <div className="bg-stone-800 pt-8 pb-12 px-0 rounded-b-xl min-h-[800px] border-x border-b border-stone-800">
+            <div className="px-6 lg:px-10 space-y-10">
+              {/* 프로필 + Summary 카드 */}
+              <div className="bg-white/5 border border-white/10 rounded-2xl p-8 relative overflow-hidden shadow-lg">
+                <FaQuoteLeft className="absolute top-6 left-6 text-white/5 text-6xl" />
+                <div className="relative z-10 flex flex-col lg:flex-row gap-8 items-start">
+                  {/* 아바타 + 기본 정보 */}
+                  <div className="flex items-center gap-4">
+                    <div className="relative w-20 h-20 rounded-full border-4 border-white/40 shadow-md overflow-hidden">
+                      <Image src="/avatar.jpg" alt="Avatar" fill className="object-cover" />
                     </div>
                     <div>
-                      <h2 className="text-2xl font-black text-white mb-3">
-                        Professional Summary
-                      </h2>
-                      <p className="text-stone-300 leading-8 text-base md:text-lg font-medium max-w-4xl">
-                        데이터 분석과 시장조사 경험을 기반으로, 의사결정을 실질적으로
-                        지원하는 결과물을 만듭니다.
-                        <br />
-                        요구사항을 문제 정의–분석 설계–모델링–시각화–리포팅까지 한
-                        흐름으로 설계하고 구현해 왔습니다.
-                        <br />
-                        반복되는 분석 업무는 자동화·표준화하고, LLM 파인튜닝·배포 및
-                        RAG 워크플로우 적용을 통해 분석을 서비스 형태로 확장하고
-                        있습니다.
-                      </p>
+                      <div className="text-xl font-black text-white">Jihee Cho</div>
+                      <div className="text-sm font-bold text-[#d4a373] mt-1">
+                        Analytics · Build · LLM
+                      </div>
+                      <div className="mt-2 inline-flex items-center gap-2 px-3 py-1 rounded-full bg-black/30 text-xs text-stone-200 border border-white/10">
+                        <IoLocationSharp className="text-xs" />
+                        Seoul, South Korea
+                      </div>
                     </div>
                   </div>
-                  <div className="mt-6 flex flex-wrap gap-2 relative z-10">
-                    {SKILLS.map((s) => (
-                      <span
-                        key={s}
-                        className="px-3 py-1.5 rounded-lg bg-white/10 border border-white/10 text-stone-300 text-xs font-bold"
-                      >
-                        {s}
-                      </span>
-                    ))}
+
+                  {/* Summary + 스킬칩 */}
+                  <div className="flex-1">
+                    <h2 className="text-2xl font-black text-white mb-4">Professional Summary</h2>
+                    <p className="text-stone-300 leading-8 text-[15px] font-medium max-w-3xl">
+                      데이터 분석과 시장조사 경험을 기반으로, 의사결정을 실질적으로 지원하는
+                      결과물을 만듭니다.
+                      <br />
+                      요구사항을 문제 정의–분석 설계–모델링–시각화–리포팅까지 한 흐름으로
+                      설계하고 구현해 왔습니다.
+                      <br />
+                      반복되는 분석 업무는 자동화·표준화하고, LLM 파인튜닝·배포 및 RAG 워크플로우
+                      적용을 통해 분석을 서비스 형태로 확장하고 있습니다.
+                    </p>
+                    <div className="mt-6 flex flex-wrap gap-2">
+                      {SUMMARY_SKILLS.map((s) => (
+                        <span
+                          key={s}
+                          className="px-3 py-1.5 rounded-lg bg-white/10 border border-white/10 text-stone-300 text-xs font-bold"
+                        >
+                          {s}
+                        </span>
+                      ))}
+                    </div>
                   </div>
                 </div>
               </div>
 
-              <div className="grid gap-x-16 gap-y-12 grid-cols-1 lg:grid-cols-2">
+              {/* 2×2 그리드: Education / Experience / Licenses / Awards */}
+              <div
+                className={cn(
+                  "grid gap-8",
+                  isMobileView ? "grid-cols-1" : "grid-cols-1 md:grid-cols-2"
+                )}
+              >
                 <InfoSection title="Education" icon={MdSchool} items={EDUCATION} />
-                <InfoSection
-                  title="Experience"
-                  icon={MdWork}
-                  items={EXPERIENCE}
-                />
-                <InfoSection
-                  title="Licenses"
-                  icon={MdEmojiEvents}
-                  items={LICENSES}
-                />
-                <div className="lg:col-span-2">
-                  <InfoSection
-                    title="Awards & Honors"
-                    icon={MdEmojiEvents}
-                    items={AWARDS}
-                  />
-                </div>
+                <InfoSection title="Experience" icon={MdWork} items={EXPERIENCE} />
+                <InfoSection title="Licenses" icon={MdEmojiEvents} items={LICENSES} />
+                <InfoSection title="Awards & Honors" icon={MdEmojiEvents} items={AWARDS} />
               </div>
             </div>
           </div>
@@ -600,8 +605,13 @@ export default function HomeTabs() {
 
         {/* BOARD */}
         {tab === "Board" && (
-          <div className="bg-stone-100/80 pt-8 pb-10 px-0 rounded-b-xl border-t border-stone-200/50 min-h-[600px]">
-            <div className="grid gap-10 px-6 lg:px-10 grid-cols-1 lg:grid-cols-3">
+          <div className="bg-stone-100/80 pt-8 pb-10 px-0 rounded-b-xl border-x border-b border-stone-200/50 min-h-[600px]">
+            <div
+              className={cn(
+                "grid gap-10 px-6 lg:px-10",
+                isMobileView ? "grid-cols-1" : "grid-cols-1 lg:grid-cols-3"
+              )}
+            >
               <div className="lg:col-span-1">
                 <div className="bg-white p-6 rounded-2xl border border-stone-200 shadow-sm lg:sticky lg:top-8">
                   <h3 className="text-lg font-black text-stone-800 mb-4 flex items-center gap-2">
@@ -613,14 +623,12 @@ export default function HomeTabs() {
                         <button
                           key={c}
                           type="button"
-                          onClick={() =>
-                            setInputCategory(c as "Guestbook" | "Q&A")
-                          }
+                          onClick={() => setInputCategory(c as "Guestbook" | "Q&A")}
                           className={cn(
                             "flex-1 py-2 text-xs font-bold rounded-lg border transition duration-300",
                             inputCategory === c
                               ? "bg-[#8C5E35] text-white border-[#8C5E35]"
-                              : "bg-stone-50 text-stone-500 border-stone-200 hover:border-[#8C5E35] hover:text-[#8C5E35]",
+                              : "bg-stone-50 text-stone-500 border-stone-200 hover:border-[#8C5E35] hover:text-[#8C5E35]"
                           )}
                         >
                           {c}
@@ -658,9 +666,7 @@ export default function HomeTabs() {
                   <MdArticle className="text-[#8C5E35]" /> Recent Posts
                 </h3>
                 {loading ? (
-                  <div className="py-20 text-center text-stone-400">
-                    Loading...
-                  </div>
+                  <div className="py-20 text-center text-stone-400">Loading...</div>
                 ) : (
                   posts.map((post) => (
                     <div
@@ -671,9 +677,7 @@ export default function HomeTabs() {
                         <div className="flex gap-3 items-center">
                           <FaUserCircle className="text-stone-300 text-3xl" />
                           <div>
-                            <div className="font-bold text-stone-900">
-                              {post.author}
-                            </div>
+                            <div className="font-bold text-stone-900">{post.author}</div>
                             <div className="text-xs text-stone-400">
                               {new Date(post.created_at).toLocaleDateString()}
                             </div>
@@ -684,7 +688,7 @@ export default function HomeTabs() {
                             "text-[10px] font-bold px-2.5 py-1 rounded-full border",
                             post.category === "Q&A"
                               ? "bg-blue-50 text-blue-600 border-blue-100"
-                              : "bg-[#8C5E35]/10 text-[#8C5E35] border-[#8C5E35]/20",
+                              : "bg-[#8C5E35]/10 text-[#8C5E35] border-[#8C5E35]/20"
                           )}
                         >
                           {post.category}
@@ -702,7 +706,7 @@ export default function HomeTabs() {
         )}
       </main>
 
-      <footer className="mt-10 pt-8 border-t border-stone-200 text-center text-xs font-medium text-stone-500">
+      <footer className="mt-20 pt-8 border-t border-stone-200 text-center text-xs font-medium text-stone-500">
         © {new Date().getFullYear()} Jihee Cho. All rights reserved.
       </footer>
     </div>
