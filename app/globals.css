@@ -1,16 +1,28 @@
-/* 1. Pretendard 폰트 불러오기 (한글 + 영어 다 포함) */
-@import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css");
+/* 1. Pretendard CDN */
+@import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/pretendard.min.css");
 
-/* 2. Tailwind CSS 불러오기 (v4 스타일) */
-@import "tailwindcss";
+/* 2. Tailwind (v3 스타일) */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-/* 3. 공통 폰트 변수 (UI용) */
+/* 3. 기본 폰트/배경 세팅 */
+@layer base {
+  html,
+  body {
+    font-family: "Pretendard", -apple-system, BlinkMacSystemFont, system-ui,
+      Roboto, "Helvetica Neue", "Segoe UI", "Apple SD Gothic Neo",
+      "Noto Sans KR", "Malgun Gothic", "Apple Color Emoji", "Segoe UI Emoji",
+      "Segoe UI Symbol", sans-serif;
+    background: #fbf7f2;
+    color: #111111;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: geometricPrecision;
+  }
+}
+
+/* 4. 색상 변수 */
 :root {
-  --font-ui: "Pretendard Variable", "Pretendard", -apple-system, BlinkMacSystemFont,
-    system-ui, Roboto, "Helvetica Neue", "Segoe UI", "Apple SD Gothic Neo",
-    "Noto Sans KR", "Malgun Gothic", "Apple Color Emoji", "Segoe UI Emoji",
-    "Segoe UI Symbol", sans-serif;
-
   --bg: #fbf7f2;
   --fg: #111111;
   --muted: rgba(0, 0, 0, 0.62);
@@ -20,29 +32,13 @@
   --accent2: #c27a3a;
 }
 
-/* 4. 베이스 레이어에서 폰트/배경/렌더링 한 번에 설정 */
-@layer base {
-  html,
-  body {
-    height: 100%;
-    margin: 0;
-    padding: 0;
-    font-family: var(--font-ui);
-    background: var(--bg);
-    color: var(--fg);
-    -webkit-font-smoothing: antialiased;
-    text-rendering: geometricPrecision;
-  }
-}
-
-/* 5. 유틸리티 클래스 */
+/* 5. 유틸 */
 .container-wide {
   max-width: 1400px;
   width: 94%;
   margin: 0 auto;
 }
 
-/* 6. 기타 스타일 */
 ::selection {
   background: rgba(194, 122, 58, 0.25);
 }
