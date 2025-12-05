@@ -1,14 +1,27 @@
 @import "tailwindcss";
 
 :root{
-  --bg: #fbf6ef;        /* warm beige */
-  --fg: #121212;        /* ink */
-  --muted: rgba(18,18,18,.64);
-  --line: rgba(18,18,18,.12);
-  --soft: rgba(255,255,255,.55);
+  --bg: #fbf7f2;
+  --fg: #111111;
+  --muted: rgba(0,0,0,.62);
+  --line: rgba(0,0,0,.12);
+  --soft: rgba(255,255,255,.65);
+  --accent: #ffba49;
+  --accent2:#c27a3a;
+}
 
-  --accent: #c27a3a;    /* warm brown */
-  --accent2: #ffba49;   /* warm amber */
+.container-wide{
+  width: min(1180px, 100%); /* 모바일도 고려해서 살짝 줄임 */
+  margin: 0 auto;
+}
+
+html, body { height: 100%; }
+
+body{
+  background: var(--bg);
+  color: var(--fg);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: geometricPrecision;
 }
 
 html{ font-family: var(--font-noto), system-ui, -apple-system, Segoe UI, Roboto, sans-serif; }
