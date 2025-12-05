@@ -358,22 +358,13 @@ export default function HomeTabs() {
     <div className="min-h-screen text-stone-800 pb-20 w-full">
       <TopNav tab={tab} setTab={setTab} />
 
-      {/* ✅ 헤더: 중복 제거 (서브텍스트 삭제) */}
-      <header className="py-6 w-full px-0">
-        <div className="px-6 lg:px-10 w-full flex items-start justify-between gap-6">
-          <div>
-            <h1 className="text-4xl font-black tracking-tight text-stone-900">Jihee Cho</h1>
-          </div>
-        </div>
-      </header>
-
       <main className="animate-in fade-in slide-in-from-bottom-2 duration-500 shadow-xl rounded-b-xl overflow-hidden w-full">
         {/* HOME */}
         {tab === "Home" && (
-          <div className="bg-stone-100/80 pt-2 pb-12 px-0 border-x border-b border-stone-200/50">
+          <div className="bg-stone-100/80 pt-0 pb-12 px-0 border-x border-b border-stone-200/50">
             <div className="space-y-10 px-6 lg:px-10">
-              {/* ✅ Hero: 위로 끌어올림 (top padding 줄임 + hero를 바로 시작) */}
-              <div className="relative w-full h-[380px] md:h-[440px] rounded-2xl overflow-hidden shadow-xl">
+              {/* ✅ Hero: 위로 이동 + 살짝 크게 */}
+              <div className="relative mt-0 w-full h-[410px] md:h-[480px] rounded-2xl overflow-hidden shadow-xl">
                 <Image src="/a2026.jpg" alt="Hero" fill className="object-cover" priority />
                 <div className="absolute inset-0 bg-gradient-to-b from-black/15 via-black/55 to-black/80" />
                 <div className="absolute inset-0 p-8 sm:p-10 flex flex-col justify-center text-white">
@@ -391,9 +382,9 @@ export default function HomeTabs() {
 
               <div className="space-y-10">
                 <div className="grid gap-8 items-start grid-cols-1 lg:grid-cols-12">
-                  {/* LEFT: ABOUT (박스 유지 여부는 너가 이미 정한 그대로에서 안 건드림) */}
+                  {/* LEFT: ABOUT (✅ 갈색 전체박스 투명화: bg/border/rounded 제거, 패딩은 그대로) */}
                   <div className="lg:col-span-8 space-y-8">
-                    <section className="rounded-2xl bg-[#f5ebe0] border border-[#e3d5ca] px-6 py-6 sm:px-8 sm:py-7">
+                    <section className="px-6 py-6 sm:px-8 sm:py-7">
                       <h3 className="text-sm font-extrabold tracking-wide text-stone-700 mb-3">
                         ABOUT
                       </h3>
@@ -401,28 +392,25 @@ export default function HomeTabs() {
                       <div className="space-y-3 text-[15px] leading-7 text-stone-800 font-medium max-w-5xl">
                         <p>
                           심리학을 기반으로 데이터 분석을 수행하며, 브랜드·리서치 데이터를 볼 때
-                          &nbsp;“이 숫자로 무엇을 결정할 수 있을까?”부터 생각해요.
+                          &nbsp;“이 숫자로 무엇을 결정할 수 있을까?”부터 생각합니다.
                           단순히 지표를 나열하기보다는, 실제 의사결정에 도움이 되는 인사이트를
-                          정리하는 일을 더 중요하게 여깁니다.
+                          도출하는 일을 더 중요하게 여깁니다.
                         </p>
 
                         <p>
                           프로젝트를 할 때는 기획 단계에서 문제를 정의하고, 조사·데이터 설계 →
-                          모델링 → 대시보드·리포트까지 하나의 흐름으로 이어지도록 설계해 왔어요.
-                          숫자 자체보다 “누가 이 결과를 어떻게 활용할지”를 상상하면서 구조를
-                          짜는 편입니다.
+                          모델링 → 대시보드·리포트까지 하나의 흐름으로 이어지도록 기획하는 데 강점이 있습니다.
+                          숫자 자체보다 “누가 이 결과를 어떻게 활용할지”를 상상하면서 구조를 설계합니다.
                         </p>
 
                         <p>
-                          반복해서 쓰이는 분석은 EXE 툴, 웹 대시보드, 챗봇 등으로 자동화·도구화해서
-                          팀 누구나 다시 돌려볼 수 있는 형태로 남기고 있습니다.
                           최근에는 세그멘테이션, 수요 예측, 캠페인 효과 분석 같은 작업에 LLM·RAG를
                           결합해서, 단순 보고서가 아니라 질문하면 맥락을 설명해 주는
-                          AI 서비스 형태로 만드는 실험을 하고 있어요.
+                          AI 서비스 형태로 만드는 실험을 하고 있습니다.
                         </p>
                       </div>
 
-                      <div className="mt-6 border-t border-[#e3d5ca] pt-4">
+                      <div className="mt-6 border-t border-stone-200 pt-4">
                         <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
                           <MiniInfoCard title="Education" icon={MdSchool} items={EDUCATION} />
                           <MiniInfoCard title="Experience" icon={MdWork} items={EXPERIENCE} />
@@ -442,7 +430,6 @@ export default function HomeTabs() {
 
                       <h3 className="text-2xl font-black text-stone-900">Jihee Cho</h3>
 
-                      {/* ✅ 생년월일/지역: 프로필 박스로 이동 */}
                       <div className="text-sm font-bold text-stone-500 mt-1">
                         Jan.25.1991 / Seoul
                       </div>
@@ -478,8 +465,6 @@ export default function HomeTabs() {
                             </span>
                           ))}
                         </div>
-
-                        {/* ✅ 프로필 박스 내 소셜 버튼 줄 삭제 (상단 네비에 있으니까) */}
 
                         <a
                           href={LINKS.resumePdf}
