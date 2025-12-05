@@ -191,45 +191,63 @@ export default function HomeTabs() {
   const [inputContent, setInputContent] = useState("");
   const [inputCategory, setInputCategory] = useState<"Q&A" | "Guestbook">("Guestbook");
 
+  // ✅ 게시판 읽기: 네트워크 에러까지 안전하게 처리
   const fetchPosts = async () => {
     setLoading(true);
-    const { data, error } = await supabase
-      .from("guestbook")
-      .select("*")
-      .order("created_at", { ascending: false });
+    try {
+      const { data, error } = await supabase
+        .from("guestbook")
+        .select("*")
+        .order("created_at", { ascending: false });
 
-    if (error) {
-      console.error("Supabase select error:", error);
+      if (error) {
+        console.error("Supabase select error:", error);
+        alert("게시판을 불러오는 중 오류가 발생했어요. (콘솔 로그 확인)");
+        setPosts([]);
+      } else {
+        setPosts((data as Post[]) || []);
+      }
+    } catch (err) {
+      console.error("Supabase select exception:", err);
+      alert("네트워크 문제로 게시판을 불러오지 못했어요. 잠시 후 다시 시도해 주세요.");
       setPosts([]);
-    } else {
-      setPosts((data as Post[]) || []);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   useEffect(() => {
     if (tab === "Board") fetchPosts();
   }, [tab]);
 
+  // ✅ 게시글 저장: Failed to fetch 도 잡아서 메시지 깔끔하게
   const handleSubmit = async (e: FormEvent) => {
-  e.preventDefault();
-  if (!inputName.trim() || !inputContent.trim()) return;
+    e.preventDefault();
+    if (!inputName.trim() || !inputContent.trim()) return;
 
-  const { error } = await supabase.from("guestbook").insert([
-    { author: inputName, content: inputContent, category: inputCategory },
-  ]);
+    try {
+      const { error } = await supabase.from("guestbook").insert([
+        { author: inputName, content: inputContent, category: inputCategory },
+      ]);
 
-  if (error) {
-    console.error("Supabase insert error:", error);
-    alert(`Error: ${error.message}`);
-    return;
-  }
+      if (error) {
+        console.error("Supabase insert error:", error);
+        alert(`게시글 저장 중 오류가 발생했어요: ${error.message}`);
+        return;
+      }
 
-  setInputName("");
-  setInputContent("");
-  fetchPosts();
-};
-
+      setInputName("");
+      setInputContent("");
+      fetchPosts();
+    } catch (err: any) {
+      console.error("Supabase insert exception:", err);
+      const msg =
+        typeof err?.message === "string"
+          ? err.message
+          : "네트워크 오류로 게시글을 저장하지 못했어요.";
+      alert(`Error: ${msg}`);
+    }
+  };
 
   // --- Projects 데이터 ---
   const featured = useMemo(() => PROJECTS.filter((p: any) => p.featured), []);
@@ -273,9 +291,9 @@ export default function HomeTabs() {
   ];
 
   return (
-    // ⬇ 여기서 font-sans 제거해서 body의 Pretendard가 그대로 적용되게
+    // font-sans 제거 → layout.tsx에서 준 Pretendard 그대로 사용
     <div className="min-h-screen text-stone-800 pb-20">
-      {/* 상단 헤더 - 폭 1400px */}
+      {/* 상단 헤더 - 전체 폭 사용 (좌우만 살짝 패딩) */}
       <header className="py-10 flex flex-col sm:flex-row items-center justify-between gap-2 md:gap-4 w-full px-6 lg:px-16">
         <div>
           <h1 className="text-4xl font-black tracking-tight text-stone-900">Jihee Cho</h1>
@@ -294,8 +312,8 @@ export default function HomeTabs() {
         </button>
       </header>
 
-      {/* 탭 내비 */}
-      <nav className="flex w-full px-0 lg:px-10 border border-stone-200 rounded-t-xl overflow-hidden shadow-sm mb-0">
+      {/* 탭 내비 - 가로 꽉 차게 (px 제거) */}
+      <nav className="flex w-full border border-stone-200 rounded-t-xl overflow-hidden shadow-sm mb-0">
         <FullWidthTab label="Home" active={tab === "Home"} onClick={() => setTab("Home")} />
         <FullWidthTab
           label="Projects"
@@ -306,8 +324,8 @@ export default function HomeTabs() {
         <FullWidthTab label="Board" active={tab === "Board"} onClick={() => setTab("Board")} />
       </nav>
 
-      {/* 메인 카드 */}
-      <main className="animate-in fade-in slide-in-from-bottom-2 duration-500 shadow-xl rounded-b-xl overflow-hidden w-full px-0 lg:px-10">
+      {/* 메인 카드 - 가로 전체 사용 (패딩 없음, 안쪽 섹션에서 패딩) */}
+      <main className="animate-in fade-in slide-in-from-bottom-2 duration-500 shadow-xl rounded-b-xl overflow-hidden w-full">
         {/* HOME */}
         {tab === "Home" && (
           <div className="bg-stone-100/80 pt-8 pb-12 px-6 sm:px-10 border-x border-b border-stone-200/50">
