@@ -2,16 +2,14 @@
 
 import Image from "next/image";
 import { useMemo, useState, useEffect, FormEvent } from "react";
-import { motion } from "framer-motion";
 import { PROJECTS } from "@/app/projects/data";
 import { supabase } from "@/lib/supabase";
 
 // 아이콘
-import { FaGithub, FaLinkedin, FaPen, FaUserCircle, FaExternalLinkAlt, FaDownload } from "react-icons/fa";
+import { FaGithub, FaLinkedin, FaPen, FaUserCircle, FaExternalLinkAlt, FaDownload, FaQuoteLeft } from "react-icons/fa";
 import { SiHuggingface, SiVelog } from "react-icons/si";
 import { MdEmail, MdArticle, MdSchool, MdWork, MdEmojiEvents } from "react-icons/md";
 import { IoLocationSharp } from "react-icons/io5";
-import { FaQuoteLeft } from "react-icons/fa";
 
 // --- 상수 ---
 const LINKS = {
@@ -29,9 +27,18 @@ type Filter = "All" | "LLM" | "Segmentation" | "Bayesian" | "Forecasting" | "Oth
 type Post = { id: number; author: string; content: string; created_at: string; category: "Q&A" | "Guestbook"; };
 type InfoItem = { year?: number; label: string; sub?: string };
 
+// --- [중요] 유틸리티 함수 (이게 빠져서 에러가 났었어요!) ---
+function cn(...xs: Array<string | false | undefined | null>) {
+  return xs.filter(Boolean).join(" ");
+}
+
+function pickPrimaryLink(p: any) {
+  return p.links?.[0]?.href ?? "#";
+}
+
 // --- 컴포넌트 ---
 
-// 1. 꽉 찬 탭 버튼 (수정됨)
+// 1. 꽉 찬 탭 버튼
 function FullWidthTab({ active, onClick, label }: { active: boolean; onClick: () => void; label: string }) {
   return (
     <button
@@ -48,11 +55,11 @@ function FullWidthTab({ active, onClick, label }: { active: boolean; onClick: ()
   );
 }
 
-// 2. 프로젝트 카드 (새 데이터 구조 반영)
+// 2. 프로젝트 카드
 function ProjectCard({ p }: { p: any }) {
   return (
     <div className="group flex flex-col bg-white rounded-2xl border border-slate-200 overflow-hidden hover:shadow-lg transition h-full">
-      {/* 썸네일 (있으면 표시) */}
+      {/* 썸네일 */}
       <div className="relative aspect-[16/9] bg-slate-100 overflow-hidden">
         {p.cover ? (
           <Image src={p.cover} alt={p.title} fill className="object-cover group-hover:scale-105 transition duration-500" />
@@ -86,7 +93,7 @@ function ProjectCard({ p }: { p: any }) {
           ))}
         </div>
 
-        {/* 링크 버튼들 (여기가 핵심!) */}
+        {/* 링크 버튼들 */}
         <div className="mt-auto flex flex-wrap gap-2 pt-4 border-t border-slate-100">
           {p.links.map((link: any) => (
             <a
