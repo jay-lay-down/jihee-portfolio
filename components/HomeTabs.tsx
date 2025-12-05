@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useMemo, useState, useEffect, FormEvent } from "react";
+import { useMemo, useState, useEffect, FormEvent, useCallback } from "react";
 import { PROJECTS } from "@/app/projects/data";
 import { supabase } from "@/lib/supabase";
 
@@ -13,7 +13,6 @@ import {
   FaUserCircle,
   FaExternalLinkAlt,
   FaDownload,
-  FaQuoteLeft,
 } from "react-icons/fa";
 import { SiHuggingface, SiVelog } from "react-icons/si";
 import { MdEmail, MdArticle, MdSchool, MdWork, MdEmojiEvents } from "react-icons/md";
@@ -30,8 +29,10 @@ const LINKS = {
 };
 
 // --- 타입 ---
-type TabKey = "Home" | "Projects" | "Info" | "Board";
-type Filter = "All" | "LLM" | "Segmentation" | "Bayesian" | "Forecasting" | "Other";
+type TabKey = "Home" | "Projects" | "Board";
+type ProjectCategory = (typeof PROJECTS)[number]["category"];
+type Filter = "All" | ProjectCategory;
+
 type Post = {
   id: number;
   author: string;
@@ -39,6 +40,7 @@ type Post = {
   created_at: string;
   category: "Q&A" | "Guestbook";
 };
+
 type InfoItem = { year?: number; label: string; sub?: string };
 
 // --- 유틸 ---
@@ -100,9 +102,11 @@ function ProjectCard({ p }: { p: any }) {
             {p.category}
           </span>
         </div>
+
         <h3 className="text-lg font-black text-stone-900 leading-tight mb-3 group-hover:text-[#8C5E35] transition">
           {p.title}
         </h3>
+
         <p className="text-sm text-stone-600 leading-relaxed mb-5 line-clamp-2">
           {p.oneLiner}
         </p>
@@ -139,33 +143,6 @@ function ProjectCard({ p }: { p: any }) {
   );
 }
 
-// Info 섹션 카드
-function InfoSection({ title, icon: Icon, items }: { title: string; icon: any; items: InfoItem[] }) {
-  return (
-    <div className="bg-white/5 border border-white/10 rounded-2xl p-6 sm:p-7 shadow-md">
-      <div className="flex items-center gap-2 mb-4 pb-2 border-b border-white/10">
-        <Icon className="text-[#d4a373] text-xl" />
-        <h3 className="text-lg font-bold text-white tracking-wide">{title}</h3>
-      </div>
-      <div className="space-y-5">
-        {items.map((x, i) => (
-          <div key={i} className="flex gap-4 group">
-            <div className="w-14 shrink-0 text-sm font-bold text-[#d4a373]/60 pt-0.5 group-hover:text-[#d4a373] transition">
-              {x.year ? x.year : "•"}
-            </div>
-            <div>
-              <div className="text-base font-bold text-stone-200 group-hover:text-white transition">
-                {x.label}
-              </div>
-              {x.sub && <div className="text-sm text-stone-400 mt-1 font-medium">{x.sub}</div>}
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
 function SocialBtn({ href, icon: Icon }: { href: string; icon: any }) {
   return (
     <a
@@ -176,6 +153,39 @@ function SocialBtn({ href, icon: Icon }: { href: string; icon: any }) {
     >
       <Icon className="text-xl" />
     </a>
+  );
+}
+
+// Home용 Info 섹션(라이트 톤)
+function InfoSectionLight({
+  title,
+  icon: Icon,
+  items,
+}: {
+  title: string;
+  icon: any;
+  items: InfoItem[];
+}) {
+  return (
+    <div className="bg-white rounded-2xl border border-stone-200 p-6 shadow-sm">
+      <div className="flex items-center gap-2 mb-4 pb-3 border-b border-stone-100">
+        <Icon className="text-[#8C5E35] text-xl" />
+        <h3 className="text-base font-black text-stone-900 tracking-wide">{title}</h3>
+      </div>
+      <div className="space-y-4">
+        {items.map((x, i) => (
+          <div key={i} className="flex gap-4">
+            <div className="w-14 shrink-0 text-xs font-black text-stone-400 pt-1">
+              {x.year ? x.year : "•"}
+            </div>
+            <div>
+              <div className="text-sm font-bold text-stone-800">{x.label}</div>
+              {x.sub && <div className="text-xs text-stone-500 mt-1 font-medium">{x.sub}</div>}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
   );
 }
 
@@ -191,8 +201,7 @@ export default function HomeTabs() {
   const [inputContent, setInputContent] = useState("");
   const [inputCategory, setInputCategory] = useState<"Q&A" | "Guestbook">("Guestbook");
 
-  // ✅ 게시판 읽기
-  const fetchPosts = async () => {
+  const fetchPosts = useCallback(async () => {
     setLoading(true);
     try {
       const { data, error } = await (supabase as any)
@@ -202,25 +211,24 @@ export default function HomeTabs() {
 
       if (error) {
         console.error("Supabase select error:", error);
-        alert("게시판을 불러오는 중 오류가 발생했어요. (콘솔 로그 확인)");
+        alert("게시판을 불러오는 중 오류가 발생했어. (콘솔 로그 확인)");
         setPosts([]);
       } else {
         setPosts((data as Post[]) || []);
       }
     } catch (err) {
       console.error("Supabase select exception:", err);
-      alert("네트워크 문제로 게시판을 불러오지 못했어요. 잠시 후 다시 시도해 주세요.");
+      alert("네트워크 문제로 게시판을 불러오지 못했어. 잠시 후 다시 시도해줘.");
       setPosts([]);
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
-    if (tab === "Board") fetchPosts();
-  }, [tab]);
+    if (tab === "Board") void fetchPosts();
+  }, [tab, fetchPosts]);
 
-  // ✅ 게시글 저장
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!inputName.trim() || !inputContent.trim()) return;
@@ -232,35 +240,37 @@ export default function HomeTabs() {
 
       if (error) {
         console.error("Supabase insert error:", error);
-        alert("게시글 저장 중 오류가 발생했어요.");
+        alert("게시글 저장 중 오류가 발생했어.");
         return;
       }
 
       setInputName("");
       setInputContent("");
-      fetchPosts();
+      void fetchPosts();
     } catch (err) {
       console.error("Supabase insert exception:", err);
-      alert("네트워크 오류로 게시글을 저장하지 못했어요.");
+      alert("네트워크 오류로 게시글을 저장하지 못했어.");
     }
   };
 
   // --- Projects 데이터 ---
   const featured = useMemo(() => PROJECTS.filter((p: any) => p.featured), []);
-  const filteredProjects = useMemo(
-    () => (filter === "All" ? PROJECTS : PROJECTS.filter((p: any) => p.category === filter)),
-    [filter]
-  );
-  const categories = useMemo(
-    () => Array.from(new Set(PROJECTS.map((p: any) => p.category))),
-    []
-  );
+  const categories = useMemo(() => {
+    const set = new Set<ProjectCategory>();
+    PROJECTS.forEach((p) => set.add(p.category));
+    return Array.from(set);
+  }, []);
+
+  const filteredProjects = useMemo(() => {
+    return filter === "All" ? PROJECTS : PROJECTS.filter((p: any) => p.category === filter);
+  }, [filter]);
 
   // --- Static Info ---
   const EDUCATION: InfoItem[] = [
     { label: "서울여자대학교 일반대학원", sub: "아동심리학 전공 (석사)" },
     { label: "서울여자대학교", sub: "아동학과 (학사)" },
   ];
+
   const EXPERIENCE: InfoItem[] = [
     { label: "Kantar Korea", sub: "Analytics" },
     { label: "NIQ-GfK", sub: "Global Strategic Account Management" },
@@ -268,41 +278,19 @@ export default function HomeTabs() {
     { label: "MnM Research", sub: "연구사업본부" },
     { label: "서울대학교병원", sub: "소아정신과 의생명연구원" },
   ];
+
   const AWARDS: InfoItem[] = [
     { year: 2024, label: "3Q Night Out in Town" },
     { year: 2021, label: "인적자원위원회 최우수 보고서 선정" },
     { year: 2018, label: "KCI 등재 학술지 제1저자(논문)" },
     { year: 2016, label: "한국장학재단 우수연구계획서 선정" },
   ];
+
   const LICENSES: InfoItem[] = [
     { label: "사회조사분석사 2급" },
     { label: "빅데이터분석기사" },
     { label: "데이터분석준전문가(AdsP)" },
     { label: "구글 애널리틱스(GAIQ)" },
-  ];
-  const SUMMARY_SKILLS = [
-    "Analytics planning",
-    "Market research",
-    "Demand Space",
-    "SEM / Causal Analysis",
-    "Forecasting",
-    "Bayesian (PyMC)",
-    "Productization",
-    "LLM fine-tuning",
-    "RAG workflows",
-  ];
-  const ABOUT_SKILLS = [
-    "Python",
-    "PyTorch",
-    "TensorFlow",
-    "R",
-    "SQL",
-    "Tableau",
-    "Hadoop",
-    "Excel",
-    "PowerPoint",
-    "Hugging Face",
-    "SPSS",
   ];
 
   return (
@@ -314,6 +302,7 @@ export default function HomeTabs() {
             <h1 className="text-4xl font-black tracking-tight text-stone-900">Jihee Cho</h1>
             <p className="text-sm text-stone-500 font-semibold mt-1">Jan.25.1991 / Seoul</p>
           </div>
+
           <button
             onClick={() => setIsMobileView((prev) => !prev)}
             className={cn(
@@ -336,11 +325,9 @@ export default function HomeTabs() {
           active={tab === "Projects"}
           onClick={() => setTab("Projects")}
         />
-        <FullWidthTab label="Info" active={tab === "Info"} onClick={() => setTab("Info")} />
         <FullWidthTab label="Board" active={tab === "Board"} onClick={() => setTab("Board")} />
       </nav>
 
-      {/* 메인 카드 */}
       <main className="animate-in fade-in slide-in-from-bottom-2 duration-500 shadow-xl rounded-b-xl overflow-hidden w-full">
         {/* HOME */}
         {tab === "Home" && (
@@ -360,93 +347,134 @@ export default function HomeTabs() {
                     <br />
                     <span className="text-[#ffba49]">Jihee Cho</span>
                   </h2>
-                  {/* 히어로 줄글 제거 */}
                 </div>
               </div>
 
-              {/* ABOUT 블록 + Skills */}
-              <section className="rounded-2xl bg-[#f5ebe0] border border-[#e3d5ca] px-6 py-6 sm:px-8 sm:py-7">
-                <h3 className="text-xs sm:text-sm font-extrabold tracking-wide text-stone-700 mb-2">
-                  ABOUT
-                </h3>
-                <div className="text-sm sm:text-[15px] leading-7 text-stone-800 font-medium max-w-5xl">
-                <p>
-                심리학을 전공한 데이터 분석가로, 브랜드·리서치 데이터를 볼 때
-                “이 숫자로 무엇을 결정할 수 있을까?”부터 생각합니다. 
-                단순히 지표를 나열하기보다는, 실제 의사결정에 바로 쓰일 수 있는 인사이트를
-                도출하는 일이 가장 중요하다고 생각합니다. 
-                </p>
-                <p className="mt-3">
-                프로젝트를 할 때는 기획 단계에서 문제를 정의하고, 조사/데이터 설계–모델링–
-                대시보드·리포트까지 하나의 흐름으로 이어지게 설계하는 데 강합니다.
-                숫자 자체보다 “누가 이 결과를 어떻게 활용할지”를 상상하면서 구조를 잡는 편입니다.
-                </p>
-                <p className="mt-3">
-                반복해서 돌리는 분석은 EXE 툴 등으로 자동화·도구화해서
-                누구나 다시 재생산할 수 있는 형태로 남겨 두고 있습니다. 
-                최근에는 세그멘테이션, 수요 예측, 캠페인 효과 분석 같은 작업에 LLM·RAG를 결합해서,
-                분석 한 번으로 끝나는 결과가 아니라 질문하면 맥락을 설명해 주는
-                AI 서비스 형태로 만드는 실험을 하고 있습니다.
-                </p>
-
-                  {/* Skills 칩 */}
-                  <div className="mt-6">
-                    <h4 className="text-xs font-extrabold tracking-wide text-stone-700 mb-2">
-                      SKILLS
-                    </h4>
-                    <div className="flex flex-wrap gap-2">
-                      {ABOUT_SKILLS.map((s) => (
-                        <span
-                          key={s}
-                          className="px-3 py-1.5 rounded-full bg-white/70 border border-[#e3d5ca] text-[11px] font-bold text-stone-700"
-                        >
-                          {s}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </section>
-
-              {/* Featured + Profile */}
+              {/* Home 본문: 좌(콘텐츠) / 우(프로필) */}
               <div
                 className={cn(
-                  "grid gap-10",
+                  "grid gap-8 items-start",
                   isMobileView ? "grid-cols-1" : "grid-cols-1 lg:grid-cols-12"
                 )}
               >
-                {/* Featured */}
-                <div className={cn(isMobileView ? "col-span-1" : "lg:col-span-8")}>
-                  <div className="flex items-center justify-between mb-4 sm:mb-6 border-b border-stone-200 pb-3">
-                    <div className="flex items-center gap-2">
-                      <span className="text-lg">🔥</span>
-                      <h3 className="text-xl font-black text-stone-800">Featured Projects</h3>
+                {/* LEFT */}
+                <div className={cn(isMobileView ? "col-span-1" : "lg:col-span-8", "space-y-8")}>
+                  {/* ABOUT 블록 */}
+                  <section className="rounded-2xl bg-[#f5ebe0] border border-[#e3d5ca] px-6 py-6 sm:px-8 sm:py-7">
+                    <h3 className="text-xs sm:text-sm font-extrabold tracking-wide text-stone-700 mb-3">
+                      ABOUT
+                    </h3>
+
+                    <div className="space-y-3 text-sm sm:text-[15px] leading-7 text-stone-800 font-medium max-w-5xl">
+                      <p>
+                        심리학을 베이스로 한 데이터 분석가로, 브랜드·리서치 데이터를 볼 때
+                        &nbsp;“이 숫자로 무엇을 결정할 수 있을까?”부터 생각해요. 단순히 지표를
+                        나열하기보다는, 실제 의사결정에 도움이 되는 인사이트를 정리하는 일을 더
+                        중요하게 여깁니다.
+                      </p>
+
+                      <p>
+                        프로젝트를 할 때는 기획 단계에서 문제를 정의하고, 조사·데이터 설계 →
+                        모델링 → 대시보드·리포트까지 하나의 흐름으로 이어지도록 설계해 왔어요.
+                        숫자 자체보다 “누가 이 결과를 어떻게 활용할지”를 상상하면서 구조를 짜는
+                        편입니다.
+                      </p>
+
+                      <p>
+                        반복해서 쓰이는 분석은 EXE 툴, 웹 대시보드, 챗봇 등으로 자동화·도구화해서
+                        팀 누구나 다시 돌려볼 수 있는 형태로 남기고 있습니다. 최근에는 세그멘테이션,
+                        수요 예측, 캠페인 효과 분석 같은 작업에 LLM·RAG를 결합해서, 단순 보고서가
+                        아니라 질문하면 맥락을 설명해 주는 AI 서비스 형태로 만드는 실험을 하고 있어요.
+                      </p>
                     </div>
-                    <button
-                      onClick={() => setTab("Projects")}
-                      className="text-sm font-bold text-stone-500 hover:text-[#8C5E35] transition underline underline-offset-4"
+
+                    {/* SKILLS 뱃지 */}
+                    <div className="mt-6 border-t border-[#e3d5ca] pt-4">
+                      <h4 className="text-xs sm:text-sm font-extrabold tracking-wide text-stone-700 mb-2">
+                        SKILLS
+                      </h4>
+                      <div className="flex flex-wrap gap-2">
+                        {[
+                          "Python",
+                          "PyTorch",
+                          "TensorFlow",
+                          "R",
+                          "SQL",
+                          "Tableau",
+                          "Hadoop",
+                          "Excel",
+                          "PowerPoint",
+                          "Hugging Face",
+                          "SPSS",
+                        ].map((s) => (
+                          <span
+                            key={s}
+                            className="px-3 py-1.5 rounded-full text-xs font-semibold bg-white/70 text-stone-700 border border-[#e3d5ca] shadow-[0_1px_2px_rgba(0,0,0,0.04)]"
+                          >
+                            {s}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  </section>
+
+                  {/* 학력/경력/수상/자격증: 2x2 그리드 */}
+                  <section className="space-y-3">
+                    <div className="flex items-baseline justify-between">
+                      <h3 className="text-base sm:text-lg font-black text-stone-900">Info</h3>
+                      <div className="text-xs text-stone-500 font-semibold">
+                        (Home에 합쳐서 “휑함” 없앰)
+                      </div>
+                    </div>
+
+                    <div
+                      className={cn(
+                        "grid gap-6",
+                        isMobileView ? "grid-cols-1" : "grid-cols-1 md:grid-cols-2"
+                      )}
                     >
-                      View all
-                    </button>
-                  </div>
-                  <div
-                    className={cn(
-                      "grid gap-6",
-                      isMobileView ? "grid-cols-1" : "grid-cols-1 sm:grid-cols-2"
-                    )}
-                  >
-                    {featured.slice(0, 4).map((p: any) => (
-                      <ProjectCard key={p.slug} p={p} />
-                    ))}
-                  </div>
+                      <InfoSectionLight title="Education" icon={MdSchool} items={EDUCATION} />
+                      <InfoSectionLight title="Experience" icon={MdWork} items={EXPERIENCE} />
+                      <InfoSectionLight title="Licenses" icon={MdEmojiEvents} items={LICENSES} />
+                      <InfoSectionLight title="Awards" icon={MdEmojiEvents} items={AWARDS} />
+                    </div>
+                  </section>
+
+                  {/* Featured Projects (있으면 홈에서 맛보기) */}
+                  {featured.length > 0 && (
+                    <section className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <h3 className="text-base sm:text-lg font-black text-stone-900">
+                          Featured Projects
+                        </h3>
+                        <button
+                          onClick={() => setTab("Projects")}
+                          className="text-xs font-bold text-[#8C5E35] hover:underline"
+                        >
+                          View all →
+                        </button>
+                      </div>
+                      <div
+                        className={cn(
+                          "grid gap-6",
+                          isMobileView ? "grid-cols-1" : "grid-cols-1 md:grid-cols-2"
+                        )}
+                      >
+                        {featured.slice(0, 4).map((p: any) => (
+                          <ProjectCard key={p.slug} p={p} />
+                        ))}
+                      </div>
+                    </section>
+                  )}
                 </div>
 
-                {/* Profile 카드 */}
+                {/* RIGHT: Profile 카드 */}
                 <div className={cn(isMobileView ? "col-span-1" : "lg:col-span-4")}>
                   <div className="lg:sticky lg:top-8 bg-white/85 backdrop-blur-sm rounded-2xl p-8 border border-stone-200 shadow-sm">
                     <div className="relative w-24 h-24 rounded-full border-4 border-white shadow-md mb-5 overflow-hidden">
                       <Image src="/avatar.jpg" alt="Avatar" fill className="object-cover" />
                     </div>
+
                     <h3 className="text-2xl font-black text-stone-900">Jihee Cho</h3>
                     <div className="text-sm font-bold text-[#8C5E35] mb-5">
                       Analytics · Build · LLM
@@ -471,6 +499,7 @@ export default function HomeTabs() {
                       <SocialBtn href={LINKS.hf} icon={SiHuggingface} />
                       <SocialBtn href={LINKS.velog} icon={SiVelog} />
                     </div>
+
                     <a
                       href={LINKS.resumePdf}
                       target="_blank"
@@ -492,6 +521,7 @@ export default function HomeTabs() {
             <div className="space-y-8 px-6 lg:px-10">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
                 <h2 className="text-2xl font-black text-stone-900">All Projects</h2>
+
                 <div className="flex flex-wrap gap-2">
                   <button
                     onClick={() => setFilter("All")}
@@ -504,10 +534,11 @@ export default function HomeTabs() {
                   >
                     All
                   </button>
+
                   {categories.map((c) => (
                     <button
                       key={String(c)}
-                      onClick={() => setFilter(c as Filter)}
+                      onClick={() => setFilter(c)}
                       className={cn(
                         "px-4 py-2 rounded-full text-sm font-bold transition border",
                         filter === c
@@ -535,74 +566,6 @@ export default function HomeTabs() {
           </div>
         )}
 
-        {/* INFO */}
-        {tab === "Info" && (
-          <div className="bg-stone-800 pt-8 pb-12 px-0 rounded-b-xl min-h-[800px] border-x border-b border-stone-800">
-            <div className="px-6 lg:px-10 space-y-10">
-              {/* 프로필 + Summary 카드 */}
-              <div className="bg-white/5 border border-white/10 rounded-2xl p-8 relative overflow-hidden shadow-lg">
-                <FaQuoteLeft className="absolute top-6 left-6 text-white/5 text-6xl" />
-                <div className="relative z-10 flex flex-col lg:flex-row gap-8 items-start">
-                  {/* 아바타 + 기본 정보 */}
-                  <div className="flex items-center gap-4">
-                    <div className="relative w-20 h-20 rounded-full border-4 border-white/40 shadow-md overflow-hidden">
-                      <Image src="/avatar.jpg" alt="Avatar" fill className="object-cover" />
-                    </div>
-                    <div>
-                      <div className="text-xl font-black text-white">Jihee Cho</div>
-                      <div className="text-sm font-bold text-[#d4a373] mt-1">
-                        Analytics · Build · LLM
-                      </div>
-                      <div className="mt-2 inline-flex items-center gap-2 px-3 py-1 rounded-full bg-black/30 text-xs text-stone-200 border border-white/10">
-                        <IoLocationSharp className="text-xs" />
-                        Seoul, South Korea
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Summary + 스킬칩 */}
-                  <div className="flex-1">
-                    <h2 className="text-2xl font-black text-white mb-4">Professional Summary</h2>
-                    <p className="text-stone-300 leading-8 text-[15px] font-medium max-w-3xl">
-                      데이터 분석과 시장조사 경험을 기반으로, 의사결정을 실질적으로 지원하는
-                      결과물을 만듭니다.
-                      <br />
-                      요구사항을 문제 정의–분석 설계–모델링–시각화–리포팅까지 한 흐름으로
-                      설계하고 구현해 왔습니다.
-                      <br />
-                      반복되는 분석 업무는 자동화·표준화하고, LLM 파인튜닝·배포 및 RAG 워크플로우
-                      적용을 통해 분석을 서비스 형태로 확장하고 있습니다.
-                    </p>
-                    <div className="mt-6 flex flex-wrap gap-2">
-                      {SUMMARY_SKILLS.map((s) => (
-                        <span
-                          key={s}
-                          className="px-3 py-1.5 rounded-lg bg-white/10 border border-white/10 text-stone-300 text-xs font-bold"
-                        >
-                          {s}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* 2×2 그리드: Education / Experience / Licenses / Awards */}
-              <div
-                className={cn(
-                  "grid gap-8",
-                  isMobileView ? "grid-cols-1" : "grid-cols-1 md:grid-cols-2"
-                )}
-              >
-                <InfoSection title="Education" icon={MdSchool} items={EDUCATION} />
-                <InfoSection title="Experience" icon={MdWork} items={EXPERIENCE} />
-                <InfoSection title="Licenses" icon={MdEmojiEvents} items={LICENSES} />
-                <InfoSection title="Awards & Honors" icon={MdEmojiEvents} items={AWARDS} />
-              </div>
-            </div>
-          </div>
-        )}
-
         {/* BOARD */}
         {tab === "Board" && (
           <div className="bg-stone-100/80 pt-8 pb-10 px-0 rounded-b-xl border-x border-b border-stone-200/50 min-h-[600px]">
@@ -617,6 +580,7 @@ export default function HomeTabs() {
                   <h3 className="text-lg font-black text-stone-800 mb-4 flex items-center gap-2">
                     <FaPen className="text-[#8C5E35] text-sm" /> Write a Post
                   </h3>
+
                   <form onSubmit={handleSubmit} className="space-y-4">
                     <div className="flex gap-2">
                       {["Guestbook", "Q&A"].map((c) => (
@@ -635,6 +599,7 @@ export default function HomeTabs() {
                         </button>
                       ))}
                     </div>
+
                     <input
                       type="text"
                       value={inputName}
@@ -643,6 +608,7 @@ export default function HomeTabs() {
                       placeholder="Your name"
                       required
                     />
+
                     <textarea
                       value={inputContent}
                       onChange={(e) => setInputContent(e.target.value)}
@@ -651,9 +617,11 @@ export default function HomeTabs() {
                       placeholder="Leave a message..."
                       required
                     />
+
                     <button
                       type="submit"
                       className="w-full py-3 bg-[#8C5E35] text-white font-bold rounded-xl hover:bg-[#6B4628] transition shadow-md duration-300"
+                      disabled={loading}
                     >
                       Post Message
                     </button>
@@ -665,8 +633,11 @@ export default function HomeTabs() {
                 <h3 className="text-lg font-black text-stone-800 mb-4 flex items-center gap-2 border-b border-stone-200 pb-2">
                   <MdArticle className="text-[#8C5E35]" /> Recent Posts
                 </h3>
+
                 {loading ? (
                   <div className="py-20 text-center text-stone-400">Loading...</div>
+                ) : posts.length === 0 ? (
+                  <div className="py-16 text-center text-stone-400">No posts yet.</div>
                 ) : (
                   posts.map((post) => (
                     <div
@@ -683,6 +654,7 @@ export default function HomeTabs() {
                             </div>
                           </div>
                         </div>
+
                         <span
                           className={cn(
                             "text-[10px] font-bold px-2.5 py-1 rounded-full border",
@@ -694,6 +666,7 @@ export default function HomeTabs() {
                           {post.category}
                         </span>
                       </div>
+
                       <p className="text-sm text-stone-700 pl-11 leading-relaxed whitespace-pre-wrap">
                         {post.content}
                       </p>
