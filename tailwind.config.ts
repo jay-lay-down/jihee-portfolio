@@ -9,7 +9,6 @@ const config: Config = {
   theme: {
     extend: {
       fontFamily: {
-        // body 에서 font-sans 쓰면 이 세팅이 적용됨
         sans: [
           "Pretendard",
           "-apple-system",
