@@ -390,7 +390,7 @@ export default function HomeTabs() {
                         ABOUT
                       </h3>
 
-                      <div className="space-y-3 text-[16px] leading-8 text-stone-800 font-medium max-w-5xl">
+                      <div className="space-y-3 text-[16px] leading-8 text-stone-800 font-medium max-w-5xl break-keep">
                         <p>
                           심리학을 기반으로 데이터 분석을 수행하며, 브랜드·리서치 데이터를 볼 때
                           &nbsp;“이 숫자로 무엇을 결정할 수 있을까?”부터 생각합니다.
