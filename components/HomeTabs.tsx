@@ -188,6 +188,11 @@ export default function HomeTabs() {
   const [filter, setFilter] = useState<Filter>("All");
   const [isMobileView, setIsMobileView] = useState(false);
 
+  // PC/모바일에 따라 컨테이너 폭 다르게
+  const containerWidth = isMobileView
+    ? "max-w-3xl"
+    : "max-w-6xl xl:max-w-7xl";
+
   // --- Board ---
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(false);
@@ -268,10 +273,18 @@ export default function HomeTabs() {
   return (
     <div className="min-h-screen font-sans text-stone-800 pb-20">
       {/* 상단 헤더 */}
-      <header className="py-10 flex flex-col sm:flex-row items-center justify-between gap-6 max-w-6xl mx-auto px-6 sm:px-0">
+      <header
+        className={cn(
+          "py-10 flex flex-col sm:flex-row items-center justify-between gap-6 w-full mx-auto px-6 sm:px-0",
+          containerWidth
+        )}
+      >
         <div>
           <h1 className="text-4xl font-black tracking-tight text-stone-900">Jihee Cho</h1>
-          <p className="text-base text-stone-500 font-bold mt-2">Analytics · LLM · Build</p>
+          {/* ➜ Analytics · LLM · Build 대신 생년/도시 */}
+          <p className="text-base text-stone-500 font-bold mt-2">
+            Jan.25.1991 / Seoul
+          </p>
         </div>
         <button
           onClick={() => setIsMobileView((prev) => !prev)}
@@ -287,7 +300,12 @@ export default function HomeTabs() {
       </header>
 
       {/* 탭 내비 */}
-      <nav className="flex w-full border border-stone-200 rounded-t-xl overflow-hidden shadow-sm mb-0 max-w-6xl mx-auto">
+      <nav
+        className={cn(
+          "flex w-full border border-stone-200 rounded-t-xl overflow-hidden shadow-sm mb-0 mx-auto",
+          containerWidth
+        )}
+      >
         <FullWidthTab label="Home" active={tab === "Home"} onClick={() => setTab("Home")} />
         <FullWidthTab
           label="Projects"
@@ -299,7 +317,13 @@ export default function HomeTabs() {
       </nav>
 
       {/* 메인 카드 */}
-      <main className="animate-in fade-in slide-in-from-bottom-2 duration-500 shadow-xl rounded-b-xl overflow-hidden max-w-6xl mx-auto">
+      <main
+        className={cn(
+          "animate-in fade-in slide-in-from-bottom-2 duration-500 shadow-xl rounded-b-xl overflow-hidden mx-auto",
+          containerWidth,
+          "w-full"
+        )}
+      >
         {/* HOME */}
         {tab === "Home" && (
           <div className="bg-stone-100/80 pt-8 pb-12 px-6 sm:px-10 border-x border-b border-stone-200/50">
@@ -307,19 +331,19 @@ export default function HomeTabs() {
               {/* Hero */}
               <div className="relative w-full h-[380px] md:h-[440px] rounded-2xl overflow-hidden shadow-xl">
                 <Image src="/a2026.jpg" alt="Hero" fill className="object-cover" priority />
-                <div className="absolute inset-0 bg-gradient-to-b from-black/15 via-black/55 to-black/80" />
+                <div className="absolute inset-0 bg-gradient-to-b from-black/25 via-black/60 to-black/85" />
                 <div className="absolute inset-0 p-8 sm:p-10 flex flex-col justify-center text-white">
                   <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/20 backdrop-blur-md text-xs font-bold w-fit mb-5 border border-white/30">
                     <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
                     Available for new projects
                   </div>
+                  {/* ➜ 원래 느낌대로 Portfolio + 이름 */}
                   <h2 className="text-4xl sm:text-5xl font-black mb-6 leading-tight drop-shadow-lg">
-                    Data Driven,
-                    <br />
-                    Decision Ready.
+                    Portfolio
+                    <span className="block text-[#ffba49]">Jihee Cho</span>
                   </h2>
                   <p className="text-white/90 text-sm sm:text-lg font-medium max-w-xl drop-shadow-md">
-                    데이터 분석과 시장조사를 바탕으로
+                    데이터 분석과 시장조사 경험을 기반으로,
                     <br />
                     의사결정을 실질적으로 지원하는 결과물을 만듭니다.
                   </p>
@@ -332,12 +356,11 @@ export default function HomeTabs() {
                   ABOUT
                 </h3>
                 <p className="text-sm sm:text-[15px] leading-7 text-stone-800 font-medium max-w-4xl">
-                  브랜드·리서치 데이터를 가지고
-                  {" "}
-                  <span className="font-bold">“무엇을 결정할 수 있는지”</span>부터 생각합니다.
-                  요구사항을 문제 정의 → 분석 설계 → 모델링 → 시각화/리포팅까지 한 흐름으로 묶어
-                  설계하고, 반복 가능한 형태로 제품화하는 일을 좋아합니다. LLM·RAG와 결합해서
-                  분석을 서비스 형태로 노출하는 실험도 계속하고 있습니다.
+                  브랜드·리서치 데이터를 가지고{" "}
+                  <span className="font-bold">“무엇을 결정할 수 있는지”</span>
+                  부터 생각합니다. 요구사항을 문제 정의 → 분석 설계 → 모델링 → 시각화/리포팅까지
+                  한 흐름으로 묶어 설계하고, 반복 가능한 형태로 제품화하는 일을 좋아합니다.
+                  LLM·RAG와 결합해서 분석을 서비스 형태로 노출하는 실험도 계속하고 있습니다.
                 </p>
               </section>
 
