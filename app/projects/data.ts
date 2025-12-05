@@ -9,13 +9,13 @@ export type Project = {
   repo?: string;
   demo?: string;
   blog?: string;
-  // cover 없어도 됨 (없으면 자동 패턴 썸네일)
   cover?: string;
   stack: string[];
 };
 
 export const PROJECTS: Project[] = [
   {
+    // [im2.jpg] LLM Chatbot
     slug: "ai-llm-chatbot",
     title: "AI/LLM-powered Analytics Chatbot",
     oneLiner: "Persona fine-tuning + self-hosting (QLoRA / Quantization)",
@@ -24,9 +24,11 @@ export const PROJECTS: Project[] = [
     repo: "https://github.com/jay-lay-down/jaychatbot_2nd",
     demo: "http://www.duboobanmo.site",
     blog: "https://velog.io/@jaylaydown/series/side-project-1",
+    cover: "/im2.jpg",
     stack: ["Python", "PyTorch", "Transformers", "QLoRA", "Gradio", "HF Hub"],
   },
   {
+    // [im1.jpg] Social Animal Test
     slug: "animal-test",
     title: "Social Animal Type Test",
     oneLiner: "Metacognition & situation-reading type test (11 types) with deployment",
@@ -35,18 +37,22 @@ export const PROJECTS: Project[] = [
     repo: "https://github.com/jay-lay-down/animal_test",
     demo: "https://myanimaltest.site/",
     blog: "https://velog.io/@jaylaydown/%EB%82%98%EB%A7%8C%EC%9D%98-%EC%8B%AC%EB%A6%AC-%ED%85%8C%EC%8A%A4%ED%8A%B8-%EB%A7%8C%EB%93%A4%EA%B8%B0-%EB%8F%99%EB%AC%BC-%EC%9C%A0%ED%98%95-%ED%85%8C%EC%8A%A4%ED%8A%B8-%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8",
+    cover: "/im1.jpg",
     stack: ["Python", "Gradio", "HTML/CSS", "Hugging Face Spaces"],
   },
   {
+    // [im3.jpg] Auto Segment Tool (Demand Space로 텍스트 수정됨)
     slug: "auto-segment",
     title: "Auto Segment Tool (Desktop EXE)",
-    oneLiner: "Data → PCA/FA → Decision Tree Segmentation → Viz → Excel report automation",
+    oneLiner: "Data → PCA/FA → Demand Space Segmentation → Viz → Excel report automation",
     category: "Segmentation",
     featured: true,
     repo: "https://github.com/jay-lay-down/auto_segment",
+    cover: "/im3.jpg",
     stack: ["Python", "PySide6", "scikit-learn", "pandas", "PyInstaller", "Excel Automation"],
   },
   {
+    // [im4.jpg] Bayesian Dashboard
     slug: "bayesian-dashboard",
     title: "Bayesian Modeling & Dashboard",
     oneLiner: "Hierarchical Bayesian funnel dashboard (Preference → Recommend → Intent → Purchase)",
@@ -54,6 +60,7 @@ export const PROJECTS: Project[] = [
     featured: true,
     repo: "https://github.com/jay-lay-down/bayesian_dashboard",
     demo: "https://jay1121-bayesian-dashboard.hf.space",
+    cover: "/im4.jpg",
     stack: ["Python", "PyMC", "ArviZ", "pandas", "Dashboard"],
   },
 ];
