@@ -3,13 +3,20 @@
 import Image from "next/image";
 import { useMemo, useState } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
-import { PROJECTS } from "@/app/projects/data";
+import { PROJECTS } from "@/app/projects/data"; // 데이터 파일 경로 확인!
 
+// 아이콘 임포트 (react-icons 설치 필요)
+import { FaGithub, FaLinkedin } from "react-icons/fa";
+import { SiHuggingface, SiVelog } from "react-icons/si";
+import { HiOutlineMail } from "react-icons/hi";
+
+// 링크 정보 수정
 const LINKS = {
   email: "chubbyfinger1010@gmail.com",
   hf: "https://huggingface.co/Jay1121",
   velog: "https://velog.io/@jaylaydown",
   github: "https://github.com/jay-lay-down",
+  linkedin: "https://www.linkedin.com/in/jihee-cho-767aa9260/",
   resumePdf: "/resume.pdf",
 };
 
@@ -104,6 +111,20 @@ function LinkChip({
     >
       {children}
       {external ? <span className="text-[var(--muted)]">↗</span> : null}
+    </a>
+  );
+}
+
+// 아이콘 버튼 컴포넌트 (Social Icon)
+function SocialBtn({ href, icon: Icon }: { href: string; icon: any }) {
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noreferrer"
+      className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-white/60 text-[#5C5046] hover:bg-black hover:text-white transition shadow-sm border border-transparent hover:border-black/10"
+    >
+      <Icon className="text-xl" />
     </a>
   );
 }
@@ -334,28 +355,14 @@ export default function HomeTabs() {
       has(c) ? (c as unknown as CategoryKey) : undefined;
 
     return [
-      { label: "Analytics planning / research design", tone: "accent" },
-      { label: "Market research (survey/POS/panel)", tone: "accent" },
-      { label: "Segmentation", cat: cat("Segmentation"), tone: "dark" },
-      { label: "SEM", cat: cat("Bayesian"), tone: "neutral" },
-      {
-        label: "PCA / Factor analysis",
-        cat: cat("Segmentation"),
-        tone: "neutral",
-      },
-      {
-        label: "Causal time series (Granger)",
-        cat: cat("Forecasting"),
-        tone: "neutral",
-      },
-      {
-        label: "Forecasting (SARIMAX)",
-        cat: cat("Forecasting"),
-        tone: "dark",
-      },
+      { label: "Analytics planning", tone: "accent" },
+      { label: "Market research", tone: "accent" },
+      { label: "Demand Space", cat: cat("Segmentation"), tone: "dark" },
+      { label: "SEM / Causal Analysis", cat: cat("Bayesian"), tone: "neutral" },
+      { label: "Forecasting", cat: cat("Forecasting"), tone: "neutral" },
       { label: "Bayesian (PyMC)", cat: cat("Bayesian"), tone: "dark" },
-      { label: "Automation → productization", tone: "neutral" },
-      { label: "LLM fine-tuning (LoRA)", cat: cat("LLM"), tone: "dark" },
+      { label: "Productization", tone: "neutral" },
+      { label: "LLM fine-tuning", cat: cat("LLM"), tone: "dark" },
       { label: "RAG workflows", cat: cat("LLM"), tone: "dark" },
     ];
   }, [categories]);
@@ -363,10 +370,10 @@ export default function HomeTabs() {
   const core = useMemo<Chip[]>(
     () => [
       { label: "Problem definition → decision points", tone: "dark" },
-      { label: "Method rationale (explainable choice)", tone: "neutral" },
-      { label: "Decision-ready outputs (metrics → action)", tone: "neutral" },
-      { label: "Automation → productization", tone: "accent" },
-      { label: "Stakeholder alignment & communication", tone: "accent" },
+      { label: "Explainable methodology", tone: "neutral" },
+      { label: "Actionable outputs", tone: "neutral" },
+      { label: "Automation", tone: "accent" },
+      { label: "Communication", tone: "accent" },
     ],
     []
   );
@@ -397,10 +404,12 @@ export default function HomeTabs() {
           </button>
         </div>
 
+        {/* 상단 아이콘 링크 (PC) */}
         <div className="hidden sm:flex flex-wrap items-center gap-2">
-          <LinkChip href={LINKS.github}>GitHub</LinkChip>
-          <LinkChip href={LINKS.hf}>HF</LinkChip>
-          <LinkChip href={LINKS.velog}>Velog</LinkChip>
+          <SocialBtn href={LINKS.linkedin} icon={FaLinkedin} />
+          <SocialBtn href={LINKS.github} icon={FaGithub} />
+          <SocialBtn href={LINKS.hf} icon={SiHuggingface} />
+          <SocialBtn href={LINKS.velog} icon={SiVelog} />
         </div>
       </header>
 
@@ -487,27 +496,35 @@ export default function HomeTabs() {
                     </div>
                     
                     <div className="text-xl font-black text-[#4A4036] tracking-tight">Jihee Cho</div>
-                    <div className="text-sm font-bold text-[#7D6E5F] mt-1">Analytics · LLM · Build</div>
+                    {/* 분석가 느낌 강조 */}
+                    <div className="text-sm font-bold text-[#7D6E5F] mt-2 space-x-1.5">
+                      <span>기획</span><span>/</span>
+                      <span>분석</span><span>/</span>
+                      <span>LLM</span><span>/</span>
+                      <span>시각화</span>
+                    </div>
                     
                     <p className="mt-5 text-sm leading-7 text-[#5C5046] font-medium">
                       기획부터 모델링, 시각화까지의 흐름을 하나의 스토리로 설계하고 구현하는 데 집중해 왔습니다.
                     </p>
 
                     <div className="mt-8 space-y-3">
-                      <a href={LINKS.resumePdf} target="_blank" className="flex items-center justify-center w-full py-3 rounded-xl bg-[#3E342B] text-[#E6DCCF] text-sm font-bold hover:opacity-90 transition">
+                      <a href={LINKS.resumePdf} target="_blank" className="flex items-center justify-center w-full py-3 rounded-xl bg-[#3E342B] text-[#E6DCCF] text-sm font-bold hover:opacity-90 transition shadow-md">
                         Resume PDF
                       </a>
-                      <a href={`mailto:${LINKS.email}`} className="flex items-center justify-center w-full py-3 rounded-xl border border-[#Cac2b6] bg-white/50 text-[#5C5046] text-sm font-bold hover:bg-white/80 transition">
+                      <a href={`mailto:${LINKS.email}`} className="flex items-center justify-center w-full py-3 rounded-xl border border-[#Cac2b6] bg-white/50 text-[#5C5046] text-sm font-bold hover:bg-white/80 transition shadow-sm">
                         Contact Me
                       </a>
                     </div>
 
                     <div className="mt-8 pt-6 border-t border-[#Cac2b6]">
                       <div className="text-xs font-extrabold text-[#7D6E5F] mb-3">LINKS</div>
+                      {/* 아이콘 로고로 변경 */}
                       <div className="flex flex-wrap gap-2">
-                        <a href={LINKS.github} target="_blank" className="text-xs font-bold px-3 py-1.5 rounded-lg bg-white/60 text-[#5C5046] hover:bg-white">GitHub</a>
-                        <a href={LINKS.hf} target="_blank" className="text-xs font-bold px-3 py-1.5 rounded-lg bg-white/60 text-[#5C5046] hover:bg-white">Hugging Face</a>
-                        <a href={LINKS.velog} target="_blank" className="text-xs font-bold px-3 py-1.5 rounded-lg bg-white/60 text-[#5C5046] hover:bg-white">Velog</a>
+                         <SocialBtn href={LINKS.linkedin} icon={FaLinkedin} />
+                         <SocialBtn href={LINKS.github} icon={FaGithub} />
+                         <SocialBtn href={LINKS.hf} icon={SiHuggingface} />
+                         <SocialBtn href={LINKS.velog} icon={SiVelog} />
                       </div>
                     </div>
                   </div>
@@ -544,24 +561,14 @@ export default function HomeTabs() {
                     <br />
                     기획부터 모델링, 시각화까지의 흐름을 하나의 스토리로 설계하고
                     구현하는 데 집중해 왔습니다.
-                    <span className="block mt-2">
-                      아래는 대표 프로젝트이고, 전체 목록은{" "}
-                      <b className="text-black">Projects</b> 탭에서 확인하실 수
-                      있습니다.
-                    </span>
                   </p>
 
                   <div className="mt-6 flex flex-wrap gap-2">
-                    <LinkChip
-                      href={LINKS.github}
-                      className="bg-black text-white border-black/20"
-                    >
-                      GitHub
-                    </LinkChip>
-                    <LinkChip href={LINKS.hf}>Hugging Face</LinkChip>
-                    <LinkChip href={LINKS.velog}>Velog</LinkChip>
-                    <LinkChip href={LINKS.resumePdf}>Resume PDF</LinkChip>
-                    <LinkChip href={`mailto:${LINKS.email}`}>Contact</LinkChip>
+                     <SocialBtn href={LINKS.linkedin} icon={FaLinkedin} />
+                     <SocialBtn href={LINKS.github} icon={FaGithub} />
+                     <SocialBtn href={LINKS.hf} icon={SiHuggingface} />
+                     <SocialBtn href={LINKS.velog} icon={SiVelog} />
+                     <SocialBtn href={`mailto:${LINKS.email}`} icon={HiOutlineMail} />
                   </div>
 
                   <div className="mt-9">
@@ -589,17 +596,6 @@ export default function HomeTabs() {
                           <FeaturedTile key={(p as any).slug} p={p} />
                         ))}
                       </div>
-                      <p className="mt-3 text-xs text-[var(--muted)] font-medium">
-                        더 많은 프로젝트는{" "}
-                        <button
-                          type="button"
-                          onClick={() => setTab("Projects")}
-                          className="font-semibold underline underline-offset-4 hover:opacity-80"
-                        >
-                          Projects 탭
-                        </button>
-                        에서 모두 확인하실 수 있습니다.
-                      </p>
                     </div>
                   </div>
                 </div>
@@ -631,24 +627,9 @@ export default function HomeTabs() {
                             Jihee Cho
                           </div>
                           <div className="text-white/80 text-sm font-semibold">
-                            Analytics · Bayesian · Forecasting · LLM
+                            Analytics · Forecasting · LLM
                           </div>
                         </div>
-                      </div>
-
-                      <div className="mt-5 flex flex-wrap gap-2">
-                        {[
-                          "Decision-ready outputs",
-                          "Automation → productization",
-                          "Fine-tuning / RAG",
-                        ].map((x) => (
-                          <span
-                            key={x}
-                            className="inline-flex items-center rounded-full bg-white/15 border border-white/25 px-3 py-1 text-xs font-extrabold text-white backdrop-blur"
-                          >
-                            {x}
-                          </span>
-                        ))}
                       </div>
                     </div>
                   </div>
@@ -745,7 +726,7 @@ export default function HomeTabs() {
                       Jihee Cho
                     </div>
                     <div className="text-sm text-[var(--muted)] font-semibold">
-                      Analytics · Bayesian · Forecasting · LLM
+                      기획 / 분석 / LLM / 시각화
                     </div>
                     <a
                       className="mt-2 inline-flex text-sm font-extrabold underline underline-offset-4 hover:opacity-80"
@@ -828,13 +809,8 @@ export default function HomeTabs() {
               </p>
             </div>
             <div className="flex flex-wrap items-center gap-2">
-              <LinkChip
-                href={LINKS.velog}
-                className="bg-black text-white border-black/20"
-              >
-                Velog
-              </LinkChip>
-              <LinkChip href={LINKS.github}>GitHub</LinkChip>
+              <SocialBtn href={LINKS.velog} icon={SiVelog} />
+              <SocialBtn href={LINKS.github} icon={FaGithub} />
             </div>
           </div>
 
@@ -873,28 +849,9 @@ export default function HomeTabs() {
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <div>© {new Date().getFullYear()} Jihee Cho</div>
           <div className="flex flex-wrap items-center gap-4">
-            <a
-              className="underline underline-offset-4 hover:opacity-80"
-              href={LINKS.hf}
-              target="_blank"
-              rel="noreferrer"
-            >
-              Hugging Face
-            </a>
-            <a
-              className="underline underline-offset-4 hover:opacity-80"
-              href={LINKS.velog}
-              target="_blank"
-              rel="noreferrer"
-            >
-              Velog
-            </a>
-            <a
-              className="underline underline-offset-4 hover:opacity-80"
-              href={`mailto:${LINKS.email}`}
-            >
-              Contact
-            </a>
+             <SocialBtn href={LINKS.hf} icon={SiHuggingface} />
+             <SocialBtn href={LINKS.velog} icon={SiVelog} />
+             <SocialBtn href={LINKS.linkedin} icon={FaLinkedin} />
           </div>
         </div>
       </footer>
