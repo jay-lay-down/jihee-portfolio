@@ -11,9 +11,9 @@
   "dependencies": {
     "framer-motion": "^11.11.7",
     "gray-matter": "^4.0.3",
-    "next": "16.0.5",
-    "react": "19.2.0",
-    "react-dom": "19.2.0",
+    "next": "16.0.7",             // <-- 취약점 패치 버전 16.0.7로 변경 (혹은 최신 16.x)
+    "react": "19.2.1",             // <-- React도 19.2.1로 변경 (패치 버전)
+    "react-dom": "19.2.1",         // <-- React-dom도 19.2.1로 변경 (패치 버전)
     "react-icons": "^5.4.0",
     "react-markdown": "^9.0.1",
     "remark-gfm": "^4.0.0",
@@ -25,7 +25,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
-    "eslint-config-next": "16.0.5",
+    "eslint-config-next": "16.0.5", // 이건 16.0.7로 유지해도 괜찮아
     "tailwindcss": "^4",
     "typescript": "^5"
   }
