@@ -2,19 +2,18 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Jihee Cho Portfolio",
+  title: "Jihee Cho | Portfolio",
   description: "Data Analyst Portfolio",
 };
 
 export default function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+}: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="ko">
-      <body className="min-h-screen bg-[#FDFBF7] text-[#111111] antialiased font-sans">
-        <main className="max-w-screen-xl mx-auto px-6 py-12 md:px-12 md:py-20 lg:px-24 lg:py-0">
+      <body className="font-sans antialiased bg-[#FDFBF7]">
+        {/* 👉 PC 에서 훨씬 넓게 보이도록 max-width 확 키움 */}
+        <main className="min-h-screen mx-auto px-4 md:px-10 lg:px-16 xl:px-20 2xl:px-24 max-w-[1440px]">
           {children}
         </main>
       </body>
