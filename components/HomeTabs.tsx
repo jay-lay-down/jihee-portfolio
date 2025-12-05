@@ -343,6 +343,7 @@ export default function HomeTabs() {
   ];
   const AWARDS: InfoItem[] = [
     { year: 2024, label: "3Q Night Out in Town" },
+    { year: 2024, label: "고객사 NPS 조사 10점 만점 달성" },
     { year: 2021, label: "인적자원위원회 최우수 보고서 선정" },
     { year: 2018, label: "KCI 등재 학술지 제1저자(논문)" },
     { year: 2016, label: "한국장학재단 우수연구계획서 선정" },
