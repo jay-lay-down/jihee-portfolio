@@ -9,10 +9,10 @@ const config: Config = {
   theme: {
     extend: {
       fontFamily: {
-        // ✅ Pretendard를 1순위로 설정 (이게 없으면 Tailwind가 딴 거 씀)
+        // 기본 sans 폰트를 Pretendard 계열로 고정
         sans: [
-          "Pretendard",
           "Pretendard Variable",
+          "Pretendard",
           "-apple-system",
           "BlinkMacSystemFont",
           "system-ui",
