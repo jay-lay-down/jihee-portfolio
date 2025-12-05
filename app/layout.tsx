@@ -11,8 +11,15 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="ko">
-      <body className="font-sans antialiased bg-[#FDFBF7]">
-        <main className="min-h-screen mx-auto px-4 md:px-10 lg:px-16 xl:px-20 2xl:px-24 max-w-[1440px]">
+      <body
+        className="font-sans antialiased bg-[#FDFBF7]"
+        style={{
+          fontFamily:
+            '"Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, Roboto, "Helvetica Neue", "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif',
+        }}
+      >
+        {/* 전체 폭: 최대 1440px */}
+        <main className="min-h-screen mx-auto w-full max-w-[1440px] px-4 md:px-10 lg:px-14 xl:px-16">
           {children}
         </main>
       </body>
