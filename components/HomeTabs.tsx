@@ -2,17 +2,17 @@
 
 import Image from "next/image";
 import { useMemo, useState, useEffect, FormEvent } from "react";
-import { motion } from "framer-motion"; 
+import { motion } from "framer-motion";
 import { PROJECTS } from "@/app/projects/data";
-import { supabase } from "@/lib/supabase"; // Supabase 연결 파일
+import { supabase } from "@/lib/supabase";
 
 // 아이콘
-import { FaGithub, FaLinkedin, FaPen, FaUserCircle } from "react-icons/fa";
+import { FaGithub, FaLinkedin, FaPen, FaUserCircle, FaExternalLinkAlt, FaDownload } from "react-icons/fa";
 import { SiHuggingface, SiVelog } from "react-icons/si";
-import { MdEmail, MdArticle } from "react-icons/md";
+import { MdEmail, MdArticle, MdSchool, MdWork, MdEmojiEvents } from "react-icons/md";
 import { IoLocationSharp } from "react-icons/io5";
 
-// --- 상수 및 데이터 ---
+// --- 상수 ---
 const LINKS = {
   email: "chubbyfinger1010@gmail.com",
   hf: "https://huggingface.co/Jay1121",
@@ -22,168 +22,106 @@ const LINKS = {
   resumePdf: "/resume.pdf",
 };
 
-// --- 타입 정의 (여기가 빠졌었어!) ---
+// --- 타입 ---
 type TabKey = "Home" | "Projects" | "Info" | "Board";
-type ProjectItem = (typeof PROJECTS)[number];
-type CategoryKey = ProjectItem["category"];
-type Filter = "All" | CategoryKey;
+type Filter = "All" | "LLM" | "Segmentation" | "Bayesian" | "Forecasting" | "Other";
+type Post = { id: number; author: string; content: string; created_at: string; category: "Q&A" | "Guestbook"; };
+type InfoItem = { year?: number; label: string; sub?: string };
 
-// ★ 이 부분이 추가됨!
-type InfoItem = { 
-  year?: number; 
-  label: string; 
-  sub?: string 
-};
+// --- 컴포넌트 ---
 
-type Post = {
-  id: number;
-  author: string;
-  content: string;
-  created_at: string;
-  category: "Q&A" | "Guestbook";
-};
-
-// --- 유틸리티 ---
-function cn(...xs: Array<string | false | undefined | null>) {
-  return xs.filter(Boolean).join(" ");
-}
-
-function pickPrimaryLink(p: ProjectItem) {
-  const anyP = p as any;
-  return anyP.repo ?? anyP.demo ?? anyP.blog ?? `/projects/${anyP.slug}`;
-}
-
-// --- 컴포넌트들 ---
-
-function FileTab({ active, onClick, label, colorClass }: { active: boolean; onClick: () => void; label: string; colorClass: string }) {
+// 1. 꽉 찬 탭 버튼 (수정됨)
+function FullWidthTab({ active, onClick, label }: { active: boolean; onClick: () => void; label: string }) {
   return (
     <button
       onClick={onClick}
-      className={cn(
-        "relative px-6 py-3 text-sm sm:text-base font-bold transition-all duration-200 rounded-t-2xl",
-        active
-          ? cn("shadow-sm ring-1 ring-black/5 z-10 translate-y-[1px]", colorClass)
-          : "bg-gray-100 text-gray-500 hover:bg-gray-200 hover:text-gray-700"
-      )}
+      className={`
+        flex-1 py-4 text-base font-bold transition-all duration-200 border-b-2
+        ${active 
+          ? "bg-[#2D2D2D] text-white border-[#2D2D2D]" 
+          : "bg-gray-100 text-gray-500 border-gray-200 hover:bg-gray-200"}
+      `}
     >
       {label}
-      {active && <div className={cn("absolute bottom-[-2px] left-0 right-0 h-[4px]", colorClass)} />}
     </button>
   );
 }
 
-function FilterPill({ active, onClick, children }: { active?: boolean; onClick?: () => void; children: React.ReactNode }) {
+// 2. 프로젝트 카드 (새 데이터 구조 반영)
+function ProjectCard({ p }: { p: any }) {
   return (
-    <button
-      onClick={onClick}
-      className={cn(
-        "px-4 py-2 rounded-full text-sm font-bold transition border",
-        active ? "bg-slate-800 text-white border-slate-800" : "bg-white text-slate-500 border-slate-200 hover:border-slate-400"
-      )}
-    >
-      {children}
-    </button>
-  );
-}
+    <div className="group flex flex-col bg-white rounded-2xl border border-slate-200 overflow-hidden hover:shadow-lg transition h-full">
+      {/* 썸네일 (있으면 표시) */}
+      <div className="relative aspect-[16/9] bg-slate-100 overflow-hidden">
+        {p.cover ? (
+          <Image src={p.cover} alt={p.title} fill className="object-cover group-hover:scale-105 transition duration-500" />
+        ) : (
+          <div className="absolute inset-0 flex items-center justify-center text-slate-300 font-bold text-lg bg-slate-50">
+            {p.category} Project
+          </div>
+        )}
+      </div>
 
-function SocialBtn({ href, icon: Icon }: { href: string; icon: any }) {
-  return (
-    <a
-      href={href}
-      target="_blank"
-      rel="noreferrer"
-      className="inline-flex items-center justify-center w-9 h-9 rounded-full bg-white/60 text-[#5C5046] hover:bg-black hover:text-white transition shadow-sm border border-transparent hover:border-black/10"
-    >
-      <Icon className="text-lg" />
-    </a>
-  );
-}
+      {/* 내용 */}
+      <div className="p-6 flex flex-col flex-1">
+        <div className="flex justify-between items-start mb-2">
+          <span className="text-xs font-bold text-indigo-600 bg-indigo-50 px-2 py-1 rounded uppercase tracking-wide">
+            {p.category}
+          </span>
+        </div>
+        <h3 className="text-lg font-black text-slate-900 leading-tight mb-3 group-hover:text-indigo-700 transition">
+          {p.title}
+        </h3>
+        <p className="text-sm text-slate-600 leading-relaxed mb-5 line-clamp-2">
+          {p.oneLiner}
+        </p>
 
-function Thumb({ slug, cover, label }: { slug: string; cover?: string; label: string }) {
-  return (
-    <div className="relative w-full overflow-hidden rounded-xl border border-black/10 aspect-[16/10] bg-gray-50">
-      {cover ? (
-        <>
-          <Image src={cover} alt={label} fill className="object-cover" />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
-        </>
-      ) : (
-        <div className="flex items-center justify-center h-full text-gray-300">No Image</div>
-      )}
+        {/* 스택 태그 */}
+        <div className="flex flex-wrap gap-1.5 mb-6">
+          {p.stack.slice(0, 5).map((s: string) => (
+            <span key={s} className="px-2 py-1 bg-slate-100 text-slate-600 text-[10px] font-bold rounded">
+              {s}
+            </span>
+          ))}
+        </div>
+
+        {/* 링크 버튼들 (여기가 핵심!) */}
+        <div className="mt-auto flex flex-wrap gap-2 pt-4 border-t border-slate-100">
+          {p.links.map((link: any) => (
+            <a
+              key={link.label}
+              href={link.href}
+              target="_blank"
+              rel="noreferrer"
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-900 hover:text-white hover:border-slate-900 transition"
+            >
+              {link.label === "Download" ? <FaDownload /> : <FaExternalLinkAlt />}
+              {link.label}
+            </a>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }
 
-function ProjectCard({ p }: { p: ProjectItem }) {
-  const href = pickPrimaryLink(p);
-  const anyP = p as any;
-
+// 3. Info 섹션
+function InfoSection({ title, icon: Icon, items }: { title: string; icon: any; items: InfoItem[] }) {
   return (
-    <a
-      href={href}
-      target="_blank"
-      rel="noreferrer"
-      className="group block rounded-2xl bg-white border border-slate-200 p-5 hover:border-slate-400 hover:shadow-md transition"
-    >
-      <div className="flex flex-col gap-4">
-        <Thumb slug={anyP.slug} cover={anyP.cover} label={anyP.title} />
-        <div>
-          <div className="text-xs font-bold text-slate-500 uppercase">{String(p.category)}</div>
-          <div className="mt-1 text-lg font-black text-slate-900 group-hover:text-blue-600 transition">
-            {anyP.title}
-          </div>
-          <div className="mt-2 text-sm text-slate-600 line-clamp-2">{anyP.oneLiner}</div>
-          <div className="mt-4 flex flex-wrap gap-1.5">
-            {(Array.isArray(anyP.stack) ? anyP.stack : []).slice(0, 5).map((s: string) => (
-              <span key={s} className="px-2 py-1 rounded-md bg-slate-100 text-slate-600 text-[11px] font-bold">
-                {s}
-              </span>
-            ))}
-          </div>
-        </div>
+    <div className="mb-8">
+      <div className="flex items-center gap-2 mb-4 border-b border-white/10 pb-2">
+        <Icon className="text-indigo-300 text-xl" />
+        <h3 className="text-lg font-bold text-white tracking-wide">{title}</h3>
       </div>
-    </a>
-  );
-}
-
-function FeaturedTile({ p }: { p: ProjectItem }) {
-  const href = pickPrimaryLink(p);
-  const anyP = p as any;
-  return (
-    <a
-      href={href}
-      target="_blank"
-      rel="noreferrer"
-      className="group relative flex flex-col overflow-hidden rounded-2xl bg-white border border-slate-200 hover:border-slate-400 transition hover:shadow-md"
-    >
-      <div className="p-5 flex-1">
-        <div className="text-xs font-bold text-slate-500 mb-1">{String(p.category)}</div>
-        <div className="text-lg font-black text-slate-900 leading-tight mb-2">{anyP.title}</div>
-        <p className="text-sm text-slate-600 line-clamp-2">{anyP.oneLiner}</p>
-      </div>
-      <div className="px-5 pb-5">
-         <Thumb slug={anyP.slug} cover={anyP.cover} label={anyP.title} />
-      </div>
-    </a>
-  );
-}
-
-// InfoBlock 컴포넌트 (여기서 InfoItem 타입을 씀)
-function InfoBlock({ title, items }: { title: string; items: InfoItem[] }) {
-  return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-6">
-      <div className="text-sm font-black text-slate-900 uppercase tracking-wider mb-4 border-b border-slate-100 pb-2">
-        {title}
-      </div>
-      <div className="space-y-4">
+      <div className="space-y-5">
         {items.map((x, i) => (
-          <div key={`${title}-${i}`} className="flex gap-4">
-            <div className="w-12 shrink-0 text-xs font-bold text-slate-400 pt-1">
+          <div key={i} className="flex gap-4 group">
+            <div className="w-14 shrink-0 text-sm font-bold text-indigo-200/60 pt-0.5">
               {x.year ? x.year : "•"}
             </div>
             <div>
-              <div className="text-sm font-bold text-slate-800">{x.label}</div>
-              {x.sub && <div className="text-xs text-slate-500 mt-0.5">{x.sub}</div>}
+              <div className="text-base font-bold text-slate-100">{x.label}</div>
+              {x.sub && <div className="text-sm text-slate-400 mt-1 font-medium">{x.sub}</div>}
             </div>
           </div>
         ))}
@@ -192,180 +130,150 @@ function InfoBlock({ title, items }: { title: string; items: InfoItem[] }) {
   );
 }
 
-/** -----------------------------------------
- * MAIN PAGE COMPONENT
- * ----------------------------------------- */
+function SocialBtn({ href, icon: Icon }: { href: string; icon: any }) {
+  return (
+    <a href={href} target="_blank" rel="noreferrer" className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-white/80 text-[#5C5046] hover:bg-slate-800 hover:text-white transition shadow-sm border border-black/5">
+      <Icon className="text-xl" />
+    </a>
+  );
+}
+
 export default function HomeTabs() {
   const [tab, setTab] = useState<TabKey>("Home");
   const [filter, setFilter] = useState<Filter>("All");
   const [isMobileView, setIsMobileView] = useState(false);
 
-  // --- Board State (Supabase 연동) ---
+  // --- Board Logic ---
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(false);
   const [inputName, setInputName] = useState("");
   const [inputContent, setInputContent] = useState("");
   const [inputCategory, setInputCategory] = useState<"Q&A" | "Guestbook">("Guestbook");
 
-  // 1. 게시글 불러오기 (Read)
   const fetchPosts = async () => {
     setLoading(true);
-    const { data, error } = await supabase
-      .from('guestbook')
-      .select('*')
-      .order('created_at', { ascending: false });
-
-    if (error) console.error('Error fetching posts:', error);
-    else setPosts(data as Post[] || []);
+    const { data, error } = await supabase.from('guestbook').select('*').order('created_at', { ascending: false });
+    if (!error) setPosts(data as Post[] || []);
     setLoading(false);
   };
 
-  useEffect(() => {
-    if (tab === "Board") {
-      fetchPosts();
-    }
-  }, [tab]);
+  useEffect(() => { if (tab === "Board") fetchPosts(); }, [tab]);
 
-  // 2. 게시글 등록하기 (Create)
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!inputName.trim() || !inputContent.trim()) return;
-
-    const { error } = await supabase
-      .from('guestbook')
-      .insert([
-        { 
-          author: inputName, 
-          content: inputContent, 
-          category: inputCategory 
-        }
-      ]);
-
-    if (error) {
-      alert("글 등록에 실패했습니다 😢");
-      console.error(error);
-    } else {
-      setInputName("");
-      setInputContent("");
-      fetchPosts();
-    }
+    const { error } = await supabase.from('guestbook').insert([{ author: inputName, content: inputContent, category: inputCategory }]);
+    if (error) alert("Error!"); else { setInputName(""); setInputContent(""); fetchPosts(); }
   };
 
-  // --- 데이터 필터링 ---
-  const categories = useMemo(() => {
-    const set = new Set<string>();
-    for (const p of PROJECTS) set.add(String(p.category));
-    return Array.from(set) as CategoryKey[];
-  }, []);
+  // --- Data Filters ---
+  const featured = useMemo(() => PROJECTS.filter((p) => p.featured), []);
+  const filteredProjects = useMemo(() => filter === "All" ? PROJECTS : PROJECTS.filter((p) => p.category === filter), [filter]);
+  const categories = useMemo(() => Array.from(new Set(PROJECTS.map(p => p.category))), []);
 
-  const featured = useMemo(() => PROJECTS.filter((p) => (p as any).featured).slice(0, 4), []);
-
-  const filteredProjects = useMemo(() => {
-    if (filter === "All") return PROJECTS;
-    return PROJECTS.filter((p) => p.category === filter);
-  }, [filter]);
-
-  // --- 데이터셋 ---
-  const EDUCATION: InfoItem[] = [
+  // --- Static Data ---
+  const EDUCATION = [
     { label: "서울여자대학교 일반대학원", sub: "아동심리학 전공 (석사)" },
     { label: "서울여자대학교", sub: "아동학과 (학사)" },
   ];
-  const EXPERIENCE: InfoItem[] = [
+  const EXPERIENCE = [
     { label: "Kantar Korea", sub: "Analytics" },
     { label: "NIQ-GfK", sub: "Global Strategic Account Management" },
     { label: "Macromill Embrain", sub: "리서치 1부서 3팀" },
     { label: "MnM Research", sub: "연구사업본부" },
     { label: "서울대학교병원", sub: "소아정신과 의생명연구원" },
   ];
-  const AWARDS: InfoItem[] = [
+  const AWARDS = [
     { year: 2024, label: "3Q Night Out in Town" },
     { year: 2021, label: "인적자원위원회 최우수 보고서 선정" },
     { year: 2018, label: "KCI 등재 학술지 제1저자(논문)" },
     { year: 2016, label: "한국장학재단 우수연구계획서 선정" },
-  ].sort((a, b) => (b.year ?? 0) - (a.year ?? 0));
+  ];
+  const SKILLS = [
+    "Analytics planning", "Market research", "Demand Space", "SEM / Causal Analysis", 
+    "Forecasting", "Bayesian (PyMC)", "Productization", "LLM fine-tuning", "RAG workflows"
+  ];
 
   return (
     <div className="min-h-screen font-sans text-slate-800 pb-20">
       
-      {/* 1. Header (Clean) */}
-      <header className="py-8 flex items-center justify-between">
+      {/* Header */}
+      <header className="py-10 flex flex-col sm:flex-row items-center justify-between gap-6">
         <div>
-          <h1 className="text-3xl font-black tracking-tighter">Jihee Cho</h1>
-          <p className="text-sm text-slate-500 font-bold mt-1">Analytics · LLM · Build</p>
+          <h1 className="text-4xl font-black tracking-tight text-[#2D241E]">Jihee Cho</h1>
+          <p className="text-base text-[#6E645A] font-bold mt-2">Analytics · LLM · Build</p>
         </div>
-        <button
-          onClick={() => setIsMobileView((prev) => !prev)}
-          className="text-xs font-bold text-slate-400 hover:text-slate-800 border border-slate-200 rounded-full px-3 py-1.5 transition"
-        >
+        <button onClick={() => setIsMobileView((prev) => !prev)} className="text-xs font-bold text-slate-400 hover:text-slate-800 border border-slate-200 rounded-full px-4 py-2 transition">
           {isMobileView ? "💻 PC View" : "📱 Mobile View"}
         </button>
       </header>
 
-      {/* 2. Navigation Tabs */}
-      <nav className="flex items-end gap-1 sm:gap-2 border-b-2 border-slate-100 mb-8 overflow-x-auto">
-        <FileTab label="Home" active={tab === "Home"} onClick={() => setTab("Home")} colorClass="bg-slate-800 text-white" />
-        <FileTab label="Projects" active={tab === "Projects"} onClick={() => setTab("Projects")} colorClass="bg-indigo-100 text-indigo-900" />
-        <FileTab label="Info" active={tab === "Info"} onClick={() => setTab("Info")} colorClass="bg-emerald-100 text-emerald-900" />
-        <FileTab label="Board" active={tab === "Board"} onClick={() => setTab("Board")} colorClass="bg-amber-100 text-amber-900" />
+      {/* 꽉 찬 탭 내비게이션 */}
+      <nav className="flex w-full border border-slate-200 rounded-t-xl overflow-hidden shadow-sm mb-0">
+        <FullWidthTab label="Home" active={tab === "Home"} onClick={() => setTab("Home")} />
+        <FullWidthTab label="Projects" active={tab === "Projects"} onClick={() => setTab("Projects")} />
+        <FullWidthTab label="Info" active={tab === "Info"} onClick={() => setTab("Info")} />
+        <FullWidthTab label="Board" active={tab === "Board"} onClick={() => setTab("Board")} />
       </nav>
 
-      {/* 3. Main Content */}
+      {/* Main Content */}
       <main className="animate-in fade-in slide-in-from-bottom-2 duration-500">
         
-        {/* --- HOME --- */}
+        {/* === HOME TAB === */}
         {tab === "Home" && (
-          <div className="space-y-8">
-            <div className="relative w-full h-[320px] rounded-3xl overflow-hidden shadow-lg">
+          <div className="bg-[#FDFBF7] pt-8 pb-12 px-1 rounded-b-xl border-x border-b border-slate-200">
+            {/* Hero */}
+            <div className="relative w-full h-[360px] rounded-2xl overflow-hidden shadow-xl mb-12">
               <Image src="/a2026.jpg" alt="Hero" fill className="object-cover" priority />
               <div className="absolute inset-0 bg-black/40" />
-              <div className="absolute inset-0 p-8 sm:p-12 flex flex-col justify-center text-white">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/20 backdrop-blur-md text-xs font-bold w-fit mb-4 border border-white/30">
-                  <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse"/>
-                  Available for new projects
-                </div>
-                <h2 className="text-4xl sm:text-5xl font-black mb-4 leading-tight">Data Driven, <br/> Decision Ready.</h2>
-                <p className="text-white/80 max-w-lg leading-relaxed text-sm sm:text-base">
-                  데이터 분석과 시장조사를 바탕으로, 의사결정을 실질적으로 지원하는 결과물을 만듭니다.
+              <div className="absolute inset-0 p-10 flex flex-col justify-center text-white">
+                <h2 className="text-5xl font-black mb-6 leading-tight">Data Driven, <br/> Decision Ready.</h2>
+                <p className="text-white/90 text-lg font-medium max-w-xl">
+                  데이터 분석과 시장조사를 바탕으로,<br/> 의사결정을 실질적으로 지원하는 결과물을 만듭니다.
                 </p>
               </div>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-              <div className="lg:col-span-2">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-xl font-bold flex items-center gap-2">🔥 Featured Projects</h3>
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+              {/* Featured Projects (4개만 보임) */}
+              <div className="lg:col-span-8">
+                <div className="flex items-center justify-between mb-5">
+                  <h3 className="text-xl font-black text-[#2D241E]">🔥 Featured Projects</h3>
                   <button onClick={() => setTab("Projects")} className="text-sm font-bold text-slate-400 hover:text-slate-800 underline">View all</button>
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {featured.map((p) => <FeaturedTile key={(p as any).slug} p={p} />)}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                  {featured.slice(0, 4).map((p) => <ProjectCard key={p.slug} p={p} />)}
                 </div>
               </div>
 
-              <div className="lg:col-span-1">
-                <div className="sticky top-8 bg-[#F4F0EB] rounded-3xl p-6 sm:p-8 border border-[#E6E0D8]">
-                  <div className="relative w-24 h-24 rounded-full border-4 border-white shadow-sm mb-4 overflow-hidden mx-auto sm:mx-0">
+              {/* Profile Card */}
+              <div className="lg:col-span-4">
+                <div className="sticky top-8 bg-[#EBE7E1] rounded-2xl p-8 border border-[#DFD9D0]">
+                  <div className="relative w-24 h-24 rounded-full border-4 border-white shadow-sm mb-5 overflow-hidden">
                     <Image src="/avatar.jpg" alt="Avatar" fill className="object-cover" />
                   </div>
                   <h3 className="text-2xl font-black text-[#4A4036]">Jihee Cho</h3>
-                  <div className="text-sm font-bold text-[#8C8070] mb-4">Analytics · Build · LLM</div>
-                  <p className="text-sm text-[#5C5046] leading-relaxed mb-6 font-medium">
+                  <div className="text-sm font-bold text-[#8C8070] mb-5">Analytics · Build · LLM</div>
+                  <p className="text-sm text-[#5C5046] leading-7 font-medium mb-8">
                     "I specialize in designing and implementing the entire workflow—from planning to modeling and visualization—as a cohesive story."
                   </p>
+                  
                   <div className="space-y-3 mb-8">
-                    <div className="flex items-center gap-3 text-sm text-[#5C5046] font-bold bg-white/50 p-3 rounded-xl">
+                    <div className="flex items-center gap-3 text-sm text-[#5C5046] font-bold bg-white/60 p-3 rounded-xl">
                       <IoLocationSharp className="text-lg opacity-50" /> Seoul, South Korea
                     </div>
-                    <a href={`mailto:${LINKS.email}`} className="flex items-center gap-3 text-sm text-[#5C5046] font-bold bg-white/50 p-3 rounded-xl hover:bg-white transition">
+                    <a href={`mailto:${LINKS.email}`} className="flex items-center gap-3 text-sm text-[#5C5046] font-bold bg-white/60 p-3 rounded-xl hover:bg-white transition">
                       <MdEmail className="text-lg opacity-50" /> {LINKS.email}
                     </a>
                   </div>
-                  <div className="flex justify-center gap-3 border-t border-[#DCD6CC] pt-6">
+
+                  <div className="flex gap-2 justify-center pt-2">
                     <SocialBtn href={LINKS.linkedin} icon={FaLinkedin} />
                     <SocialBtn href={LINKS.github} icon={FaGithub} />
                     <SocialBtn href={LINKS.hf} icon={SiHuggingface} />
                     <SocialBtn href={LINKS.velog} icon={SiVelog} />
                   </div>
-                  <a href={LINKS.resumePdf} target="_blank" className="mt-4 block w-full py-3 bg-[#3E342B] text-[#E6DCCF] text-center text-sm font-bold rounded-xl hover:opacity-90 transition">
+                  <a href={LINKS.resumePdf} target="_blank" className="mt-6 block w-full py-3 bg-[#3E342B] text-[#E6DCCF] text-center text-sm font-bold rounded-xl hover:opacity-90 transition">
                     Download Resume
                   </a>
                 </div>
@@ -374,151 +282,85 @@ export default function HomeTabs() {
           </div>
         )}
 
-        {/* --- PROJECTS --- */}
+        {/* === PROJECTS TAB (All) === */}
         {tab === "Projects" && (
-          <div className="bg-indigo-50/50 min-h-[500px] p-6 sm:p-8 rounded-3xl rounded-tl-none border border-indigo-100">
+          <div className="bg-white p-8 rounded-b-xl border-x border-b border-slate-200 min-h-[600px]">
              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
-                <h2 className="text-2xl font-black text-indigo-900">All Projects</h2>
+                <h2 className="text-2xl font-black text-slate-900">All Projects</h2>
                 <div className="flex flex-wrap gap-2">
-                  <FilterPill active={filter === "All"} onClick={() => setFilter("All")}>All</FilterPill>
+                  <button onClick={() => setFilter("All")} className={cn("px-4 py-2 rounded-full text-sm font-bold transition", filter === "All" ? "bg-slate-900 text-white" : "bg-slate-100 text-slate-500 hover:bg-slate-200")}>All</button>
                   {categories.map((c) => (
-                    <FilterPill key={c} active={filter === c} onClick={() => setFilter(c)}>{String(c)}</FilterPill>
+                    <button key={c} onClick={() => setFilter(c)} className={cn("px-4 py-2 rounded-full text-sm font-bold transition", filter === c ? "bg-slate-900 text-white" : "bg-slate-100 text-slate-500 hover:bg-slate-200")}>{String(c)}</button>
                   ))}
                 </div>
              </div>
+             {/* 모든 프로젝트 카드 렌더링 */}
              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredProjects.map((p) => <ProjectCard key={(p as any).slug} p={p} />)}
+                {filteredProjects.map((p) => <ProjectCard key={p.slug} p={p} />)}
              </div>
           </div>
         )}
 
-        {/* --- INFO --- */}
+        {/* === INFO TAB === */}
         {tab === "Info" && (
-          <div className="bg-emerald-50/50 min-h-[500px] p-6 sm:p-8 rounded-3xl rounded-tl-none border border-emerald-100">
-             <h2 className="text-2xl font-black text-emerald-900 mb-8">Curriculum Vitae</h2>
-             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <InfoBlock title="Education" items={EDUCATION} />
-                <InfoBlock title="Experience" items={EXPERIENCE} />
-                <div className="lg:col-span-2"><InfoBlock title="Awards & Honors" items={AWARDS} /></div>
+          <div className="bg-[#1e293b] p-8 sm:p-12 rounded-b-xl min-h-[800px] border-x border-b border-[#1e293b]">
+             <div className="mb-12">
+               <div className="bg-white/5 border border-white/10 rounded-2xl p-8 relative overflow-hidden">
+                 <FaQuoteLeft className="absolute top-6 left-6 text-white/5 text-6xl" />
+                 <h2 className="text-2xl font-black text-white mb-6 relative z-10">Professional Summary</h2>
+                 <p className="text-slate-300 leading-8 text-lg font-medium relative z-10 max-w-4xl">
+                   데이터 분석과 시장조사 경험을 기반으로, 의사결정을 실질적으로 지원하는 결과물을 만듭니다. <br/>
+                   요구사항을 문제 정의–분석 설계–모델링–시각화–리포팅까지 한 흐름으로 설계하고 구현해 왔습니다. <br/>
+                   반복되는 분석 업무는 자동화·표준화하고, LLM 파인튜닝·배포 및 RAG 워크플로우 적용을 통해 분석을 서비스 형태로 확장하고 있습니다.
+                 </p>
+                 <div className="mt-8 flex flex-wrap gap-2 relative z-10">
+                    {SKILLS.map((s) => <span key={s} className="px-3 py-1.5 rounded-lg bg-white/10 border border-white/10 text-slate-200 text-xs font-bold">{s}</span>)}
+                 </div>
+               </div>
+             </div>
+             <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-16 gap-y-12">
+                <InfoSection title="Education" icon={MdSchool} items={EDUCATION} />
+                <InfoSection title="Experience" icon={MdWork} items={EXPERIENCE} />
+                <div className="lg:col-span-2"><InfoSection title="Awards & Honors" icon={MdEmojiEvents} items={AWARDS} /></div>
              </div>
           </div>
         )}
 
-        {/* --- BOARD (With DB) --- */}
+        {/* === BOARD TAB === */}
         {tab === "Board" && (
-          <div className="bg-amber-50/50 min-h-[600px] p-6 sm:p-10 rounded-3xl rounded-tl-none border border-amber-100">
+          <div className="bg-amber-50 p-8 rounded-b-xl border-x border-b border-amber-100 min-h-[600px]">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
-              
-              {/* Write Form */}
               <div className="lg:col-span-1">
                 <div className="bg-white p-6 rounded-2xl border border-amber-200 shadow-sm sticky top-8">
-                  <h3 className="text-lg font-black text-amber-900 mb-4 flex items-center gap-2">
-                    <FaPen className="text-sm" /> Write a Post
-                  </h3>
+                  <h3 className="text-lg font-black text-amber-900 mb-4 flex items-center gap-2"><FaPen className="text-sm" /> Write a Post</h3>
                   <form onSubmit={handleSubmit} className="space-y-4">
-                    <div>
-                      <label className="block text-xs font-bold text-slate-500 mb-1">Category</label>
-                      <div className="flex gap-2">
-                        {["Guestbook", "Q&A"].map((c) => (
-                          <button
-                            key={c}
-                            type="button"
-                            onClick={() => setInputCategory(c as any)}
-                            className={cn(
-                              "flex-1 py-2 text-xs font-bold rounded-lg border transition",
-                              inputCategory === c ? "bg-amber-100 text-amber-800 border-amber-200" : "bg-slate-50 text-slate-400 border-slate-100"
-                            )}
-                          >
-                            {c}
-                          </button>
-                        ))}
-                      </div>
+                    <div className="flex gap-2">
+                      {["Guestbook", "Q&A"].map((c) => (
+                        <button key={c} type="button" onClick={() => setInputCategory(c as any)} className={cn("flex-1 py-2 text-xs font-bold rounded-lg border transition", inputCategory === c ? "bg-amber-100 text-amber-800 border-amber-200" : "bg-slate-50 text-slate-400 border-slate-100")}>{c}</button>
+                      ))}
                     </div>
-                    <div>
-                      <label className="block text-xs font-bold text-slate-500 mb-1">Name</label>
-                      <input 
-                        type="text" 
-                        value={inputName}
-                        onChange={(e) => setInputName(e.target.value)}
-                        className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-200"
-                        placeholder="Your name"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-bold text-slate-500 mb-1">Message</label>
-                      <textarea 
-                        value={inputContent}
-                        onChange={(e) => setInputContent(e.target.value)}
-                        rows={4}
-                        className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-200 resize-none"
-                        placeholder="Leave a message..."
-                        required
-                      />
-                    </div>
-                    <button 
-                      type="submit" 
-                      className="w-full py-3 bg-amber-900 text-amber-50 font-bold rounded-xl hover:bg-amber-800 transition shadow-md"
-                    >
-                      Post Message
-                    </button>
+                    <input type="text" value={inputName} onChange={(e) => setInputName(e.target.value)} className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-amber-200" placeholder="Your name" required />
+                    <textarea value={inputContent} onChange={(e) => setInputContent(e.target.value)} rows={4} className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-amber-200 resize-none" placeholder="Leave a message..." required />
+                    <button type="submit" className="w-full py-3 bg-amber-900 text-amber-50 font-bold rounded-xl hover:bg-amber-800 transition shadow-md">Post Message</button>
                   </form>
                 </div>
               </div>
-
-              {/* Post List */}
               <div className="lg:col-span-2 space-y-4">
-                <h3 className="text-lg font-black text-amber-900 mb-2 flex items-center gap-2">
-                  <MdArticle /> Recent Posts
-                </h3>
-                
-                {loading ? (
-                  <div className="py-20 text-center text-slate-400">Loading posts...</div>
-                ) : posts.length === 0 ? (
-                  <div className="py-20 text-center text-slate-400 font-medium">첫 번째 글을 남겨주세요! 👋</div>
-                ) : (
-                  posts.map((post) => (
-                    <motion.div 
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      key={post.id} 
-                      className="bg-white p-5 rounded-2xl border border-amber-100/50 shadow-sm hover:shadow-md transition"
-                    >
-                      <div className="flex items-start justify-between mb-3">
-                        <div className="flex items-center gap-2">
-                          <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-400">
-                            <FaUserCircle />
-                          </div>
-                          <div>
-                            <div className="text-sm font-bold text-slate-900">{post.author}</div>
-                            <div className="text-[10px] text-slate-400 font-medium">
-                              {new Date(post.created_at).toLocaleDateString()}
-                            </div>
-                          </div>
-                        </div>
-                        <span className={cn(
-                          "px-2 py-1 rounded-md text-[10px] font-bold uppercase tracking-wide",
-                          post.category === "Q&A" ? "bg-blue-50 text-blue-600" : "bg-green-50 text-green-600"
-                        )}>
-                          {post.category}
-                        </span>
-                      </div>
-                      <p className="text-sm text-slate-700 leading-relaxed whitespace-pre-wrap pl-10">
-                        {post.content}
-                      </p>
-                    </motion.div>
-                  ))
-                )}
+                <h3 className="text-lg font-black text-amber-900 mb-2 flex items-center gap-2"><MdArticle /> Recent Posts</h3>
+                {loading ? <div className="py-20 text-center text-slate-400">Loading...</div> : posts.map((post) => (
+                  <div key={post.id} className="bg-white p-5 rounded-2xl border border-amber-100 shadow-sm">
+                    <div className="flex justify-between mb-3"><div className="flex gap-2 items-center"><FaUserCircle className="text-slate-300 text-2xl" /><span className="font-bold text-slate-900">{post.author}</span><span className="text-xs text-slate-400">{new Date(post.created_at).toLocaleDateString()}</span></div><span className="text-[10px] font-bold px-2 py-1 rounded bg-amber-50 text-amber-700">{post.category}</span></div>
+                    <p className="text-sm text-slate-700 pl-8">{post.content}</p>
+                  </div>
+                ))}
               </div>
-
             </div>
           </div>
         )}
 
       </main>
 
-      {/* Footer */}
-      <footer className="mt-20 pt-8 border-t border-slate-100 text-center text-xs font-medium text-slate-400">
+      <footer className="mt-20 pt-8 border-t border-slate-200 text-center text-xs font-medium text-slate-400">
         © {new Date().getFullYear()} Jihee Cho. All rights reserved.
       </footer>
     </div>
