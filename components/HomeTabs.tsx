@@ -36,14 +36,12 @@ function pickPrimaryLink(p: ProjectItem) {
   return anyP.repo ?? anyP.demo ?? anyP.blog ?? `/projects/${anyP.slug}`;
 }
 
-/** SSR/CSR mismatch 방지용: slug 기반 고정 패턴 */
 function hashToIndex(s: string, mod: number) {
   let h = 0;
   for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0;
   return mod ? h % mod : 0;
 }
 
-/** cover 없을 때 썸네일 패턴 6종 */
 const THUMB_PATTERNS = [
   "bg-[radial-gradient(circle_at_20%_25%,rgba(255,186,73,.55),transparent_55%),radial-gradient(circle_at_85%_70%,rgba(194,122,58,.32),transparent_55%),linear-gradient(135deg,rgba(255,255,255,.9),rgba(245,236,225,.9))]",
   "bg-[radial-gradient(ellipse_at_30%_35%,rgba(0,0,0,.16),transparent_55%),radial-gradient(ellipse_at_80%_75%,rgba(255,186,73,.35),transparent_55%),linear-gradient(135deg,rgba(252,248,244,1),rgba(244,236,226,1))]",
@@ -140,7 +138,6 @@ function Thumb({
   );
 }
 
-/** ------- Info content ------- */
 const EDUCATION: InfoItem[] = [
   { label: "서울여자대학교 일반대학원", sub: "아동심리학 전공 (석사)" },
   { label: "서울여자대학교", sub: "아동학과 (학사)" },
@@ -187,7 +184,6 @@ function InfoBlock({ title, items }: { title: string; items: InfoItem[] }) {
   );
 }
 
-/** Projects 카드(세로 리스트용) */
 function ProjectCard({ p }: { p: ProjectItem }) {
   const href = pickPrimaryLink(p);
   const external = isExternal(href);
@@ -248,7 +244,6 @@ function ProjectCard({ p }: { p: ProjectItem }) {
   );
 }
 
-/** Featured: Home용 임팩트 카드 (그리드에서 사용) */
 function FeaturedTile({ p }: { p: ProjectItem }) {
   const href = pickPrimaryLink(p);
   const external = isExternal(href);
@@ -261,8 +256,8 @@ function FeaturedTile({ p }: { p: ProjectItem }) {
       rel={external ? "noreferrer" : undefined}
       className="group"
     >
-      <div className="rounded-[28px] border border-[var(--line)] bg-white/70 overflow-hidden hover:shadow-[0_18px_60px_rgba(0,0,0,0.10)] transition">
-        <div className="p-5 sm:p-6">
+      <div className="h-full flex flex-col rounded-[28px] border border-[var(--line)] bg-white/70 overflow-hidden hover:shadow-[0_18px_60px_rgba(0,0,0,0.10)] transition">
+        <div className="p-5 sm:p-6 flex-1 flex flex-col">
           <div className="flex items-center justify-between gap-4">
             <div className="text-xs font-extrabold text-black/60">
               {String(p.category)}
@@ -277,18 +272,12 @@ function FeaturedTile({ p }: { p: ProjectItem }) {
           </div>
 
           <p
-            className="mt-2 text-sm sm:text-[15px] text-[var(--muted)] leading-7 font-medium"
-            style={{
-              display: "-webkit-box",
-              WebkitLineClamp: 2,
-              WebkitBoxOrient: "vertical",
-              overflow: "hidden",
-            }}
+            className="mt-2 mb-4 text-sm sm:text-[15px] text-[var(--muted)] leading-7 font-medium line-clamp-2"
           >
             {anyP.oneLiner}
           </p>
 
-          <div className="mt-4">
+          <div className="mt-auto">
             <Thumb
               slug={anyP.slug}
               cover={anyP.cover}
@@ -301,9 +290,13 @@ function FeaturedTile({ p }: { p: ProjectItem }) {
   );
 }
 
+/** -----------------------------------------
+ * MAIN EXPORT
+ * ----------------------------------------- */
 export default function HomeTabs() {
   const [tab, setTab] = useState<TabKey>("Home");
   const [filter, setFilter] = useState<Filter>("All");
+  const [isMobileView, setIsMobileView] = useState(false); // Default PC View
 
   const tabs = useMemo(
     () => [
@@ -335,7 +328,6 @@ export default function HomeTabs() {
   const wmY = useTransform(scrollY, [0, 800], [0, -70]);
   const wmX = useTransform(scrollY, [0, 800], [0, 26]);
 
-  /** Info 탭 Skill chips (카테고리 있는 것만 cat 부여) */
   const skillset = useMemo<Chip[]>(() => {
     const has = (c: string) => categories.includes(c as any);
     const cat = (c: string) =>
@@ -396,159 +388,278 @@ export default function HomeTabs() {
               {t.label}
             </Pill>
           ))}
+          {/* View Toggle Button */}
+          <button
+            onClick={() => setIsMobileView((prev) => !prev)}
+            className="ml-2 text-xs font-bold text-[var(--muted)] hover:text-black border border-[var(--line)] rounded-full px-3 py-1.5 transition"
+          >
+            {isMobileView ? "💻 PC View" : "📱 Mobile View"}
+          </button>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="hidden sm:flex flex-wrap items-center gap-2">
           <LinkChip href={LINKS.github}>GitHub</LinkChip>
           <LinkChip href={LINKS.hf}>HF</LinkChip>
           <LinkChip href={LINKS.velog}>Velog</LinkChip>
         </div>
       </header>
 
-      {/* HOME (Hero + Featured grid) */}
+      {/* HOME CONTENT */}
       {tab === "Home" && (
-        <section className="relative overflow-hidden rounded-[32px] border border-[var(--line)] bg-white/55 shadow-[0_18px_60px_rgba(0,0,0,0.08)]">
-          <motion.div
-            style={{ x: wmX, y: wmY }}
-            className="pointer-events-none absolute -top-12 -left-10 text-[150px] sm:text-[210px] font-black tracking-[-.06em] text-black/[0.06]"
-          >
-            2026
-          </motion.div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 p-6 sm:p-10">
-            {/* left */}
-            <div className="lg:col-span-7">
-              <div className="inline-flex items-center gap-3 rounded-full border border-[var(--line)] bg-white/75 px-5 py-2.5 text-xs font-extrabold tracking-wide">
-                PORTFOLIO · ANALYTICS · BUILD
-                <span className="inline-block h-1.5 w-1.5 rounded-full bg-[var(--accent)]" />
-              </div>
-
-              <h1 className="mt-6 text-[44px] sm:text-[66px] leading-[0.95] font-black tracking-tight">
-                Portfolio
-                <span className="block text-[var(--accent2)]">Jihee Cho</span>
-              </h1>
-
-              <p className="mt-5 text-[15px] sm:text-[17px] leading-8 text-[var(--muted)] max-w-[72ch] font-medium">
-                데이터 분석과 시장조사 경험을 기반으로, 의사결정을 실질적으로
-                지원하는 결과물을 만듭니다.
-                <br />
-                기획부터 모델링, 시각화까지의 흐름을 하나의 스토리로 설계하고
-                구현하는 데 집중해 왔습니다.
-                <span className="block mt-2">
-                  아래는 대표 프로젝트이고, 전체 목록은{" "}
-                  <b className="text-black">Projects</b> 탭에서 확인하실 수
-                  있습니다.
-                </span>
-              </p>
-
-              <div className="mt-6 flex flex-wrap gap-2">
-                <LinkChip
-                  href={LINKS.github}
-                  className="bg-black text-white border-black/20"
-                >
-                  GitHub
-                </LinkChip>
-                <LinkChip href={LINKS.hf}>Hugging Face</LinkChip>
-                <LinkChip href={LINKS.velog}>Velog</LinkChip>
-                <LinkChip href={LINKS.resumePdf}>Resume PDF</LinkChip>
-                <LinkChip href={`mailto:${LINKS.email}`}>Contact</LinkChip>
-              </div>
-
-              <div className="mt-9">
-                <div className="flex items-end justify-between">
-                  <div>
-                    <div className="text-sm font-black tracking-tight">
-                      Featured
-                    </div>
-                    <div className="mt-1 text-sm text-[var(--muted)]">
-                      대표 프로젝트
-                    </div>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => setTab("Projects")}
-                    className="text-sm font-extrabold underline underline-offset-4 hover:opacity-80"
-                  >
-                    View all →
-                  </button>
-                </div>
-
-                {/* 가로 캐러셀 대신 2×2 그리드 */}
-                <div className="mt-4">
-                  <div className="grid gap-4 sm:gap-5 sm:grid-cols-2">
-                    {featured.slice(0, 4).map((p) => (
-                      <FeaturedTile key={(p as any).slug} p={p} />
-                    ))}
-                  </div>
-                  <p className="mt-3 text-xs text-[var(--muted)] font-medium">
-                    더 많은 프로젝트는{" "}
-                    <button
-                      type="button"
-                      onClick={() => setTab("Projects")}
-                      className="font-semibold underline underline-offset-4 hover:opacity-80"
-                    >
-                      Projects 탭
-                    </button>
-                    에서 모두 확인하실 수 있습니다.
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* right hero image */}
-            <div className="lg:col-span-5">
-              <div className="relative h-[380px] sm:h-[520px] lg:h-[640px] rounded-[28px] overflow-hidden border border-black/15 bg-black/5">
+        <>
+          {/* --- PC VIEW (DEFAULT) --- */}
+          {!isMobileView ? (
+            <div className="space-y-6">
+              {/* 1. Full-width Hero Banner */}
+              <div className="relative w-full h-[360px] md:h-[420px] rounded-[32px] overflow-hidden border border-black/15 shadow-[0_18px_60px_rgba(0,0,0,0.12)]">
                 <Image
                   src="/a2026.jpg"
-                  alt="Hero image"
+                  alt="Hero banner"
                   fill
                   className="object-cover"
                   priority
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/18 to-transparent" />
-
-                <div className="absolute bottom-6 left-6 right-6">
-                  <div className="flex items-center gap-4">
-                    <div className="relative h-16 w-16 rounded-full overflow-hidden border border-white/30">
-                      <Image
-                        src="/avatar.jpg"
-                        alt="Avatar"
-                        fill
-                        className="object-cover"
-                      />
-                    </div>
-                    <div className="min-w-0">
-                      <div className="text-white text-xl font-black leading-tight">
-                        Jihee Cho
-                      </div>
-                      <div className="text-white/80 text-sm font-semibold">
-                        Analytics · Bayesian · Forecasting · LLM
-                      </div>
-                    </div>
+                <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent" />
+                
+                {/* Overlay Text */}
+                <div className="absolute inset-0 p-8 sm:p-12 flex flex-col justify-center">
+                  <div className="inline-flex self-start items-center gap-3 rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-xs font-extrabold tracking-wide text-white backdrop-blur-md">
+                    PORTFOLIO · ANALYTICS · BUILD
+                    <span className="inline-block h-1.5 w-1.5 rounded-full bg-[var(--accent)]" />
                   </div>
-
-                  <div className="mt-5 flex flex-wrap gap-2">
-                    {[
-                      "Decision-ready outputs",
-                      "Automation → productization",
-                      "Fine-tuning / RAG",
-                    ].map((x) => (
-                      <span
-                        key={x}
-                        className="inline-flex items-center rounded-full bg-white/15 border border-white/25 px-3 py-1 text-xs font-extrabold text-white backdrop-blur"
-                      >
-                        {x}
+                  <h1 className="mt-6 text-5xl sm:text-7xl font-black tracking-tight text-white leading-tight">
+                    Portfolio
+                    <span className="block text-[var(--accent)]">Jihee Cho</span>
+                  </h1>
+                  <p className="mt-6 text-lg text-white/80 max-w-[600px] font-medium leading-relaxed">
+                    데이터 분석과 시장조사 경험을 기반으로, <br className="hidden sm:block"/>
+                    의사결정을 실질적으로 지원하는 결과물을 만듭니다.
+                  </p>
+                  
+                  {/* Hero Tags */}
+                  <div className="mt-8 flex flex-wrap gap-2">
+                    {["Decision-ready outputs", "Automation", "LLM / RAG"].map((tag) => (
+                      <span key={tag} className="px-3 py-1 rounded-full bg-white/10 border border-white/20 text-white text-xs font-bold backdrop-blur-sm">
+                        {tag}
                       </span>
                     ))}
                   </div>
                 </div>
               </div>
+
+              {/* 2. Main Grid: Projects (Left) + Profile (Right) */}
+              <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+                
+                {/* Left: Featured Projects (3 cols width) */}
+                <div className="lg:col-span-3 space-y-6">
+                  <div className="flex items-end justify-between px-2">
+                    <div>
+                      <h2 className="text-2xl font-black tracking-tight">Featured Projects</h2>
+                      <p className="text-sm text-[var(--muted)] font-medium mt-1">대표 프로젝트 모음</p>
+                    </div>
+                    <button
+                      onClick={() => setTab("Projects")}
+                      className="text-sm font-bold underline underline-offset-4 hover:opacity-70 transition"
+                    >
+                      View all →
+                    </button>
+                  </div>
+                  
+                  {/* 2x2 Grid for Cards */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                    {featured.slice(0, 4).map((p) => (
+                      <FeaturedTile key={(p as any).slug} p={p} />
+                    ))}
+                  </div>
+                </div>
+
+                {/* Right: Profile Block (1 col width) - Dark Beige */}
+                <div className="lg:col-span-1">
+                   {/* Warm/Dark Beige Background */}
+                  <div className="sticky top-8 h-fit rounded-[28px] border border-[var(--line)] bg-[#E6DCCF] p-6 sm:p-8 shadow-sm">
+                    <div className="relative w-20 h-20 rounded-full border-2 border-white/50 overflow-hidden shadow-sm mb-5">
+                      <Image 
+                        src="/avatar.jpg" 
+                        alt="Avatar" 
+                        fill 
+                        className="object-cover" 
+                      />
+                    </div>
+                    
+                    <div className="text-xl font-black text-[#4A4036] tracking-tight">Jihee Cho</div>
+                    <div className="text-sm font-bold text-[#7D6E5F] mt-1">Analytics · LLM · Build</div>
+                    
+                    <p className="mt-5 text-sm leading-7 text-[#5C5046] font-medium">
+                      기획부터 모델링, 시각화까지의 흐름을 하나의 스토리로 설계하고 구현하는 데 집중해 왔습니다.
+                    </p>
+
+                    <div className="mt-8 space-y-3">
+                      <a href={LINKS.resumePdf} target="_blank" className="flex items-center justify-center w-full py-3 rounded-xl bg-[#3E342B] text-[#E6DCCF] text-sm font-bold hover:opacity-90 transition">
+                        Resume PDF
+                      </a>
+                      <a href={`mailto:${LINKS.email}`} className="flex items-center justify-center w-full py-3 rounded-xl border border-[#Cac2b6] bg-white/50 text-[#5C5046] text-sm font-bold hover:bg-white/80 transition">
+                        Contact Me
+                      </a>
+                    </div>
+
+                    <div className="mt-8 pt-6 border-t border-[#Cac2b6]">
+                      <div className="text-xs font-extrabold text-[#7D6E5F] mb-3">LINKS</div>
+                      <div className="flex flex-wrap gap-2">
+                        <a href={LINKS.github} target="_blank" className="text-xs font-bold px-3 py-1.5 rounded-lg bg-white/60 text-[#5C5046] hover:bg-white">GitHub</a>
+                        <a href={LINKS.hf} target="_blank" className="text-xs font-bold px-3 py-1.5 rounded-lg bg-white/60 text-[#5C5046] hover:bg-white">Hugging Face</a>
+                        <a href={LINKS.velog} target="_blank" className="text-xs font-bold px-3 py-1.5 rounded-lg bg-white/60 text-[#5C5046] hover:bg-white">Velog</a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
             </div>
-          </div>
-        </section>
+          ) : (
+            /* --- MOBILE VIEW (LEGACY) --- */
+            <section className="relative overflow-hidden rounded-[32px] border border-[var(--line)] bg-white/55 shadow-[0_18px_60px_rgba(0,0,0,0.08)]">
+              <motion.div
+                style={{ x: wmX, y: wmY }}
+                className="pointer-events-none absolute -top-12 -left-10 text-[150px] sm:text-[210px] font-black tracking-[-.06em] text-black/[0.06]"
+              >
+                2026
+              </motion.div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 p-6 sm:p-10">
+                {/* left content */}
+                <div className="lg:col-span-7">
+                  <div className="inline-flex items-center gap-3 rounded-full border border-[var(--line)] bg-white/75 px-5 py-2.5 text-xs font-extrabold tracking-wide">
+                    PORTFOLIO · ANALYTICS · BUILD
+                    <span className="inline-block h-1.5 w-1.5 rounded-full bg-[var(--accent)]" />
+                  </div>
+
+                  <h1 className="mt-6 text-[44px] sm:text-[66px] leading-[0.95] font-black tracking-tight">
+                    Portfolio
+                    <span className="block text-[var(--accent2)]">Jihee Cho</span>
+                  </h1>
+
+                  <p className="mt-5 text-[15px] sm:text-[17px] leading-8 text-[var(--muted)] max-w-[72ch] font-medium">
+                    데이터 분석과 시장조사 경험을 기반으로, 의사결정을 실질적으로
+                    지원하는 결과물을 만듭니다.
+                    <br />
+                    기획부터 모델링, 시각화까지의 흐름을 하나의 스토리로 설계하고
+                    구현하는 데 집중해 왔습니다.
+                    <span className="block mt-2">
+                      아래는 대표 프로젝트이고, 전체 목록은{" "}
+                      <b className="text-black">Projects</b> 탭에서 확인하실 수
+                      있습니다.
+                    </span>
+                  </p>
+
+                  <div className="mt-6 flex flex-wrap gap-2">
+                    <LinkChip
+                      href={LINKS.github}
+                      className="bg-black text-white border-black/20"
+                    >
+                      GitHub
+                    </LinkChip>
+                    <LinkChip href={LINKS.hf}>Hugging Face</LinkChip>
+                    <LinkChip href={LINKS.velog}>Velog</LinkChip>
+                    <LinkChip href={LINKS.resumePdf}>Resume PDF</LinkChip>
+                    <LinkChip href={`mailto:${LINKS.email}`}>Contact</LinkChip>
+                  </div>
+
+                  <div className="mt-9">
+                    <div className="flex items-end justify-between">
+                      <div>
+                        <div className="text-sm font-black tracking-tight">
+                          Featured
+                        </div>
+                        <div className="mt-1 text-sm text-[var(--muted)]">
+                          대표 프로젝트
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setTab("Projects")}
+                        className="text-sm font-extrabold underline underline-offset-4 hover:opacity-80"
+                      >
+                        View all →
+                      </button>
+                    </div>
+
+                    <div className="mt-4">
+                      <div className="grid gap-4 sm:gap-5 sm:grid-cols-2">
+                        {featured.slice(0, 4).map((p) => (
+                          <FeaturedTile key={(p as any).slug} p={p} />
+                        ))}
+                      </div>
+                      <p className="mt-3 text-xs text-[var(--muted)] font-medium">
+                        더 많은 프로젝트는{" "}
+                        <button
+                          type="button"
+                          onClick={() => setTab("Projects")}
+                          className="font-semibold underline underline-offset-4 hover:opacity-80"
+                        >
+                          Projects 탭
+                        </button>
+                        에서 모두 확인하실 수 있습니다.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* right hero image (Mobile version side) */}
+                <div className="lg:col-span-5">
+                  <div className="relative h-[380px] sm:h-[520px] lg:h-[640px] rounded-[28px] overflow-hidden border border-black/15 bg-black/5">
+                    <Image
+                      src="/a2026.jpg"
+                      alt="Hero image"
+                      fill
+                      className="object-cover"
+                      priority
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/18 to-transparent" />
+
+                    <div className="absolute bottom-6 left-6 right-6">
+                      <div className="flex items-center gap-4">
+                        <div className="relative h-16 w-16 rounded-full overflow-hidden border border-white/30">
+                          <Image
+                            src="/avatar.jpg"
+                            alt="Avatar"
+                            fill
+                            className="object-cover"
+                          />
+                        </div>
+                        <div className="min-w-0">
+                          <div className="text-white text-xl font-black leading-tight">
+                            Jihee Cho
+                          </div>
+                          <div className="text-white/80 text-sm font-semibold">
+                            Analytics · Bayesian · Forecasting · LLM
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="mt-5 flex flex-wrap gap-2">
+                        {[
+                          "Decision-ready outputs",
+                          "Automation → productization",
+                          "Fine-tuning / RAG",
+                        ].map((x) => (
+                          <span
+                            key={x}
+                            className="inline-flex items-center rounded-full bg-white/15 border border-white/25 px-3 py-1 text-xs font-extrabold text-white backdrop-blur"
+                          >
+                            {x}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+          )}
+        </>
       )}
 
-      {/* Projects */}
+      {/* Projects Tab */}
       {tab === "Projects" && (
         <section className="rounded-[32px] border border-[var(--line)] bg-white/55 p-6 sm:p-10 shadow-[0_18px_60px_rgba(0,0,0,0.08)]">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
@@ -591,7 +702,7 @@ export default function HomeTabs() {
         </section>
       )}
 
-      {/* Info */}
+      {/* Info Tab */}
       {tab === "Info" && (
         <section className="rounded-[32px] border border-[var(--line)] bg-white/55 p-6 sm:p-10 shadow-[0_18px_60px_rgba(0,0,0,0.08)]">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
@@ -601,9 +712,7 @@ export default function HomeTabs() {
               </h2>
               <p className="mt-3 text-[15px] text-[var(--muted)] leading-8 font-medium">
                 왼쪽에는 학력·경력·수상 내역을, 오른쪽에는 요약·스킬·코어
-                강점을 정리했습니다. 카테고리 칩을 클릭하면{" "}
-                <b>Projects</b> 탭으로 이동하면서 해당 카테고리로 자동
-                필터링됩니다.
+                강점을 정리했습니다.
               </p>
             </div>
             <div className="flex flex-wrap items-center gap-2">
@@ -700,19 +809,13 @@ export default function HomeTabs() {
                     </Pill>
                   ))}
                 </div>
-
-                <div className="mt-6 flex flex-wrap gap-2">
-                  <LinkChip href={LINKS.github}>Repo list</LinkChip>
-                  <LinkChip href={LINKS.hf}>Hugging Face</LinkChip>
-                  <LinkChip href={LINKS.velog}>Velog</LinkChip>
-                </div>
               </div>
             </div>
           </div>
         </section>
       )}
 
-      {/* Board */}
+      {/* Board Tab */}
       {tab === "Board" && (
         <section className="rounded-[32px] border border-[var(--line)] bg-white/55 p-6 sm:p-10 shadow-[0_18px_60px_rgba(0,0,0,0.08)]">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
@@ -721,8 +824,7 @@ export default function HomeTabs() {
                 Board
               </h2>
               <p className="mt-3 text-[15px] text-[var(--muted)] leading-8 font-medium">
-                업데이트, 노트, 외부 링크를 모아두는 공간입니다. 이후에는
-                블로그 글 목록이나 Velog 연동 등으로 확장할 예정입니다.
+                업데이트, 노트, 외부 링크를 모아두는 공간입니다.
               </p>
             </div>
             <div className="flex flex-wrap items-center gap-2">
