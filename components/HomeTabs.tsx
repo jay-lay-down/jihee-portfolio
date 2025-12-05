@@ -275,7 +275,7 @@ export default function HomeTabs() {
     // ⬇ 여기서 font-sans 제거해서 body의 Pretendard가 그대로 적용되게
     <div className="min-h-screen text-stone-800 pb-20">
       {/* 상단 헤더 - 폭 1400px */}
-      <header className="py-10 flex flex-col sm:flex-row items-center justify-between gap-2 md:gap-4 w-full max-w-[1400px] mx-auto px-4 md:px-2">
+      <header className="py-10 flex flex-col sm:flex-row items-center justify-between gap-2 md:gap-4 w-full px-6 lg:px-16">
         <div>
           <h1 className="text-4xl font-black tracking-tight text-stone-900">Jihee Cho</h1>
           <p className="text-sm text-stone-500 font-semibold mt-1">Jan.25.1991 / Seoul</p>
@@ -294,7 +294,7 @@ export default function HomeTabs() {
       </header>
 
       {/* 탭 내비 */}
-      <nav className="flex w-full max-w-[1400px] mx-auto border border-stone-200 rounded-t-xl overflow-hidden shadow-sm mb-0">
+      <nav className="flex w-full px-0 lg:px-10 border border-stone-200 rounded-t-xl overflow-hidden shadow-sm mb-0">
         <FullWidthTab label="Home" active={tab === "Home"} onClick={() => setTab("Home")} />
         <FullWidthTab
           label="Projects"
@@ -306,7 +306,7 @@ export default function HomeTabs() {
       </nav>
 
       {/* 메인 카드 */}
-      <main className="animate-in fade-in slide-in-from-bottom-2 duration-500 shadow-xl rounded-b-xl overflow-hidden w-full max-w-[1400px] mx-auto">
+      <main className="animate-in fade-in slide-in-from-bottom-2 duration-500 shadow-xl rounded-b-xl overflow-hidden w-full px-0 lg:px-10">
         {/* HOME */}
         {tab === "Home" && (
           <div className="bg-stone-100/80 pt-8 pb-12 px-6 sm:px-10 border-x border-b border-stone-200/50">
