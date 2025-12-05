@@ -47,6 +47,13 @@ const ABOUT_SKILLS = [
   "PowerPoint",
   "Hugging Face",
   "SPSS",
+  // ✅ 개발 스택 & DB 관련 스킬 추가
+  "Next.js",
+  "TypeScript",
+  "Tailwind CSS",
+  "JavaScript",
+  "Supabase",
+  "Database",
 ];
 
 // --- 타입 ---
@@ -356,7 +363,7 @@ export default function HomeTabs() {
   ];
 
   return (
-    <div className="min-h-screen text-stone-800 pb-20 w-full">
+    <div className="min-h-screen text-stone-800 pb-20 w-full px-3 sm:px-4">
       <TopNav tab={tab} setTab={setTab} />
 
       <main className="animate-in fade-in slide-in-from-bottom-2 duration-500 shadow-xl rounded-b-xl overflow-hidden w-full">
@@ -554,9 +561,56 @@ export default function HomeTabs() {
         {/* BOARD */}
         {tab === "Board" && (
           <div className="bg-stone-100/80 pt-8 pb-10 px-0 rounded-b-xl border-x border-b border-stone-200/50 min-h-[600px]">
-            <div className="grid gap-10 px-6 lg:px-10 grid-cols-1 lg:grid-cols-3">
-              <div className="lg:col-span-1">
-                <div className="bg-white p-6 rounded-2xl border border-stone-200 shadow-sm lg:sticky lg:top-20">
+            <div className="grid gap-8 px-4 sm:px-6 lg:px-10 grid-cols-1 lg:grid-cols-3">
+              {/* ✅ 모바일에서는 글 리스트가 먼저, 폼이 아래로 가도록 order 조정 */}
+              <div className="lg:col-span-2 space-y-4 order-1 lg:order-2">
+                <h3 className="text-lg font-black text-stone-800 mb-4 flex items-center gap-2 border-b border-stone-200 pb-2">
+                  <MdArticle className="text-[#8C5E35]" /> Recent Posts
+                </h3>
+
+                {loading ? (
+                  <div className="py-20 text-center text-stone-400">Loading...</div>
+                ) : posts.length === 0 ? (
+                  <div className="py-16 text-center text-stone-400">No posts yet.</div>
+                ) : (
+                  posts.map((post) => (
+                    <div
+                      key={post.id}
+                      className="bg-white p-5 sm:p-6 rounded-2xl border border-stone-200 shadow-sm hover:shadow-md transition"
+                    >
+                      <div className="flex justify-between mb-4 items-center gap-3">
+                        <div className="flex gap-3 items-center">
+                          <FaUserCircle className="text-stone-300 text-3xl" />
+                          <div>
+                            <div className="font-bold text-stone-900">{post.author}</div>
+                            <div className="text-xs text-stone-400">
+                              {new Date(post.created_at).toLocaleDateString()}
+                            </div>
+                          </div>
+                        </div>
+
+                        <span
+                          className={cn(
+                            "text-[10px] font-bold px-2.5 py-1 rounded-full border shrink-0",
+                            post.category === "Q&A"
+                              ? "bg-blue-50 text-blue-600 border-blue-100"
+                              : "bg-[#8C5E35]/10 text-[#8C5E35] border-[#8C5E35]/20"
+                          )}
+                        >
+                          {post.category}
+                        </span>
+                      </div>
+
+                      <p className="text-sm text-stone-700 pl-11 leading-relaxed whitespace-pre-wrap break-words">
+                        {post.content}
+                      </p>
+                    </div>
+                  ))
+                )}
+              </div>
+
+              <div className="lg:col-span-1 order-2 lg:order-1">
+                <div className="bg-white p-5 sm:p-6 rounded-2xl border border-stone-200 shadow-sm lg:sticky lg:top-20">
                   <h3 className="text-lg font-black text-stone-800 mb-4 flex items-center gap-2">
                     <FaPen className="text-[#8C5E35] text-sm" /> Write a Post
                   </h3>
@@ -607,52 +661,6 @@ export default function HomeTabs() {
                     </button>
                   </form>
                 </div>
-              </div>
-
-              <div className="lg:col-span-2 space-y-4">
-                <h3 className="text-lg font-black text-stone-800 mb-4 flex items-center gap-2 border-b border-stone-200 pb-2">
-                  <MdArticle className="text-[#8C5E35]" /> Recent Posts
-                </h3>
-
-                {loading ? (
-                  <div className="py-20 text-center text-stone-400">Loading...</div>
-                ) : posts.length === 0 ? (
-                  <div className="py-16 text-center text-stone-400">No posts yet.</div>
-                ) : (
-                  posts.map((post) => (
-                    <div
-                      key={post.id}
-                      className="bg-white p-6 rounded-2xl border border-stone-200 shadow-sm hover:shadow-md transition"
-                    >
-                      <div className="flex justify-between mb-4 items-center">
-                        <div className="flex gap-3 items-center">
-                          <FaUserCircle className="text-stone-300 text-3xl" />
-                          <div>
-                            <div className="font-bold text-stone-900">{post.author}</div>
-                            <div className="text-xs text-stone-400">
-                              {new Date(post.created_at).toLocaleDateString()}
-                            </div>
-                          </div>
-                        </div>
-
-                        <span
-                          className={cn(
-                            "text-[10px] font-bold px-2.5 py-1 rounded-full border",
-                            post.category === "Q&A"
-                              ? "bg-blue-50 text-blue-600 border-blue-100"
-                              : "bg-[#8C5E35]/10 text-[#8C5E35] border-[#8C5E35]/20"
-                          )}
-                        >
-                          {post.category}
-                        </span>
-                      </div>
-
-                      <p className="text-sm text-stone-700 pl-11 leading-relaxed whitespace-pre-wrap">
-                        {post.content}
-                      </p>
-                    </div>
-                  ))
-                )}
               </div>
             </div>
           </div>
