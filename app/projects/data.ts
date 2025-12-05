@@ -20,7 +20,7 @@ export const PROJECTS: Project[] = [
   {
     slug: "ddolbae",
     title: "🤖 AI/LLM-powered Analytics Chatbot",
-    oneLiner: "Persona fine-tuning + quantization 기반 self-hosting, 운영비 절감",
+    oneLiner: "Persona fine-tuning + quantization 기반 self-hosting",
     category: "LLM",
     featured: true,
     stack: ["Python", "PyTorch", "Transformers", "QLoRA", "HF Hub", "Gradio"],
@@ -34,7 +34,7 @@ export const PROJECTS: Project[] = [
   {
     slug: "animal-test",
     title: "🐾 Social Animal Type Test",
-    oneLiner: "11가지 사회적 동물 유형 테스트: 설계–채점–UI/UX–배포 end-to-end",
+    oneLiner: "11가지 사회적 동물 유형 테스트: 설계–채점–UI-배포 수행",
     category: "Other",
     featured: true,
     stack: ["Python", "Gradio", "HTML/CSS", "HF Spaces"],
@@ -48,7 +48,7 @@ export const PROJECTS: Project[] = [
   {
     slug: "auto-segment-tool",
     title: "🔧 Auto Segment Tool (EXE)",
-    oneLiner: "데이터 로딩→PCA→결정트리 세그→시각화/Excel 자동 리포트 GUI",
+    oneLiner: "데이터 로딩→PCA→Decision Tree→Segment 시각화 + AI Assistant + 자동 리포트 GUI 툴 개발",
     category: "Segmentation",
     featured: true,
     stack: ["Python", "PySide6", "scikit-learn", "Pandas", "PyInstaller"],
@@ -61,7 +61,7 @@ export const PROJECTS: Project[] = [
   {
     slug: "bayesian-dashboard",
     title: "🌐 Bayesian Modeling & Dashboard",
-    oneLiner: "계층적 베이지안으로 전환 퍼널 분석 + 대시보드(불확실성 기반 해석)",
+    oneLiner: "계층적 베이지안을 통한 Funnel 분석 + 대시보드(불확실성 기반 해석)",
     category: "Bayesian",
     featured: true,
     stack: ["Python", "PyMC", "ArviZ", "pandas", "Plotly/Dash"],
@@ -105,7 +105,7 @@ export const PROJECTS: Project[] = [
   {
     slug: "employee-engagement",
     title: "👥 Drivers of Employee Engagement",
-    oneLiner: "LPA로 몰입/이직 패턴 세분화 → 실행 가능한 조직 전략 도출",
+    oneLiner: "LPA로 조직 이탈/미이탈 패턴 세분화 → 실행 가능한 조직 전략 도출",
     category: "Segmentation",
     stack: ["R", "lavaan", "tidyLPA/mclust"],
     links: [
