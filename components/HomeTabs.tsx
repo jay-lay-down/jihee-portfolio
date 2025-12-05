@@ -212,23 +212,24 @@ export default function HomeTabs() {
   }, [tab]);
 
   const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
-    if (!inputName.trim() || !inputContent.trim()) return;
+  e.preventDefault();
+  if (!inputName.trim() || !inputContent.trim()) return;
 
-    const { error } = await supabase.from("guestbook").insert([
-      { author: inputName, content: inputContent, category: inputCategory },
-    ]);
+  const { error } = await supabase.from("guestbook").insert([
+    { author: inputName, content: inputContent, category: inputCategory },
+  ]);
 
-    if (error) {
-      console.error("Supabase insert error:", error);
-      alert(`Error: ${error.message}`);
-      return;
-    }
+  if (error) {
+    console.error("Supabase insert error:", error);
+    alert(`Error: ${error.message}`);
+    return;
+  }
 
-    setInputName("");
-    setInputContent("");
-    fetchPosts();
-  };
+  setInputName("");
+  setInputContent("");
+  fetchPosts();
+};
+
 
   // --- Projects 데이터 ---
   const featured = useMemo(() => PROJECTS.filter((p: any) => p.featured), []);
