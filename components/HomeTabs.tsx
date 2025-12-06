@@ -12,6 +12,8 @@ import {
 import { PROJECTS } from "@/app/projects/data";
 import { supabase } from "@/lib/supabase";
 
+import bcrypt from "bcryptjs";
+
 // 아이콘
 import {
   FaGithub,
@@ -67,6 +69,7 @@ type Post = {
   content: string;
   created_at: string;
   category: "Q&A" | "Guestbook";
+  password_hash?: string; // ✅ 추가
 };
 
 type InfoItem = { year?: number; label: string; sub?: string };
@@ -273,12 +276,18 @@ export default function HomeTabs() {
   const [inputContent, setInputContent] = useState("");
   const [inputCategory, setInputCategory] = useState<"Q&A" | "Guestbook">("Guestbook");
 
+  // ✅ 비밀번호/편집 관련 state 추가
+  const [inputPassword, setInputPassword] = useState(""); // 글 등록용
+  const [editId, setEditId] = useState<number | null>(null); // 편집 중인 글 id
+  const [editContent, setEditContent] = useState(""); // 편집 내용
+  const [authPassword, setAuthPassword] = useState(""); // 수정/삭제 인증용 비번
+
   const fetchPosts = useCallback(async () => {
     setLoading(true);
     try {
       const { data, error } = await (supabase as any)
         .from("guestbook")
-        .select("*")
+        .select("id, author, content, created_at, category, password_hash")
         .order("created_at", { ascending: false });
 
       if (error) {
@@ -301,14 +310,82 @@ export default function HomeTabs() {
     if (tab === "Board") void fetchPosts();
   }, [tab, fetchPosts]);
 
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
-    if (!inputName.trim() || !inputContent.trim()) return;
+  const verifyPassword = async (post: Post, pw: string) => {
+    if (!post.password_hash) return false;
+    return bcrypt.compare(pw, post.password_hash);
+  };
+
+  const handleDelete = async (post: Post) => {
+    if (!authPassword.trim()) return alert("비밀번호를 입력해 주세요.");
+
+    const ok = await verifyPassword(post, authPassword);
+    if (!ok) return alert("비밀번호가 맞지 않습니다.");
 
     try {
+      const { error } = await (supabase as any).from("guestbook").delete().eq("id", post.id);
+
+      if (error) {
+        console.error("Supabase delete error:", error);
+        alert("삭제 중 오류가 발생했습니다.");
+        return;
+      }
+
+      setAuthPassword("");
+      void fetchPosts();
+    } catch (err) {
+      console.error("Supabase delete exception:", err);
+      alert("네트워크 오류로 삭제하지 못했습니다.");
+    }
+  };
+
+  const handleUpdate = async (post: Post) => {
+    if (!authPassword.trim()) return alert("비밀번호를 입력해 주세요.");
+
+    const ok = await verifyPassword(post, authPassword);
+    if (!ok) return alert("비밀번호가 맞지 않습니다.");
+
+    const next = editContent.trim();
+    if (!next) return alert("내용이 비어있습니다.");
+
+    try {
+      const { error } = await (supabase as any)
+        .from("guestbook")
+        .update({ content: next })
+        .eq("id", post.id);
+
+      if (error) {
+        console.error("Supabase update error:", error);
+        alert("수정 중 오류가 발생했습니다.");
+        return;
+      }
+
+      setEditId(null);
+      setEditContent("");
+      setAuthPassword("");
+      void fetchPosts();
+    } catch (err) {
+      console.error("Supabase update exception:", err);
+      alert("네트워크 오류로 수정하지 못했습니다.");
+    }
+  };
+
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    if (!inputName.trim() || !inputContent.trim() || !inputPassword.trim()) return;
+
+    try {
+      const password_hash = await bcrypt.hash(inputPassword, 10);
+
       const { error }: { error: any } = await (supabase as any)
         .from("guestbook")
-        .insert([{ author: inputName, content: inputContent, category: inputCategory }]);
+        .insert([
+          {
+            author: inputName,
+            content: inputContent,
+            category: inputCategory,
+            password_hash,
+          },
+        ]);
 
       if (error) {
         console.error("Supabase insert error:", error);
@@ -318,6 +395,7 @@ export default function HomeTabs() {
 
       setInputName("");
       setInputContent("");
+      setInputPassword("");
       void fetchPosts();
     } catch (err) {
       console.error("Supabase insert exception:", err);
@@ -407,14 +485,15 @@ export default function HomeTabs() {
 
                         <p>
                           프로젝트를 할 때는 기획 단계에서 문제를 정의하고, 조사·데이터 설계 →
-                          모델링 → 대시보드·리포트까지 하나의 흐름으로 이어지도록 기획하는 데 강점이 있습니다.
-                          숫자보다 “누가 이 결과를 어떻게 활용할지”를 상상하면서 구조를 설계합니다.
+                          모델링 → 대시보드·리포트까지 하나의 흐름으로 이어지도록 기획하는 데
+                          강점이 있습니다. 숫자보다 “누가 이 결과를 어떻게 활용할지”를
+                          상상하면서 구조를 설계합니다.
                         </p>
 
                         <p>
                           최근에는 세그멘테이션, 수요 예측, 캠페인 효과 분석 같은 작업에 LLM·RAG를
-                          결합해서, 단순 보고서가 아니라 질문하면 맥락을 설명해 주는
-                          AI 서비스 형태로 만드는 실험을 하고 있습니다.
+                          결합해서, 단순 보고서가 아니라 질문하면 맥락을 설명해 주는 AI 서비스
+                          형태로 만드는 실험을 하고 있습니다.
                         </p>
                       </div>
 
@@ -604,6 +683,80 @@ export default function HomeTabs() {
                       <p className="text-sm text-stone-700 pl-11 leading-relaxed whitespace-pre-wrap break-words">
                         {post.content}
                       </p>
+
+                      {/* ✅ Edit / Delete UI */}
+                      <div className="mt-4 pl-11">
+                        {editId === post.id ? (
+                          <div className="space-y-3">
+                            <textarea
+                              value={editContent}
+                              onChange={(e) => setEditContent(e.target.value)}
+                              rows={4}
+                              className="w-full px-4 py-3 bg-stone-50 border border-stone-200 rounded-lg text-sm focus:ring-2 focus:ring-[#8C5E35] focus:border-transparent outline-none transition resize-none"
+                            />
+
+                            <input
+                              type="password"
+                              value={authPassword}
+                              onChange={(e) => setAuthPassword(e.target.value)}
+                              className="w-full px-4 py-3 bg-stone-50 border border-stone-200 rounded-lg text-sm focus:ring-2 focus:ring-[#8C5E35] focus:border-transparent outline-none transition"
+                              placeholder="Password to save"
+                            />
+
+                            <div className="flex gap-2">
+                              <button
+                                type="button"
+                                onClick={() => handleUpdate(post)}
+                                className="px-3 py-2 text-xs font-bold rounded-lg bg-[#8C5E35] text-white"
+                              >
+                                Save
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setEditId(null);
+                                  setEditContent("");
+                                  setAuthPassword("");
+                                }}
+                                className="px-3 py-2 text-xs font-bold rounded-lg border border-stone-200 text-stone-600"
+                              >
+                                Cancel
+                              </button>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
+                            <input
+                              type="password"
+                              value={authPassword}
+                              onChange={(e) => setAuthPassword(e.target.value)}
+                              className="w-full sm:w-64 px-3 py-2 bg-stone-50 border border-stone-200 rounded-lg text-xs focus:ring-2 focus:ring-[#8C5E35] focus:border-transparent outline-none transition"
+                              placeholder="Password for edit/delete"
+                            />
+
+                            <div className="flex gap-2">
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setEditId(post.id);
+                                  setEditContent(post.content);
+                                }}
+                                className="px-3 py-2 text-xs font-bold rounded-lg border border-stone-200 text-stone-600 hover:bg-stone-50"
+                              >
+                                Edit
+                              </button>
+
+                              <button
+                                type="button"
+                                onClick={() => handleDelete(post)}
+                                className="px-3 py-2 text-xs font-bold rounded-lg border border-stone-200 text-stone-600 hover:bg-stone-50"
+                              >
+                                Delete
+                              </button>
+                            </div>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   ))
                 )}
@@ -649,6 +802,16 @@ export default function HomeTabs() {
                       rows={4}
                       className="w-full px-4 py-3 bg-stone-50 border border-stone-200 rounded-lg text-sm focus:ring-2 focus:ring-[#8C5E35] focus:border-transparent outline-none transition resize-none"
                       placeholder="Leave a message..."
+                      required
+                    />
+
+                    {/* ✅ 비밀번호 입력 */}
+                    <input
+                      type="password"
+                      value={inputPassword}
+                      onChange={(e) => setInputPassword(e.target.value)}
+                      className="w-full px-4 py-3 bg-stone-50 border border-stone-200 rounded-lg text-sm focus:ring-2 focus:ring-[#8C5E35] focus:border-transparent outline-none transition"
+                      placeholder="Password (for edit/delete)"
                       required
                     />
 
