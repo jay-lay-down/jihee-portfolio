@@ -78,7 +78,7 @@ type Post = {
   created_at: string;
   updated_at: string;
   category: PostCategory;
-  password_hash: string; // '' 가능
+  password_hash: string; // '' 가능 (예전데이터)
 };
 
 type InfoItem = { year?: number; label: string; sub?: string };
@@ -88,72 +88,14 @@ function cn(...xs: Array<string | false | undefined | null>) {
   return xs.filter(Boolean).join(" ");
 }
 
-/** ===== Password Hash (WebCrypto PBKDF2) =====
- * format: pbkdf2$<iter>$<salt_b64>$<hash_b64>
+/**
+ * ✅ 비밀번호 처리 방식 변경
+ * - WebCrypto(PBKDF2)/bcryptjs 전부 안 씀 (TS 빌드 에러 원인)
+ * - Supabase RPC (pgcrypto crypt) 함수만 사용:
+ *   - public.guestbook_create_post(p_author, p_content, p_category, p_password) -> row
+ *   - public.guestbook_update_post(p_id, p_password, p_content) -> boolean
+ *   - public.guestbook_delete_post(p_id, p_password) -> boolean
  */
-const PBKDF2_ITER = 120_000;
-const DK_BITS = 256;
-
-function u8ToB64(u8: Uint8Array) {
-  let s = "";
-  for (let i = 0; i < u8.length; i++) s += String.fromCharCode(u8[i]);
-  return btoa(s);
-}
-function b64ToU8(b64: string) {
-  const bin = atob(b64);
-  const out = new Uint8Array(bin.length);
-  for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
-  return out;
-}
-function timingSafeEqual(a: Uint8Array, b: Uint8Array) {
-  if (a.length !== b.length) return false;
-  let diff = 0;
-  for (let i = 0; i < a.length; i++) diff |= a[i] ^ b[i];
-  return diff === 0;
-}
-
-async function pbkdf2DeriveBits(password: string, salt: Uint8Array, iterations: number) {
-  const enc = new TextEncoder();
-  const baseKey = await crypto.subtle.importKey(
-    "raw",
-    enc.encode(password),
-    { name: "PBKDF2" },
-    false,
-    ["deriveBits"]
-  );
-
-  // ✅ Next/TS 빌드 에러 방지: ArrayBufferLike/SharedArrayBuffer 타입 문제 제거
-  const saltFixed = new Uint8Array(salt.length);
-  saltFixed.setndex;
-
-  const bits = await crypto.subtle.deriveBits(
-    { name: "PBKDF2", salt: saltFixed, iterations, hash: "SHA-256" },
-    baseKey,
-    DK_BITS
-  );
-
-  return new Uint8Array(bits);
-}
-
-async function hashPassword(password: string) {
-  const salt = crypto.getRandomValues(new Uint8Array(16));
-  const dk = await pbkdf2DeriveBits(password, salt, PBKDF2_ITER);
-  return `pbkdf2$${PBKDF2_ITER}$${u8ToB64(salt)}$${u8ToB64(dk)}`;
-}
-
-async function verifyPassword(password: string, stored: string) {
-  if (!stored) return false;
-  const parts = stored.split("$");
-  if (parts.length !== 4) return false;
-  const [, iterStr, saltB64, hashB64] = parts;
-  const iterations = Number(iterStr);
-  if (!Number.isFinite(iterations) || iterations <= 0) return false;
-
-  const salt = b64ToU8(saltB64);
-  const expected = b64ToU8(hashB64);
-  const actual = await pbkdf2DeriveBits(password, salt, iterations);
-  return timingSafeEqual(actual, expected);
-}
 
 // ✅ 상단 텍스트형 네비게이션
 function TopNav({
@@ -297,7 +239,11 @@ function ProjectCard({ p }: { p: any }) {
                 rel="noreferrer"
                 className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-lg border border-stone-300 text-stone-600 hover:bg-[#8C5E35] hover:text-white hover:border-[#8C5E35] transition-colors duration-300"
               >
-                {link.label === "Download" ? <FaDownload /> : <FaExternalLinkAlt />}
+                {link.label === "Download" ? (
+                  <FaDownload />
+                ) : (
+                  <FaExternalLinkAlt />
+                )}
                 {link.label}
               </a>
             ))}
@@ -326,14 +272,23 @@ function MiniInfoCard({
 
       <div className="mt-2 space-y-2">
         {items.map((x, i) => (
-          <div key={i} className="text-[12px] leading-4 text-stone-600 font-medium">
+          <div
+            key={i}
+            className="text-[12px] leading-4 text-stone-600 font-medium"
+          >
             <div className="flex gap-2">
               {x.year ? (
-                <span className="font-extrabold text-stone-700 shrink-0">{x.year}</span>
+                <span className="font-extrabold text-stone-700 shrink-0">
+                  {x.year}
+                </span>
               ) : null}
               <span className="font-bold text-stone-700">{x.label}</span>
             </div>
-            {x.sub ? <div className="text-[12px] text-stone-500 mt-0.5">{x.sub}</div> : null}
+            {x.sub ? (
+              <div className="text-[12px] text-stone-500 mt-0.5">
+                {x.sub}
+              </div>
+            ) : null}
           </div>
         ))}
       </div>
@@ -382,7 +337,9 @@ export default function HomeTabs() {
       }
     } catch (err) {
       console.error("Supabase select exception:", err);
-      alert("네트워크 문제로 게시판을 불러오지 못했습니다. 잠시 후 다시 시도해 주십시오.");
+      alert(
+        "네트워크 문제로 게시판을 불러오지 못했습니다. 잠시 후 다시 시도해 주십시오."
+      );
       setPosts([]);
     } finally {
       setLoading(false);
@@ -425,31 +382,29 @@ export default function HomeTabs() {
     if (!inputName.trim() || !inputContent.trim() || !inputPassword.trim()) return;
 
     try {
-      const password_hash = await hashPassword(inputPassword);
-
-      const { error }: { error: any } = await (supabase as any)
-        .from("guestbook")
-        .insert([
-          {
-            author: inputName,
-            content: inputContent,
-            category: inputCategory,
-            password_hash,
-          },
-        ]);
+      const { data, error } = await (supabase as any).rpc(
+        "guestbook_create_post",
+        {
+          p_author: inputName,
+          p_content: inputContent,
+          p_category: inputCategory,
+          p_password: inputPassword,
+        }
+      );
 
       if (error) {
-        console.error("Supabase insert error:", error);
+        console.error("Supabase RPC(create) error:", error);
         alert("게시글 저장 중 오류가 발생했습니다.");
         return;
       }
 
+      // data는 row(1개) 또는 배열 형태로 올 수 있음. 여기선 그냥 리프레시로 처리
       setInputName("");
       setInputContent("");
       setInputPassword("");
       void fetchPosts();
     } catch (err) {
-      console.error("Supabase insert exception:", err);
+      console.error("Supabase RPC(create) exception:", err);
       alert("네트워크 오류로 게시글을 저장하지 못했습니다.");
     }
   };
@@ -458,28 +413,31 @@ export default function HomeTabs() {
     const pw = getPw(post.id).trim();
     if (!pw) return alert("비밀번호를 입력해 주세요.");
 
-    // 비번 없는 옛 글 방어
-    if (!post.password_hash) return alert("이 글은 비밀번호가 저장돼있지 않아서 삭제할 수 없습니다.");
-
-    const ok = await verifyPassword(pw, post.password_hash);
-    if (!ok) return alert("비밀번호가 맞지 않습니다.");
-
     try {
-      const { error } = await (supabase as any)
-        .from("guestbook")
-        .delete()
-        .eq("id", post.id);
+      const { data, error } = await (supabase as any).rpc(
+        "guestbook_delete_post",
+        {
+          p_id: post.id,
+          p_password: pw,
+        }
+      );
 
       if (error) {
-        console.error("Supabase delete error:", error);
-        alert("삭제 중 오류가 발생했습니다. (RLS policy 확인)");
+        console.error("Supabase RPC(delete) error:", error);
+        alert("삭제 중 오류가 발생했습니다.");
+        return;
+      }
+
+      // data === true/false
+      if (!data) {
+        alert("비밀번호가 맞지 않거나(또는 비번 없는 예전 글이라) 삭제할 수 없습니다.");
         return;
       }
 
       clearPw(post.id);
       void fetchPosts();
     } catch (err) {
-      console.error("Supabase delete exception:", err);
+      console.error("Supabase RPC(delete) exception:", err);
       alert("네트워크 오류로 삭제하지 못했습니다.");
     }
   };
@@ -488,23 +446,28 @@ export default function HomeTabs() {
     const pw = getPw(post.id).trim();
     if (!pw) return alert("비밀번호를 입력해 주세요.");
 
-    if (!post.password_hash) return alert("이 글은 비밀번호가 저장돼있지 않아서 수정할 수 없습니다.");
-
-    const ok = await verifyPassword(pw, post.password_hash);
-    if (!ok) return alert("비밀번호가 맞지 않습니다.");
-
     const next = editContent.trim();
     if (!next) return alert("내용이 비어있습니다.");
 
     try {
-      const { error } = await (supabase as any)
-        .from("guestbook")
-        .update({ content: next })
-        .eq("id", post.id);
+      const { data, error } = await (supabase as any).rpc(
+        "guestbook_update_post",
+        {
+          p_id: post.id,
+          p_password: pw,
+          p_content: next,
+        }
+      );
 
       if (error) {
-        console.error("Supabase update error:", error);
-        alert("수정 중 오류가 발생했습니다. (RLS policy 확인)");
+        console.error("Supabase RPC(update) error:", error);
+        alert("수정 중 오류가 발생했습니다.");
+        return;
+      }
+
+      // data === true/false
+      if (!data) {
+        alert("비밀번호가 맞지 않거나(또는 비번 없는 예전 글이라) 수정할 수 없습니다.");
         return;
       }
 
@@ -513,7 +476,7 @@ export default function HomeTabs() {
       clearPw(post.id);
       void fetchPosts();
     } catch (err) {
-      console.error("Supabase update exception:", err);
+      console.error("Supabase RPC(update) exception:", err);
       alert("네트워크 오류로 수정하지 못했습니다.");
     }
   };
@@ -521,7 +484,8 @@ export default function HomeTabs() {
   // --- Projects 데이터 ---
   const featured = useMemo(() => PROJECTS.filter((p: any) => p.featured), []);
   const categories = useMemo(
-    () => Array.from(new Set(PROJECTS.map((p: any) => p.category))) as ProjectCategory[],
+    () =>
+      Array.from(new Set(PROJECTS.map((p: any) => p.category))) as ProjectCategory[],
     []
   );
   const filteredProjects = useMemo(
