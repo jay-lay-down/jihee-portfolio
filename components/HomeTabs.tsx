@@ -78,7 +78,6 @@ type Post = {
   created_at: string;
   updated_at: string;
   category: PostCategory;
-  password_hash: string; // '' 가능 (예전데이터)
 };
 
 type InfoItem = { year?: number; label: string; sub?: string };
@@ -87,15 +86,6 @@ type InfoItem = { year?: number; label: string; sub?: string };
 function cn(...xs: Array<string | false | undefined | null>) {
   return xs.filter(Boolean).join(" ");
 }
-
-/**
- * ✅ 비밀번호 처리 방식 변경
- * - WebCrypto(PBKDF2)/bcryptjs 전부 안 씀 (TS 빌드 에러 원인)
- * - Supabase RPC (pgcrypto crypt) 함수만 사용:
- *   - public.guestbook_create_post(p_author, p_content, p_category, p_password) -> row
- *   - public.guestbook_update_post(p_id, p_password, p_content) -> boolean
- *   - public.guestbook_delete_post(p_id, p_password) -> boolean
- */
 
 // ✅ 상단 텍스트형 네비게이션
 function TopNav({
@@ -239,11 +229,7 @@ function ProjectCard({ p }: { p: any }) {
                 rel="noreferrer"
                 className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-lg border border-stone-300 text-stone-600 hover:bg-[#8C5E35] hover:text-white hover:border-[#8C5E35] transition-colors duration-300"
               >
-                {link.label === "Download" ? (
-                  <FaDownload />
-                ) : (
-                  <FaExternalLinkAlt />
-                )}
+                {link.label === "Download" ? <FaDownload /> : <FaExternalLinkAlt />}
                 {link.label}
               </a>
             ))}
@@ -272,23 +258,14 @@ function MiniInfoCard({
 
       <div className="mt-2 space-y-2">
         {items.map((x, i) => (
-          <div
-            key={i}
-            className="text-[12px] leading-4 text-stone-600 font-medium"
-          >
+          <div key={i} className="text-[12px] leading-4 text-stone-600 font-medium">
             <div className="flex gap-2">
               {x.year ? (
-                <span className="font-extrabold text-stone-700 shrink-0">
-                  {x.year}
-                </span>
+                <span className="font-extrabold text-stone-700 shrink-0">{x.year}</span>
               ) : null}
               <span className="font-bold text-stone-700">{x.label}</span>
             </div>
-            {x.sub ? (
-              <div className="text-[12px] text-stone-500 mt-0.5">
-                {x.sub}
-              </div>
-            ) : null}
+            {x.sub ? <div className="text-[12px] text-stone-500 mt-0.5">{x.sub}</div> : null}
           </div>
         ))}
       </div>
@@ -325,7 +302,7 @@ export default function HomeTabs() {
     try {
       const { data, error } = await (supabase as any)
         .from("guestbook")
-        .select("id, author, content, created_at, updated_at, category, password_hash")
+        .select("id, author, content, created_at, updated_at, category")
         .order("created_at", { ascending: false });
 
       if (error) {
@@ -337,9 +314,7 @@ export default function HomeTabs() {
       }
     } catch (err) {
       console.error("Supabase select exception:", err);
-      alert(
-        "네트워크 문제로 게시판을 불러오지 못했습니다. 잠시 후 다시 시도해 주십시오."
-      );
+      alert("네트워크 문제로 게시판을 불러오지 못했습니다. 잠시 후 다시 시도해 주십시오.");
       setPosts([]);
     } finally {
       setLoading(false);
@@ -361,15 +336,17 @@ export default function HomeTabs() {
   }, [posts, boardFilter]);
 
   const totalPages = Math.max(1, Math.ceil(filteredPosts.length / PAGE_SIZE));
+  useEffect(() => {
+    setPage((p) => Math.min(Math.max(1, p), totalPages));
+  }, [totalPages]);
+
   const pagePosts = useMemo(() => {
     const start = (page - 1) * PAGE_SIZE;
     return filteredPosts.slice(start, start + PAGE_SIZE);
   }, [filteredPosts, page]);
 
   const getPw = (id: number) => pwById[id] || "";
-  const setPw = (id: number, v: string) =>
-    setPwById((prev) => ({ ...prev, [id]: v }));
-
+  const setPw = (id: number, v: string) => setPwById((prev) => ({ ...prev, [id]: v }));
   const clearPw = (id: number) =>
     setPwById((prev) => {
       const next = { ...prev };
@@ -381,31 +358,31 @@ export default function HomeTabs() {
     e.preventDefault();
     if (!inputName.trim() || !inputContent.trim() || !inputPassword.trim()) return;
 
+    setLoading(true);
     try {
-      const { data, error } = await (supabase as any).rpc(
-        "guestbook_create_post",
-        {
-          p_author: inputName,
-          p_content: inputContent,
-          p_category: inputCategory,
-          p_password: inputPassword,
-        }
-      );
+      const { data, error } = await (supabase as any).rpc("guestbook_create_post", {
+        p_author: inputName,
+        p_content: inputContent,
+        p_category: inputCategory,
+        p_password: inputPassword,
+      });
 
       if (error) {
-        console.error("Supabase RPC(create) error:", error);
+        console.error("RPC create error:", error);
         alert("게시글 저장 중 오류가 발생했습니다.");
         return;
       }
 
-      // data는 row(1개) 또는 배열 형태로 올 수 있음. 여기선 그냥 리프레시로 처리
+      // data는 row (또는 null) — 어쨌든 리프레시가 깔끔함
       setInputName("");
       setInputContent("");
       setInputPassword("");
       void fetchPosts();
     } catch (err) {
-      console.error("Supabase RPC(create) exception:", err);
+      console.error("RPC create exception:", err);
       alert("네트워크 오류로 게시글을 저장하지 못했습니다.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -414,30 +391,26 @@ export default function HomeTabs() {
     if (!pw) return alert("비밀번호를 입력해 주세요.");
 
     try {
-      const { data, error } = await (supabase as any).rpc(
-        "guestbook_delete_post",
-        {
-          p_id: post.id,
-          p_password: pw,
-        }
-      );
+      const { data, error } = await (supabase as any).rpc("guestbook_delete_post", {
+        p_id: post.id,
+        p_password: pw,
+      });
 
       if (error) {
-        console.error("Supabase RPC(delete) error:", error);
+        console.error("RPC delete error:", error);
         alert("삭제 중 오류가 발생했습니다.");
         return;
       }
 
-      // data === true/false
-      if (!data) {
-        alert("비밀번호가 맞지 않거나(또는 비번 없는 예전 글이라) 삭제할 수 없습니다.");
+      if (data !== true) {
+        alert("비밀번호가 맞지 않거나 글이 존재하지 않습니다.");
         return;
       }
 
       clearPw(post.id);
       void fetchPosts();
     } catch (err) {
-      console.error("Supabase RPC(delete) exception:", err);
+      console.error("RPC delete exception:", err);
       alert("네트워크 오류로 삭제하지 못했습니다.");
     }
   };
@@ -450,24 +423,20 @@ export default function HomeTabs() {
     if (!next) return alert("내용이 비어있습니다.");
 
     try {
-      const { data, error } = await (supabase as any).rpc(
-        "guestbook_update_post",
-        {
-          p_id: post.id,
-          p_password: pw,
-          p_content: next,
-        }
-      );
+      const { data, error } = await (supabase as any).rpc("guestbook_update_post", {
+        p_id: post.id,
+        p_password: pw,
+        p_content: next,
+      });
 
       if (error) {
-        console.error("Supabase RPC(update) error:", error);
+        console.error("RPC update error:", error);
         alert("수정 중 오류가 발생했습니다.");
         return;
       }
 
-      // data === true/false
-      if (!data) {
-        alert("비밀번호가 맞지 않거나(또는 비번 없는 예전 글이라) 수정할 수 없습니다.");
+      if (data !== true) {
+        alert("비밀번호가 맞지 않거나 글이 존재하지 않습니다.");
         return;
       }
 
@@ -476,7 +445,7 @@ export default function HomeTabs() {
       clearPw(post.id);
       void fetchPosts();
     } catch (err) {
-      console.error("Supabase RPC(update) exception:", err);
+      console.error("RPC update exception:", err);
       alert("네트워크 오류로 수정하지 못했습니다.");
     }
   };
@@ -484,8 +453,7 @@ export default function HomeTabs() {
   // --- Projects 데이터 ---
   const featured = useMemo(() => PROJECTS.filter((p: any) => p.featured), []);
   const categories = useMemo(
-    () =>
-      Array.from(new Set(PROJECTS.map((p: any) => p.category))) as ProjectCategory[],
+    () => Array.from(new Set(PROJECTS.map((p: any) => p.category))) as ProjectCategory[],
     []
   );
   const filteredProjects = useMemo(
@@ -561,16 +529,14 @@ export default function HomeTabs() {
                         </p>
 
                         <p>
-                          프로젝트를 할 때는 기획 단계에서 문제를 정의하고, 조사·데이터 설계 →
-                          모델링 → 대시보드·리포트까지 하나의 흐름으로 이어지도록 기획하는 데
-                          강점이 있습니다. 숫자보다 “누가 이 결과를 어떻게 활용할지”를 상상하면서
-                          구조를 설계합니다.
+                          프로젝트를 할 때는 기획 단계에서 문제를 정의하고, 조사·데이터 설계 → 모델링
+                          → 대시보드·리포트까지 하나의 흐름으로 이어지도록 기획하는 데 강점이 있습니다.
+                          숫자보다 “누가 이 결과를 어떻게 활용할지”를 상상하면서 구조를 설계합니다.
                         </p>
 
                         <p>
-                          최근에는 세그멘테이션, 수요 예측, 캠페인 효과 분석 같은 작업에 LLM·RAG를
-                          결합해서, 단순 보고서가 아니라 질문하면 맥락을 설명해 주는 AI 서비스
-                          형태로 만드는 실험을 하고 있습니다.
+                          최근에는 세그멘테이션, 수요 예측, 캠페인 효과 분석 같은 작업에 LLM·RAG를 결합해서,
+                          단순 보고서가 아니라 질문하면 맥락을 설명해 주는 AI 서비스 형태로 만드는 실험을 하고 있습니다.
                         </p>
                       </div>
 
@@ -593,9 +559,7 @@ export default function HomeTabs() {
 
                       <h3 className="text-2xl font-black text-stone-900">Jihee Cho</h3>
 
-                      <div className="text-sm font-bold text-stone-500 mt-1">
-                        Jan.25.1991 / Seoul
-                      </div>
+                      <div className="text-sm font-bold text-stone-500 mt-1">Jan.25.1991 / Seoul</div>
 
                       <div className="text-sm font-bold text-[#8C5E35] mb-5 mt-2">
                         Analytics · Build · LLM
@@ -615,9 +579,7 @@ export default function HomeTabs() {
                       </div>
 
                       <div className="pt-5 border-t border-stone-200">
-                        <div className="text-xs font-black text-stone-700 tracking-wide mb-2">
-                          SKILLS
-                        </div>
+                        <div className="text-xs font-black text-stone-700 tracking-wide mb-2">SKILLS</div>
                         <div className="flex flex-wrap gap-2">
                           {ABOUT_SKILLS.map((s) => (
                             <span
@@ -712,70 +674,95 @@ export default function HomeTabs() {
           </div>
         )}
 
-        {/* BOARD (위=글쓰기, 아래=글 목록 / 필터 / 페이지네이션) */}
+        {/* BOARD (좌=글쓰기, 우=이미지 / 아래=글 목록) */}
         {tab === "Board" && (
           <div className="bg-stone-100/80 pt-8 pb-10 px-0 rounded-b-xl border-x border-b border-stone-200/50 min-h-[600px]">
-            <div className="space-y-8 px-4 sm:px-6 lg:px-10">
-              {/* Write */}
-              <div className="bg-white p-5 sm:p-6 rounded-2xl border border-stone-200 shadow-sm">
-                <h3 className="text-lg font-black text-stone-800 mb-4 flex items-center gap-2">
-                  <FaPen className="text-[#8C5E35] text-sm" /> Write a Post
-                </h3>
+            {/* ✅ 화면 2/3 정도 + 왼쪽 정렬 */}
+            <div className="w-full max-w-5xl mr-auto space-y-8 px-4 sm:px-6 lg:px-10">
+              {/* Top: Write (Left) + Image (Right) */}
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                {/* Write */}
+                <div className="lg:col-span-7 bg-white p-5 sm:p-6 rounded-2xl border border-stone-200 shadow-sm">
+                  <h3 className="text-lg font-black text-stone-800 mb-4 flex items-center gap-2">
+                    <FaPen className="text-[#8C5E35] text-sm" /> Write a Post
+                  </h3>
 
-                <form onSubmit={handleSubmit} className="space-y-4">
-                  <div className="flex gap-2">
-                    {(["Guestbook", "Q&A"] as PostCategory[]).map((c) => (
-                      <button
-                        key={c}
-                        type="button"
-                        onClick={() => setInputCategory(c)}
-                        className={cn(
-                          "flex-1 py-2 text-xs font-bold rounded-lg border transition duration-300",
-                          inputCategory === c
-                            ? "bg-[#8C5E35] text-white border-[#8C5E35]"
-                            : "bg-stone-50 text-stone-500 border-stone-200 hover:border-[#8C5E35] hover:text-[#8C5E35]"
-                        )}
-                      >
-                        {c}
-                      </button>
-                    ))}
+                  <form onSubmit={handleSubmit} className="space-y-4">
+                    <div className="flex gap-2">
+                      {(["Guestbook", "Q&A"] as PostCategory[]).map((c) => (
+                        <button
+                          key={c}
+                          type="button"
+                          onClick={() => setInputCategory(c)}
+                          className={cn(
+                            "flex-1 py-2 text-xs font-bold rounded-lg border transition duration-300",
+                            inputCategory === c
+                              ? "bg-[#8C5E35] text-white border-[#8C5E35]"
+                              : "bg-stone-50 text-stone-500 border-stone-200 hover:border-[#8C5E35] hover:text-[#8C5E35]"
+                          )}
+                        >
+                          {c}
+                        </button>
+                      ))}
+                    </div>
+
+                    <input
+                      type="text"
+                      value={inputName}
+                      onChange={(e) => setInputName(e.target.value)}
+                      className="w-full px-4 py-3 bg-stone-50 border border-stone-200 rounded-lg text-sm focus:ring-2 focus:ring-[#8C5E35] focus:border-transparent outline-none transition"
+                      placeholder="Your name"
+                      required
+                    />
+
+                    <textarea
+                      value={inputContent}
+                      onChange={(e) => setInputContent(e.target.value)}
+                      rows={5}
+                      className="w-full px-4 py-3 bg-stone-50 border border-stone-200 rounded-lg text-sm focus:ring-2 focus:ring-[#8C5E35] focus:border-transparent outline-none transition resize-none"
+                      placeholder="Leave a message..."
+                      required
+                    />
+
+                    <input
+                      type="password"
+                      value={inputPassword}
+                      onChange={(e) => setInputPassword(e.target.value)}
+                      className="w-full px-4 py-3 bg-stone-50 border border-stone-200 rounded-lg text-sm focus:ring-2 focus:ring-[#8C5E35] focus:border-transparent outline-none transition"
+                      placeholder="Password (for edit/delete)"
+                      required
+                    />
+
+                    <button
+                      type="submit"
+                      className="w-full py-3 bg-[#8C5E35] text-white font-bold rounded-xl hover:bg-[#6B4628] transition shadow-md duration-300"
+                      disabled={loading}
+                    >
+                      Post Message
+                    </button>
+                  </form>
+                </div>
+
+                {/* Image */}
+                <div className="lg:col-span-5">
+                  <div className="bg-white rounded-2xl border border-stone-200 shadow-sm overflow-hidden h-full">
+                    <div className="relative w-full aspect-[4/3]">
+                      <Image
+                        src="/board.jpg"
+                        alt="Board"
+                        fill
+                        className="object-cover"
+                        priority={false}
+                      />
+                    </div>
+                    <div className="p-4 border-t border-stone-100">
+                      <div className="text-sm font-black text-stone-800">Board</div>
+                      <div className="text-xs text-stone-500 mt-1">
+                        Guestbook / Q&amp;A posts are listed below.
+                      </div>
+                    </div>
                   </div>
-
-                  <input
-                    type="text"
-                    value={inputName}
-                    onChange={(e) => setInputName(e.target.value)}
-                    className="w-full px-4 py-3 bg-stone-50 border border-stone-200 rounded-lg text-sm focus:ring-2 focus:ring-[#8C5E35] focus:border-transparent outline-none transition"
-                    placeholder="Your name"
-                    required
-                  />
-
-                  <textarea
-                    value={inputContent}
-                    onChange={(e) => setInputContent(e.target.value)}
-                    rows={4}
-                    className="w-full px-4 py-3 bg-stone-50 border border-stone-200 rounded-lg text-sm focus:ring-2 focus:ring-[#8C5E35] focus:border-transparent outline-none transition resize-none"
-                    placeholder="Leave a message..."
-                    required
-                  />
-
-                  <input
-                    type="password"
-                    value={inputPassword}
-                    onChange={(e) => setInputPassword(e.target.value)}
-                    className="w-full px-4 py-3 bg-stone-50 border border-stone-200 rounded-lg text-sm focus:ring-2 focus:ring-[#8C5E35] focus:border-transparent outline-none transition"
-                    placeholder="Password (for edit/delete)"
-                    required
-                  />
-
-                  <button
-                    type="submit"
-                    className="w-full py-3 bg-[#8C5E35] text-white font-bold rounded-xl hover:bg-[#6B4628] transition shadow-md duration-300"
-                    disabled={loading}
-                  >
-                    Post Message
-                  </button>
-                </form>
+                </div>
               </div>
 
               {/* List Header + Filter + Pager */}
@@ -818,7 +805,20 @@ export default function HomeTabs() {
                         <div className="flex gap-3 items-center">
                           <FaUserCircle className="text-stone-300 text-3xl" />
                           <div>
-                            <div className="font-bold text-stone-900">{post.author}</div>
+                            <div className="font-bold text-stone-900 flex items-center gap-2">
+                              <span>{post.author}</span>
+                              <span
+                                className={cn(
+                                  "text-[10px] font-bold px-2.5 py-1 rounded-full border",
+                                  post.category === "Q&A"
+                                    ? "bg-blue-50 text-blue-600 border-blue-100"
+                                    : "bg-[#8C5E35]/10 text-[#8C5E35] border-[#8C5E35]/20"
+                                )}
+                              >
+                                {post.category}
+                              </span>
+                            </div>
+
                             <div className="text-xs text-stone-400">
                               {new Date(post.created_at).toLocaleDateString()}
                               {post.updated_at ? (
@@ -830,19 +830,11 @@ export default function HomeTabs() {
                           </div>
                         </div>
 
-                        <span
-                          className={cn(
-                            "text-[10px] font-bold px-2.5 py-1 rounded-full border shrink-0",
-                            post.category === "Q&A"
-                              ? "bg-blue-50 text-blue-600 border-blue-100"
-                              : "bg-[#8C5E35]/10 text-[#8C5E35] border-[#8C5E35]/20"
-                          )}
-                        >
-                          {post.category}
-                        </span>
+                        <div className="text-xs font-bold text-stone-400">#{post.id}</div>
                       </div>
 
                       <p className="text-sm text-stone-700 pl-11 leading-relaxed whitespace-pre-wrap break-words">
+                        {post.category === "Q&A" ? "[Q&A] " : "[Guestbook] "}
                         {post.content}
                       </p>
 
