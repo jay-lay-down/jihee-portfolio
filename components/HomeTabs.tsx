@@ -53,7 +53,6 @@ const ABOUT_SKILLS = [
   "PowerPoint",
   "Hugging Face",
   "SPSS",
-  // ✅ 개발 스택 & DB 관련 스킬 추가
   "Next.js",
   "TypeScript",
   "Tailwind CSS",
@@ -62,18 +61,24 @@ const ABOUT_SKILLS = [
   "Database",
 ];
 
+const PAGE_SIZE = 10;
+
 // --- 타입 ---
 type TabKey = "Home" | "Projects" | "Board";
 type ProjectCategory = (typeof PROJECTS)[number]["category"];
 type Filter = "All" | ProjectCategory;
+
+type PostCategory = "Q&A" | "Guestbook";
+type BoardFilter = "All" | PostCategory;
 
 type Post = {
   id: number;
   author: string;
   content: string;
   created_at: string;
-  category: "Q&A" | "Guestbook";
-  password_hash?: string | null; // ✅ 비밀번호 해시 저장용 컬럼
+  updated_at: string;
+  category: PostCategory;
+  password_hash: string; // '' 가능
 };
 
 type InfoItem = { year?: number; label: string; sub?: string };
@@ -83,32 +88,29 @@ function cn(...xs: Array<string | false | undefined | null>) {
   return xs.filter(Boolean).join(" ");
 }
 
-/** base64 helpers (브라우저 내장 btoa/atob 사용) */
-function bytesToBase64(bytes: Uint8Array) {
-  let bin = "";
-  for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
-  return btoa(bin);
+/** ===== Password Hash (WebCrypto PBKDF2) =====
+ * format: pbkdf2$<iter>$<salt_b64>$<hash_b64>
+ */
+const PBKDF2_ITER = 120_000;
+const DK_BITS = 256;
+
+function u8ToB64(u8: Uint8Array) {
+  let s = "";
+  for (let i = 0; i < u8.length; i++) s += String.fromCharCode(u8[i]);
+  return btoa(s);
 }
-function base64ToBytes(b64: string) {
+function b64ToU8(b64: string) {
   const bin = atob(b64);
   const out = new Uint8Array(bin.length);
   for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
   return out;
 }
-function constantTimeEqual(a: Uint8Array, b: Uint8Array) {
+function timingSafeEqual(a: Uint8Array, b: Uint8Array) {
   if (a.length !== b.length) return false;
   let diff = 0;
   for (let i = 0; i < a.length; i++) diff |= a[i] ^ b[i];
   return diff === 0;
 }
-
-/**
- * password_hash 포맷:
- *   pbkdf2$<iterations>$<saltB64>$<dkB64>
- */
-const PBKDF2_ITERS = 120_000; // 적당히 빡세게
-const SALT_LEN = 16; // 128-bit
-const DK_BITS = 256; // 32 bytes
 
 async function pbkdf2DeriveBits(password: string, salt: Uint8Array, iterations: number) {
   const enc = new TextEncoder();
@@ -120,11 +122,12 @@ async function pbkdf2DeriveBits(password: string, salt: Uint8Array, iterations: 
     ["deriveBits"]
   );
 
-  // ✅ TS/빌드 이슈 방지: 정확한 ArrayBuffer로 slice해서 넘김
-  const saltBuf = salt.buffer.slice(salt.byteOffset, salt.byteOffset + salt.byteLength);
+  // ✅ Next/TS 빌드 에러 방지: ArrayBufferLike/SharedArrayBuffer 타입 문제 제거
+  const saltFixed = new Uint8Array(salt.length);
+  saltFixed.setndex;
 
   const bits = await crypto.subtle.deriveBits(
-    { name: "PBKDF2", salt: saltBuf, iterations, hash: "SHA-256" },
+    { name: "PBKDF2", salt: saltFixed, iterations, hash: "SHA-256" },
     baseKey,
     DK_BITS
   );
@@ -133,28 +136,23 @@ async function pbkdf2DeriveBits(password: string, salt: Uint8Array, iterations: 
 }
 
 async function hashPassword(password: string) {
-  const salt = crypto.getRandomValues(new Uint8Array(SALT_LEN));
-  const dk = await pbkdf2DeriveBits(password, salt, PBKDF2_ITERS);
-  const saltB64 = bytesToBase64(salt);
-  const dkB64 = bytesToBase64(dk);
-  return `pbkdf2$${PBKDF2_ITERS}$${saltB64}$${dkB64}`;
+  const salt = crypto.getRandomValues(new Uint8Array(16));
+  const dk = await pbkdf2DeriveBits(password, salt, PBKDF2_ITER);
+  return `pbkdf2$${PBKDF2_ITER}$${u8ToB64(salt)}$${u8ToB64(dk)}`;
 }
 
-async function verifyPasswordHash(password: string, stored: string) {
-  // stored: pbkdf2$iters$saltB64$dkB64
+async function verifyPassword(password: string, stored: string) {
+  if (!stored) return false;
   const parts = stored.split("$");
   if (parts.length !== 4) return false;
-  const [tag, itersStr, saltB64, dkB64] = parts;
-  if (tag !== "pbkdf2") return false;
-
-  const iterations = Number(itersStr);
+  const [, iterStr, saltB64, hashB64] = parts;
+  const iterations = Number(iterStr);
   if (!Number.isFinite(iterations) || iterations <= 0) return false;
 
-  const salt = base64ToBytes(saltB64);
-  const expected = base64ToBytes(dkB64);
+  const salt = b64ToU8(saltB64);
+  const expected = b64ToU8(hashB64);
   const actual = await pbkdf2DeriveBits(password, salt, iterations);
-
-  return constantTimeEqual(actual, expected);
+  return timingSafeEqual(actual, expected);
 }
 
 // ✅ 상단 텍스트형 네비게이션
@@ -335,20 +333,13 @@ function MiniInfoCard({
               ) : null}
               <span className="font-bold text-stone-700">{x.label}</span>
             </div>
-            {x.sub ? (
-              <div className="text-[12px] text-stone-500 mt-0.5">{x.sub}</div>
-            ) : null}
+            {x.sub ? <div className="text-[12px] text-stone-500 mt-0.5">{x.sub}</div> : null}
           </div>
         ))}
       </div>
     </div>
   );
 }
-
-type ActiveAction =
-  | { id: number; mode: "edit" }
-  | { id: number; mode: "delete" }
-  | null;
 
 export default function HomeTabs() {
   const [tab, setTab] = useState<TabKey>("Home");
@@ -357,24 +348,29 @@ export default function HomeTabs() {
   // --- Board ---
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(false);
+
   const [inputName, setInputName] = useState("");
   const [inputContent, setInputContent] = useState("");
-  const [inputCategory, setInputCategory] = useState<"Q&A" | "Guestbook">("Guestbook");
-
-  // ✅ 등록용 비밀번호
+  const [inputCategory, setInputCategory] = useState<PostCategory>("Guestbook");
   const [inputPassword, setInputPassword] = useState("");
 
-  // ✅ B 방식: 특정 글에서만 편집/삭제 패널 열리게
-  const [activeAction, setActiveAction] = useState<ActiveAction>(null);
-  const [actionPassword, setActionPassword] = useState("");
+  // ✅ 글별 비번 입력 state (공유 버그 해결)
+  const [pwById, setPwById] = useState<Record<number, string>>({});
+
+  // ✅ 편집 state
+  const [editId, setEditId] = useState<number | null>(null);
   const [editContent, setEditContent] = useState("");
+
+  // ✅ 필터/페이지
+  const [boardFilter, setBoardFilter] = useState<BoardFilter>("All");
+  const [page, setPage] = useState(1);
 
   const fetchPosts = useCallback(async () => {
     setLoading(true);
     try {
       const { data, error } = await (supabase as any)
         .from("guestbook")
-        .select("id, author, content, created_at, category, password_hash")
+        .select("id, author, content, created_at, updated_at, category, password_hash")
         .order("created_at", { ascending: false });
 
       if (error) {
@@ -397,88 +393,32 @@ export default function HomeTabs() {
     if (tab === "Board") void fetchPosts();
   }, [tab, fetchPosts]);
 
-  const verifyPassword = async (post: Post, pw: string) => {
-    const stored = post.password_hash ?? "";
-    if (!stored) return false;
-    try {
-      return await verifyPasswordHash(pw, stored);
-    } catch (e) {
-      console.error("verifyPasswordHash error:", e);
-      return false;
-    }
-  };
+  // 필터 바꾸면 1페이지로
+  useEffect(() => {
+    setPage(1);
+  }, [boardFilter]);
 
-  const closeAction = () => {
-    setActiveAction(null);
-    setActionPassword("");
-    setEditContent("");
-  };
+  const filteredPosts = useMemo(() => {
+    if (boardFilter === "All") return posts;
+    return posts.filter((p) => p.category === boardFilter);
+  }, [posts, boardFilter]);
 
-  const startEdit = (post: Post) => {
-    setActiveAction({ id: post.id, mode: "edit" });
-    setEditContent(post.content);
-    setActionPassword("");
-  };
+  const totalPages = Math.max(1, Math.ceil(filteredPosts.length / PAGE_SIZE));
+  const pagePosts = useMemo(() => {
+    const start = (page - 1) * PAGE_SIZE;
+    return filteredPosts.slice(start, start + PAGE_SIZE);
+  }, [filteredPosts, page]);
 
-  const startDelete = (post: Post) => {
-    setActiveAction({ id: post.id, mode: "delete" });
-    setActionPassword("");
-    setEditContent("");
-  };
+  const getPw = (id: number) => pwById[id] || "";
+  const setPw = (id: number, v: string) =>
+    setPwById((prev) => ({ ...prev, [id]: v }));
 
-  const handleDelete = async (post: Post) => {
-    const pw = actionPassword.trim();
-    if (!pw) return alert("비밀번호를 입력해 주세요.");
-
-    const ok = await verifyPassword(post, pw);
-    if (!ok) return alert("비밀번호가 맞지 않습니다.");
-
-    try {
-      const { error } = await (supabase as any).from("guestbook").delete().eq("id", post.id);
-
-      if (error) {
-        console.error("Supabase delete error:", error);
-        alert("삭제 중 오류가 발생했습니다. (RLS/Policy 확인 필요)");
-        return;
-      }
-
-      closeAction();
-      void fetchPosts();
-    } catch (err) {
-      console.error("Supabase delete exception:", err);
-      alert("네트워크 오류로 삭제하지 못했습니다.");
-    }
-  };
-
-  const handleUpdate = async (post: Post) => {
-    const pw = actionPassword.trim();
-    if (!pw) return alert("비밀번호를 입력해 주세요.");
-
-    const ok = await verifyPassword(post, pw);
-    if (!ok) return alert("비밀번호가 맞지 않습니다.");
-
-    const next = editContent.trim();
-    if (!next) return alert("내용이 비어있습니다.");
-
-    try {
-      const { error } = await (supabase as any)
-        .from("guestbook")
-        .update({ content: next })
-        .eq("id", post.id);
-
-      if (error) {
-        console.error("Supabase update error:", error);
-        alert("수정 중 오류가 발생했습니다. (RLS/Policy 확인 필요)");
-        return;
-      }
-
-      closeAction();
-      void fetchPosts();
-    } catch (err) {
-      console.error("Supabase update exception:", err);
-      alert("네트워크 오류로 수정하지 못했습니다.");
-    }
-  };
+  const clearPw = (id: number) =>
+    setPwById((prev) => {
+      const next = { ...prev };
+      delete next[id];
+      return next;
+    });
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -500,7 +440,7 @@ export default function HomeTabs() {
 
       if (error) {
         console.error("Supabase insert error:", error);
-        alert("게시글 저장 중 오류가 발생했습니다. (RLS/Policy 확인 필요)");
+        alert("게시글 저장 중 오류가 발생했습니다.");
         return;
       }
 
@@ -511,6 +451,70 @@ export default function HomeTabs() {
     } catch (err) {
       console.error("Supabase insert exception:", err);
       alert("네트워크 오류로 게시글을 저장하지 못했습니다.");
+    }
+  };
+
+  const handleDelete = async (post: Post) => {
+    const pw = getPw(post.id).trim();
+    if (!pw) return alert("비밀번호를 입력해 주세요.");
+
+    // 비번 없는 옛 글 방어
+    if (!post.password_hash) return alert("이 글은 비밀번호가 저장돼있지 않아서 삭제할 수 없습니다.");
+
+    const ok = await verifyPassword(pw, post.password_hash);
+    if (!ok) return alert("비밀번호가 맞지 않습니다.");
+
+    try {
+      const { error } = await (supabase as any)
+        .from("guestbook")
+        .delete()
+        .eq("id", post.id);
+
+      if (error) {
+        console.error("Supabase delete error:", error);
+        alert("삭제 중 오류가 발생했습니다. (RLS policy 확인)");
+        return;
+      }
+
+      clearPw(post.id);
+      void fetchPosts();
+    } catch (err) {
+      console.error("Supabase delete exception:", err);
+      alert("네트워크 오류로 삭제하지 못했습니다.");
+    }
+  };
+
+  const handleUpdate = async (post: Post) => {
+    const pw = getPw(post.id).trim();
+    if (!pw) return alert("비밀번호를 입력해 주세요.");
+
+    if (!post.password_hash) return alert("이 글은 비밀번호가 저장돼있지 않아서 수정할 수 없습니다.");
+
+    const ok = await verifyPassword(pw, post.password_hash);
+    if (!ok) return alert("비밀번호가 맞지 않습니다.");
+
+    const next = editContent.trim();
+    if (!next) return alert("내용이 비어있습니다.");
+
+    try {
+      const { error } = await (supabase as any)
+        .from("guestbook")
+        .update({ content: next })
+        .eq("id", post.id);
+
+      if (error) {
+        console.error("Supabase update error:", error);
+        alert("수정 중 오류가 발생했습니다. (RLS policy 확인)");
+        return;
+      }
+
+      setEditId(null);
+      setEditContent("");
+      clearPw(post.id);
+      void fetchPosts();
+    } catch (err) {
+      console.error("Supabase update exception:", err);
+      alert("네트워크 오류로 수정하지 못했습니다.");
     }
   };
 
@@ -560,7 +564,6 @@ export default function HomeTabs() {
         {tab === "Home" && (
           <div className="bg-stone-100/80 pt-0 pb-12 px-0 border-x border-b border-stone-200/50">
             <div className="space-y-10 px-6 lg:px-10">
-              {/* ✅ Hero: 위로 이동 + 살짝 크게 */}
               <div className="relative mt-0 w-full h-[410px] md:h-[480px] rounded-2xl overflow-hidden shadow-xl">
                 <Image src="/a2026.jpg" alt="Hero" fill className="object-cover" priority />
                 <div className="absolute inset-0 bg-gradient-to-b from-black/15 via-black/55 to-black/80" />
@@ -579,7 +582,6 @@ export default function HomeTabs() {
 
               <div className="space-y-10">
                 <div className="grid gap-8 items-stretch grid-cols-1 lg:grid-cols-12">
-                  {/* LEFT: ABOUT */}
                   <div className="lg:col-span-8 space-y-8">
                     <section className="h-full rounded-2xl bg-[#f5ebe0]/60 border border-[#e3d5ca] px-6 py-6 sm:px-8 sm:py-7">
                       <h3 className="text-sm font-extrabold tracking-wide text-stone-700 mb-3">
@@ -589,9 +591,9 @@ export default function HomeTabs() {
                       <div className="space-y-3 text-[16px] leading-8 text-stone-800 font-medium max-w-5xl break-keep">
                         <p>
                           심리학을 기반으로 데이터 분석을 수행하며, 브랜드·리서치 데이터를 볼 때
-                          &nbsp;“이 숫자로 무엇을 결정할 수 있을까?”부터 생각합니다. 단순히
-                          지표를 나열하기보다는, 실제 의사결정에 도움이 되는 인사이트를 도출하는
-                          일을 더 중요하게 여깁니다.
+                          &nbsp;“이 숫자로 무엇을 결정할 수 있을까?”부터 생각합니다. 단순히 지표를
+                          나열하기보다는, 실제 의사결정에 도움이 되는 인사이트를 도출하는 일을 더
+                          중요하게 여깁니다.
                         </p>
 
                         <p>
@@ -619,7 +621,6 @@ export default function HomeTabs() {
                     </section>
                   </div>
 
-                  {/* RIGHT: Profile 카드 */}
                   <div className="lg:col-span-4">
                     <div className="lg:sticky lg:top-20 bg-white/85 backdrop-blur-sm rounded-2xl p-8 border border-stone-200 shadow-sm h-full">
                       <div className="relative w-24 h-24 rounded-full border-4 border-white shadow-md mb-5 overflow-hidden">
@@ -628,7 +629,9 @@ export default function HomeTabs() {
 
                       <h3 className="text-2xl font-black text-stone-900">Jihee Cho</h3>
 
-                      <div className="text-sm font-bold text-stone-500 mt-1">Jan.25.1991 / Seoul</div>
+                      <div className="text-sm font-bold text-stone-500 mt-1">
+                        Jan.25.1991 / Seoul
+                      </div>
 
                       <div className="text-sm font-bold text-[#8C5E35] mb-5 mt-2">
                         Analytics · Build · LLM
@@ -675,7 +678,6 @@ export default function HomeTabs() {
                   </div>
                 </div>
 
-                {/* Featured Projects */}
                 {featured.length > 0 && (
                   <section className="space-y-4">
                     <div className="flex items-center justify-between">
@@ -746,226 +748,252 @@ export default function HomeTabs() {
           </div>
         )}
 
-        {/* BOARD */}
+        {/* BOARD (위=글쓰기, 아래=글 목록 / 필터 / 페이지네이션) */}
         {tab === "Board" && (
           <div className="bg-stone-100/80 pt-8 pb-10 px-0 rounded-b-xl border-x border-b border-stone-200/50 min-h-[600px]">
-            <div className="grid gap-8 px-4 sm:px-6 lg:px-10 grid-cols-1 lg:grid-cols-3">
-              {/* ✅ 모바일에서는 글 리스트가 먼저, 폼이 아래로 가도록 order 조정 */}
-              <div className="lg:col-span-2 space-y-4 order-1 lg:order-2">
-                <h3 className="text-lg font-black text-stone-800 mb-4 flex items-center gap-2 border-b border-stone-200 pb-2">
+            <div className="space-y-8 px-4 sm:px-6 lg:px-10">
+              {/* Write */}
+              <div className="bg-white p-5 sm:p-6 rounded-2xl border border-stone-200 shadow-sm">
+                <h3 className="text-lg font-black text-stone-800 mb-4 flex items-center gap-2">
+                  <FaPen className="text-[#8C5E35] text-sm" /> Write a Post
+                </h3>
+
+                <form onSubmit={handleSubmit} className="space-y-4">
+                  <div className="flex gap-2">
+                    {(["Guestbook", "Q&A"] as PostCategory[]).map((c) => (
+                      <button
+                        key={c}
+                        type="button"
+                        onClick={() => setInputCategory(c)}
+                        className={cn(
+                          "flex-1 py-2 text-xs font-bold rounded-lg border transition duration-300",
+                          inputCategory === c
+                            ? "bg-[#8C5E35] text-white border-[#8C5E35]"
+                            : "bg-stone-50 text-stone-500 border-stone-200 hover:border-[#8C5E35] hover:text-[#8C5E35]"
+                        )}
+                      >
+                        {c}
+                      </button>
+                    ))}
+                  </div>
+
+                  <input
+                    type="text"
+                    value={inputName}
+                    onChange={(e) => setInputName(e.target.value)}
+                    className="w-full px-4 py-3 bg-stone-50 border border-stone-200 rounded-lg text-sm focus:ring-2 focus:ring-[#8C5E35] focus:border-transparent outline-none transition"
+                    placeholder="Your name"
+                    required
+                  />
+
+                  <textarea
+                    value={inputContent}
+                    onChange={(e) => setInputContent(e.target.value)}
+                    rows={4}
+                    className="w-full px-4 py-3 bg-stone-50 border border-stone-200 rounded-lg text-sm focus:ring-2 focus:ring-[#8C5E35] focus:border-transparent outline-none transition resize-none"
+                    placeholder="Leave a message..."
+                    required
+                  />
+
+                  <input
+                    type="password"
+                    value={inputPassword}
+                    onChange={(e) => setInputPassword(e.target.value)}
+                    className="w-full px-4 py-3 bg-stone-50 border border-stone-200 rounded-lg text-sm focus:ring-2 focus:ring-[#8C5E35] focus:border-transparent outline-none transition"
+                    placeholder="Password (for edit/delete)"
+                    required
+                  />
+
+                  <button
+                    type="submit"
+                    className="w-full py-3 bg-[#8C5E35] text-white font-bold rounded-xl hover:bg-[#6B4628] transition shadow-md duration-300"
+                    disabled={loading}
+                  >
+                    Post Message
+                  </button>
+                </form>
+              </div>
+
+              {/* List Header + Filter + Pager */}
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <h3 className="text-lg font-black text-stone-800 flex items-center gap-2">
                   <MdArticle className="text-[#8C5E35]" /> Recent Posts
                 </h3>
 
-                {loading ? (
-                  <div className="py-20 text-center text-stone-400">Loading...</div>
-                ) : posts.length === 0 ? (
-                  <div className="py-16 text-center text-stone-400">No posts yet.</div>
-                ) : (
-                  posts.map((post) => {
-                    const isActive = activeAction?.id === post.id;
-                    const mode = isActive ? activeAction?.mode : null;
+                <div className="flex flex-wrap gap-2 items-center">
+                  {(["All", "Guestbook", "Q&A"] as BoardFilter[]).map((c) => (
+                    <button
+                      key={c}
+                      onClick={() => setBoardFilter(c)}
+                      className={cn(
+                        "px-4 py-2 rounded-full text-sm font-bold transition border",
+                        boardFilter === c
+                          ? "bg-[#8C5E35] text-white border-[#8C5E35]"
+                          : "bg-white text-stone-500 border-stone-300 hover:border-[#8C5E35] hover:text-[#8C5E35]"
+                      )}
+                    >
+                      {c}
+                    </button>
+                  ))}
+                </div>
+              </div>
 
-                    return (
-                      <div
-                        key={post.id}
-                        className="bg-white p-5 sm:p-6 rounded-2xl border border-stone-200 shadow-sm hover:shadow-md transition"
-                      >
-                        <div className="flex justify-between mb-4 items-center gap-3">
-                          <div className="flex gap-3 items-center">
-                            <FaUserCircle className="text-stone-300 text-3xl" />
-                            <div>
-                              <div className="font-bold text-stone-900">{post.author}</div>
-                              <div className="text-xs text-stone-400">
-                                {new Date(post.created_at).toLocaleDateString()}
-                              </div>
+              {/* Posts */}
+              {loading ? (
+                <div className="py-20 text-center text-stone-400">Loading...</div>
+              ) : filteredPosts.length === 0 ? (
+                <div className="py-16 text-center text-stone-400">No posts yet.</div>
+              ) : (
+                <div className="space-y-4">
+                  {pagePosts.map((post) => (
+                    <div
+                      key={post.id}
+                      className="bg-white p-5 sm:p-6 rounded-2xl border border-stone-200 shadow-sm hover:shadow-md transition"
+                    >
+                      <div className="flex justify-between mb-4 items-center gap-3">
+                        <div className="flex gap-3 items-center">
+                          <FaUserCircle className="text-stone-300 text-3xl" />
+                          <div>
+                            <div className="font-bold text-stone-900">{post.author}</div>
+                            <div className="text-xs text-stone-400">
+                              {new Date(post.created_at).toLocaleDateString()}
+                              {post.updated_at ? (
+                                <span className="ml-2 text-stone-300">
+                                  (updated {new Date(post.updated_at).toLocaleDateString()})
+                                </span>
+                              ) : null}
                             </div>
                           </div>
-
-                          <span
-                            className={cn(
-                              "text-[10px] font-bold px-2.5 py-1 rounded-full border shrink-0",
-                              post.category === "Q&A"
-                                ? "bg-blue-50 text-blue-600 border-blue-100"
-                                : "bg-[#8C5E35]/10 text-[#8C5E35] border-[#8C5E35]/20"
-                            )}
-                          >
-                            {post.category}
-                          </span>
                         </div>
 
-                        <p className="text-sm text-stone-700 pl-11 leading-relaxed whitespace-pre-wrap break-words">
-                          {post.content}
-                        </p>
+                        <span
+                          className={cn(
+                            "text-[10px] font-bold px-2.5 py-1 rounded-full border shrink-0",
+                            post.category === "Q&A"
+                              ? "bg-blue-50 text-blue-600 border-blue-100"
+                              : "bg-[#8C5E35]/10 text-[#8C5E35] border-[#8C5E35]/20"
+                          )}
+                        >
+                          {post.category}
+                        </span>
+                      </div>
 
-                        {/* ✅ B 방식: 버튼만 보이다가, 누르면 해당 글 아래에 패널 오픈 */}
-                        <div className="mt-4 pl-11">
-                          {!isActive && (
+                      <p className="text-sm text-stone-700 pl-11 leading-relaxed whitespace-pre-wrap break-words">
+                        {post.content}
+                      </p>
+
+                      {/* Edit / Delete */}
+                      <div className="mt-4 pl-11">
+                        {editId === post.id ? (
+                          <div className="space-y-3">
+                            <textarea
+                              value={editContent}
+                              onChange={(e) => setEditContent(e.target.value)}
+                              rows={4}
+                              className="w-full px-4 py-3 bg-stone-50 border border-stone-200 rounded-lg text-sm focus:ring-2 focus:ring-[#8C5E35] focus:border-transparent outline-none transition resize-none"
+                            />
+
+                            <input
+                              type="password"
+                              value={getPw(post.id)}
+                              onChange={(e) => setPw(post.id, e.target.value)}
+                              className="w-full px-4 py-3 bg-stone-50 border border-stone-200 rounded-lg text-sm focus:ring-2 focus:ring-[#8C5E35] focus:border-transparent outline-none transition"
+                              placeholder="Password to save"
+                            />
+
                             <div className="flex gap-2">
                               <button
                                 type="button"
-                                onClick={() => startEdit(post)}
+                                onClick={() => handleUpdate(post)}
+                                className="px-3 py-2 text-xs font-bold rounded-lg bg-[#8C5E35] text-white"
+                              >
+                                Save
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setEditId(null);
+                                  setEditContent("");
+                                  clearPw(post.id);
+                                }}
+                                className="px-3 py-2 text-xs font-bold rounded-lg border border-stone-200 text-stone-600"
+                              >
+                                Cancel
+                              </button>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
+                            <input
+                              type="password"
+                              value={getPw(post.id)}
+                              onChange={(e) => setPw(post.id, e.target.value)}
+                              className="w-full sm:w-64 px-3 py-2 bg-stone-50 border border-stone-200 rounded-lg text-xs focus:ring-2 focus:ring-[#8C5E35] focus:border-transparent outline-none transition"
+                              placeholder="Password for edit/delete"
+                            />
+
+                            <div className="flex gap-2">
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setEditId(post.id);
+                                  setEditContent(post.content);
+                                }}
                                 className="px-3 py-2 text-xs font-bold rounded-lg border border-stone-200 text-stone-600 hover:bg-stone-50"
                               >
                                 Edit
                               </button>
+
                               <button
                                 type="button"
-                                onClick={() => startDelete(post)}
+                                onClick={() => handleDelete(post)}
                                 className="px-3 py-2 text-xs font-bold rounded-lg border border-stone-200 text-stone-600 hover:bg-stone-50"
                               >
                                 Delete
                               </button>
                             </div>
-                          )}
-
-                          {isActive && mode === "edit" && (
-                            <div className="space-y-3">
-                              <textarea
-                                value={editContent}
-                                onChange={(e) => setEditContent(e.target.value)}
-                                rows={4}
-                                className="w-full px-4 py-3 bg-stone-50 border border-stone-200 rounded-lg text-sm focus:ring-2 focus:ring-[#8C5E35] focus:border-transparent outline-none transition resize-none"
-                              />
-
-                              <input
-                                type="password"
-                                value={actionPassword}
-                                onChange={(e) => setActionPassword(e.target.value)}
-                                className="w-full px-4 py-3 bg-stone-50 border border-stone-200 rounded-lg text-sm focus:ring-2 focus:ring-[#8C5E35] focus:border-transparent outline-none transition"
-                                placeholder="Password to save"
-                              />
-
-                              <div className="flex flex-wrap gap-2">
-                                <button
-                                  type="button"
-                                  onClick={() => handleUpdate(post)}
-                                  className="px-3 py-2 text-xs font-bold rounded-lg bg-[#8C5E35] text-white"
-                                >
-                                  Save
-                                </button>
-
-                                <button
-                                  type="button"
-                                  onClick={() => startDelete(post)}
-                                  className="px-3 py-2 text-xs font-bold rounded-lg border border-stone-200 text-stone-600 hover:bg-stone-50"
-                                >
-                                  Delete
-                                </button>
-
-                                <button
-                                  type="button"
-                                  onClick={closeAction}
-                                  className="px-3 py-2 text-xs font-bold rounded-lg border border-stone-200 text-stone-600 hover:bg-stone-50"
-                                >
-                                  Cancel
-                                </button>
-                              </div>
-                            </div>
-                          )}
-
-                          {isActive && mode === "delete" && (
-                            <div className="space-y-3">
-                              <div className="text-xs font-bold text-stone-500">
-                                비밀번호 입력하면 삭제됨. (복구 안 됨)
-                              </div>
-
-                              <input
-                                type="password"
-                                value={actionPassword}
-                                onChange={(e) => setActionPassword(e.target.value)}
-                                className="w-full px-4 py-3 bg-stone-50 border border-stone-200 rounded-lg text-sm focus:ring-2 focus:ring-[#8C5E35] focus:border-transparent outline-none transition"
-                                placeholder="Password to delete"
-                              />
-
-                              <div className="flex gap-2">
-                                <button
-                                  type="button"
-                                  onClick={() => handleDelete(post)}
-                                  className="px-3 py-2 text-xs font-bold rounded-lg bg-[#8C5E35] text-white"
-                                >
-                                  Confirm Delete
-                                </button>
-
-                                <button
-                                  type="button"
-                                  onClick={closeAction}
-                                  className="px-3 py-2 text-xs font-bold rounded-lg border border-stone-200 text-stone-600 hover:bg-stone-50"
-                                >
-                                  Cancel
-                                </button>
-                              </div>
-                            </div>
-                          )}
-                        </div>
+                          </div>
+                        )}
                       </div>
-                    );
-                  })
-                )}
-              </div>
+                    </div>
+                  ))}
 
-              <div className="lg:col-span-1 order-2 lg:order-1">
-                <div className="bg-white p-5 sm:p-6 rounded-2xl border border-stone-200 shadow-sm lg:sticky lg:top-20">
-                  <h3 className="text-lg font-black text-stone-800 mb-4 flex items-center gap-2">
-                    <FaPen className="text-[#8C5E35] text-sm" /> Write a Post
-                  </h3>
+                  {/* Pager */}
+                  <div className="flex items-center justify-center gap-3 pt-2">
+                    <button
+                      type="button"
+                      onClick={() => setPage((p) => Math.max(1, p - 1))}
+                      disabled={page <= 1}
+                      className={cn(
+                        "px-3 py-2 rounded-lg border text-sm font-bold",
+                        page <= 1
+                          ? "text-stone-300 border-stone-200 bg-stone-50"
+                          : "text-stone-700 border-stone-300 bg-white hover:border-[#8C5E35] hover:text-[#8C5E35]"
+                      )}
+                    >
+                      ←
+                    </button>
 
-                  <form onSubmit={handleSubmit} className="space-y-4">
-                    <div className="flex gap-2">
-                      {["Guestbook", "Q&A"].map((c) => (
-                        <button
-                          key={c}
-                          type="button"
-                          onClick={() => setInputCategory(c as "Guestbook" | "Q&A")}
-                          className={cn(
-                            "flex-1 py-2 text-xs font-bold rounded-lg border transition duration-300",
-                            inputCategory === c
-                              ? "bg-[#8C5E35] text-white border-[#8C5E35]"
-                              : "bg-stone-50 text-stone-500 border-stone-200 hover:border-[#8C5E35] hover:text-[#8C5E35]"
-                          )}
-                        >
-                          {c}
-                        </button>
-                      ))}
+                    <div className="text-sm font-bold text-stone-600">
+                      {page} / {totalPages}
                     </div>
 
-                    <input
-                      type="text"
-                      value={inputName}
-                      onChange={(e) => setInputName(e.target.value)}
-                      className="w-full px-4 py-3 bg-stone-50 border border-stone-200 rounded-lg text-sm focus:ring-2 focus:ring-[#8C5E35] focus:border-transparent outline-none transition"
-                      placeholder="Your name"
-                      required
-                    />
-
-                    <textarea
-                      value={inputContent}
-                      onChange={(e) => setInputContent(e.target.value)}
-                      rows={4}
-                      className="w-full px-4 py-3 bg-stone-50 border border-stone-200 rounded-lg text-sm focus:ring-2 focus:ring-[#8C5E35] focus:border-transparent outline-none transition resize-none"
-                      placeholder="Leave a message..."
-                      required
-                    />
-
-                    {/* ✅ 등록용 비밀번호 입력 */}
-                    <input
-                      type="password"
-                      value={inputPassword}
-                      onChange={(e) => setInputPassword(e.target.value)}
-                      className="w-full px-4 py-3 bg-stone-50 border border-stone-200 rounded-lg text-sm focus:ring-2 focus:ring-[#8C5E35] focus:border-transparent outline-none transition"
-                      placeholder="Password (for edit/delete)"
-                      required
-                    />
-
                     <button
-                      type="submit"
-                      className="w-full py-3 bg-[#8C5E35] text-white font-bold rounded-xl hover:bg-[#6B4628] transition shadow-md duration-300"
-                      disabled={loading}
+                      type="button"
+                      onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                      disabled={page >= totalPages}
+                      className={cn(
+                        "px-3 py-2 rounded-lg border text-sm font-bold",
+                        page >= totalPages
+                          ? "text-stone-300 border-stone-200 bg-stone-50"
+                          : "text-stone-700 border-stone-300 bg-white hover:border-[#8C5E35] hover:text-[#8C5E35]"
+                      )}
                     >
-                      Post Message
+                      →
                     </button>
-                  </form>
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
           </div>
         )}
