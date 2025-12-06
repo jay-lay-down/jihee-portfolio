@@ -11,8 +11,6 @@ import {
 } from "react";
 import { PROJECTS } from "@/app/projects/data";
 import { supabase } from "@/lib/supabase";
-// @ts-ignore
-import bcrypt from "bcryptjs";
 
 // 아이콘
 import {
@@ -24,7 +22,13 @@ import {
   FaDownload,
 } from "react-icons/fa";
 import { SiHuggingface, SiVelog } from "react-icons/si";
-import { MdEmail, MdArticle, MdSchool, MdWork, MdEmojiEvents } from "react-icons/md";
+import {
+  MdEmail,
+  MdArticle,
+  MdSchool,
+  MdWork,
+  MdEmojiEvents,
+} from "react-icons/md";
 import { IoLocationSharp } from "react-icons/io5";
 
 // --- 상수 ---
@@ -77,6 +81,74 @@ type InfoItem = { year?: number; label: string; sub?: string };
 // --- 유틸 ---
 function cn(...xs: Array<string | false | undefined | null>) {
   return xs.filter(Boolean).join(" ");
+}
+
+/**
+ * ✅ bcryptjs 제거용: Web Crypto(PBKDF2) 해시/검증
+ * 저장 포맷: pbkdf2$<iterations>$<saltB64>$<hashB64>
+ */
+const _enc = new TextEncoder();
+
+function _b64(bytes: Uint8Array) {
+  let s = "";
+  for (const b of bytes) s += String.fromCharCode(b);
+  return btoa(s);
+}
+
+function _b64toBytes(s: string) {
+  const bin = atob(s);
+  const out = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+  return out;
+}
+
+async function _derivePbkdf2(password: string, salt: Uint8Array, iterations: number) {
+  const keyMaterial = await crypto.subtle.importKey(
+    "raw",
+    _enc.encode(password),
+    "PBKDF2",
+    false,
+    ["deriveBits"]
+  );
+
+  const bits = await crypto.subtle.deriveBits(
+    { name: "PBKDF2", hash: "SHA-256", salt, iterations },
+    keyMaterial,
+    256
+  );
+
+  return new Uint8Array(bits);
+}
+
+async function hashPassword(password: string) {
+  const iterations = 150000;
+  const salt = crypto.getRandomValues(new Uint8Array(16));
+  const dk = await _derivePbkdf2(password, salt, iterations);
+  return `pbkdf2$${iterations}$${_b64(salt)}$${_b64(dk)}`;
+}
+
+async function verifyPasswordHash(stored: string | undefined, password: string) {
+  if (!stored) return false;
+
+  // bcrypt로 저장된 기존 글은 여기서 검증 불가(의도: 타입/빌드 문제 제거)
+  if (!stored.startsWith("pbkdf2$")) return false;
+
+  const parts = stored.split("$");
+  if (parts.length !== 4) return false;
+  const [, iterStr, saltB64, hashB64] = parts;
+
+  const iterations = Number(iterStr);
+  if (!Number.isFinite(iterations) || iterations < 1) return false;
+
+  const salt = _b64toBytes(saltB64);
+  const expected = _b64toBytes(hashB64);
+  const actual = await _derivePbkdf2(password, salt, iterations);
+
+  if (actual.length !== expected.length) return false;
+
+  let diff = 0;
+  for (let i = 0; i < actual.length; i++) diff |= actual[i] ^ expected[i];
+  return diff === 0;
 }
 
 // ✅ 상단 텍스트형 네비게이션
@@ -311,15 +383,14 @@ export default function HomeTabs() {
   }, [tab, fetchPosts]);
 
   const verifyPassword = async (post: Post, pw: string) => {
-    if (!post.password_hash) return false;
-    return bcrypt.compare(pw, post.password_hash);
+    return verifyPasswordHash(post.password_hash, pw);
   };
 
   const handleDelete = async (post: Post) => {
     if (!authPassword.trim()) return alert("비밀번호를 입력해 주세요.");
 
     const ok = await verifyPassword(post, authPassword);
-    if (!ok) return alert("비밀번호가 맞지 않습니다.");
+    if (!ok) return alert("비밀번호가 맞지 않습니다. (또는 기존 글은 수정/삭제 불가)");
 
     try {
       const { error } = await (supabase as any).from("guestbook").delete().eq("id", post.id);
@@ -342,7 +413,7 @@ export default function HomeTabs() {
     if (!authPassword.trim()) return alert("비밀번호를 입력해 주세요.");
 
     const ok = await verifyPassword(post, authPassword);
-    if (!ok) return alert("비밀번호가 맞지 않습니다.");
+    if (!ok) return alert("비밀번호가 맞지 않습니다. (또는 기존 글은 수정/삭제 불가)");
 
     const next = editContent.trim();
     if (!next) return alert("내용이 비어있습니다.");
@@ -374,7 +445,7 @@ export default function HomeTabs() {
     if (!inputName.trim() || !inputContent.trim() || !inputPassword.trim()) return;
 
     try {
-      const password_hash = await bcrypt.hash(inputPassword, 10);
+      const password_hash = await hashPassword(inputPassword);
 
       const { error }: { error: any } = await (supabase as any)
         .from("guestbook")
@@ -478,22 +549,22 @@ export default function HomeTabs() {
                       <div className="space-y-3 text-[16px] leading-8 text-stone-800 font-medium max-w-5xl break-keep">
                         <p>
                           심리학을 기반으로 데이터 분석을 수행하며, 브랜드·리서치 데이터를 볼 때
-                          &nbsp;“이 숫자로 무엇을 결정할 수 있을까?”부터 생각합니다.
-                          단순히 지표를 나열하기보다는, 실제 의사결정에 도움이 되는 인사이트를
-                          도출하는 일을 더 중요하게 여깁니다.
+                          &nbsp;“이 숫자로 무엇을 결정할 수 있을까?”부터 생각합니다. 단순히 지표를
+                          나열하기보다는, 실제 의사결정에 도움이 되는 인사이트를 도출하는 일을 더
+                          중요하게 여깁니다.
                         </p>
 
                         <p>
                           프로젝트를 할 때는 기획 단계에서 문제를 정의하고, 조사·데이터 설계 →
                           모델링 → 대시보드·리포트까지 하나의 흐름으로 이어지도록 기획하는 데
-                          강점이 있습니다. 숫자보다 “누가 이 결과를 어떻게 활용할지”를
-                          상상하면서 구조를 설계합니다.
+                          강점이 있습니다. 숫자보다 “누가 이 결과를 어떻게 활용할지”를 상상하면서
+                          구조를 설계합니다.
                         </p>
 
                         <p>
                           최근에는 세그멘테이션, 수요 예측, 캠페인 효과 분석 같은 작업에 LLM·RAG를
-                          결합해서, 단순 보고서가 아니라 질문하면 맥락을 설명해 주는 AI 서비스
-                          형태로 만드는 실험을 하고 있습니다.
+                          결합해서, 단순 보고서가 아니라 질문하면 맥락을 설명해 주는 AI 서비스 형태로
+                          만드는 실험을 하고 있습니다.
                         </p>
                       </div>
 
@@ -517,9 +588,7 @@ export default function HomeTabs() {
 
                       <h3 className="text-2xl font-black text-stone-900">Jihee Cho</h3>
 
-                      <div className="text-sm font-bold text-stone-500 mt-1">
-                        Jan.25.1991 / Seoul
-                      </div>
+                      <div className="text-sm font-bold text-stone-500 mt-1">Jan.25.1991 / Seoul</div>
 
                       <div className="text-sm font-bold text-[#8C5E35] mb-5 mt-2">
                         Analytics · Build · LLM
@@ -539,9 +608,7 @@ export default function HomeTabs() {
                       </div>
 
                       <div className="pt-5 border-t border-stone-200">
-                        <div className="text-xs font-black text-stone-700 tracking-wide mb-2">
-                          SKILLS
-                        </div>
+                        <div className="text-xs font-black text-stone-700 tracking-wide mb-2">SKILLS</div>
                         <div className="flex flex-wrap gap-2">
                           {ABOUT_SKILLS.map((s) => (
                             <span
