@@ -678,7 +678,7 @@ export default function HomeTabs() {
         {tab === "Board" && (
           <div className="bg-stone-100/80 pt-8 pb-10 px-0 rounded-b-xl border-x border-b border-stone-200/50 min-h-[600px]">
             {/* ✅ 화면 2/3 정도 + 왼쪽 정렬 */}
-            <div className="w-full max-w-5xl mr-auto space-y-8 px-4 sm:px-6 lg:px-10">
+            <div className="w-full max-w-none space-y-8 px-4 sm:px-6 lg:px-10">
               {/* Top: Write (Left) + Image (Right) */}
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
                 {/* Write */}
