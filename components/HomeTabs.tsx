@@ -682,12 +682,12 @@ export default function HomeTabs() {
               {/* Top: Write (Left) + Image (Right) */}
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
                 {/* Write */}
-                <div className="lg:col-span-7 bg-white p-5 sm:p-6 rounded-2xl border border-stone-200 shadow-sm">
+                <div className="lg:col-span-8 bg-white p-5 sm:p-6 rounded-2xl border border-stone-200 shadow-sm h-full flex flex-col">
                   <h3 className="text-lg font-black text-stone-800 mb-4 flex items-center gap-2">
                     <FaPen className="text-[#8C5E35] text-sm" /> Write a Post
                   </h3>
 
-                  <form onSubmit={handleSubmit} className="space-y-4">
+                  <form onSubmit={handleSubmit} className="space-y-4 flex flex-col flex-1">
                     <div className="flex gap-2">
                       {(["Guestbook", "Q&A"] as PostCategory[]).map((c) => (
                         <button
@@ -718,8 +718,8 @@ export default function HomeTabs() {
                     <textarea
                       value={inputContent}
                       onChange={(e) => setInputContent(e.target.value)}
-                      rows={5}
-                      className="w-full px-4 py-3 bg-stone-50 border border-stone-200 rounded-lg text-sm focus:ring-2 focus:ring-[#8C5E35] focus:border-transparent outline-none transition resize-none"
+                      rows={8}
+                      className="w-full flex-1 min-h-[220px] px-4 py-3 bg-stone-50 border border-stone-200 rounded-lg text-sm focus:ring-2 focus:ring-[#8C5E35] focus:border-transparent outline-none transition resize-none"
                       placeholder="Leave a message..."
                       required
                     />
@@ -735,7 +735,7 @@ export default function HomeTabs() {
 
                     <button
                       type="submit"
-                      className="w-full py-3 bg-[#8C5E35] text-white font-bold rounded-xl hover:bg-[#6B4628] transition shadow-md duration-300"
+                      className="w-full py-3 bg-[#8C5E35] text-white font-bold rounded-xl hover:bg-[#6B4628] transition shadow-md duration-300 mt-auto"
                       disabled={loading}
                     >
                       Post Message
@@ -744,7 +744,7 @@ export default function HomeTabs() {
                 </div>
 
                 {/* Image */}
-                <div className="lg:col-span-5">
+                <div className="lg:col-span-4">
                   <div className="bg-white rounded-2xl border border-stone-200 shadow-sm overflow-hidden h-full">
                     <div className="relative w-full aspect-[4/3]">
                       <Image
