@@ -77,83 +77,64 @@ function cn(...xs: Array<string | false | undefined | null>) {
   return xs.filter(Boolean).join(" ");
 }
 
-/**
- * ✅ WebCrypto 기반 비번 해시(PBKDF2)
- * 저장 포맷: pbkdf2$<iterations>$<saltBase64>$<hashBase64>
- */
-function bytesToBase64(bytes: Uint8Array) {
-  let binary = "";
-  bytes.forEach((b) => (binary += String.fromCharCode(b)));
-  return btoa(binary);
-}
-function base64ToBytes(b64: string) {
-  const binary = atob(b64);
-  const bytes = new Uint8Array(binary.length);
-  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
-  return bytes;
+// ===========================
+// ✅ WebCrypto 해시 유틸 (추가 패키지 0)
+// password_hash 컬럼에 "saltB64.hashB64" 형태로 저장
+// ===========================
+const enc = new TextEncoder();
+
+function toB64(bytes: Uint8Array) {
+  let bin = "";
+  bytes.forEach((b) => (bin += String.fromCharCode(b)));
+  return btoa(bin);
 }
 
-async function pbkdf2Hash(password: string, iterations = 120_000) {
-  const enc = new TextEncoder();
-  const salt = crypto.getRandomValues(new Uint8Array(16));
+function fromB64(b64: string) {
+  const bin = atob(b64);
+  const out = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+  return out;
+}
 
-  const keyMaterial = await crypto.subtle.importKey(
+function timingSafeEqual(a: Uint8Array, b: Uint8Array) {
+  if (a.length !== b.length) return false;
+  let diff = 0;
+  for (let i = 0; i < a.length; i++) diff |= a[i] ^ b[i];
+  return diff === 0;
+}
+
+async function pbkdf2Hash(password: string, salt: Uint8Array, iterations = 210_000) {
+  if (typeof crypto === "undefined" || !crypto.subtle) {
+    throw new Error("WebCrypto not available");
+  }
+  const baseKey = await crypto.subtle.importKey(
     "raw",
     enc.encode(password),
-    "PBKDF2",
+    { name: "PBKDF2" },
     false,
     ["deriveBits"]
   );
-
-  const bits = await crypto.subtle.deriveBits(
-    {
-      name: "PBKDF2",
-      salt,
-      iterations,
-      hash: "SHA-256",
-    },
-    keyMaterial,
-    256
-  );
-
-  const hashBytes = new Uint8Array(bits);
-  return `pbkdf2$${iterations}$${bytesToBase64(salt)}$${bytesToBase64(hashBytes)}`;
-}
-
-async function pbkdf2Verify(password: string, stored: string) {
-  // stored: pbkdf2$iters$saltB64$hashB64
-  const parts = stored.split("$");
-  if (parts.length !== 4) return false;
-  const [algo, iterStr, saltB64, hashB64] = parts;
-  if (algo !== "pbkdf2") return false;
-
-  const iterations = Number(iterStr);
-  if (!Number.isFinite(iterations) || iterations <= 0) return false;
-
-  const salt = base64ToBytes(saltB64);
-  const expected = base64ToBytes(hashB64);
-
-  const enc = new TextEncoder();
-  const keyMaterial = await crypto.subtle.importKey(
-    "raw",
-    enc.encode(password),
-    "PBKDF2",
-    false,
-    ["deriveBits"]
-  );
-
   const bits = await crypto.subtle.deriveBits(
     { name: "PBKDF2", salt, iterations, hash: "SHA-256" },
-    keyMaterial,
+    baseKey,
     256
   );
-  const actual = new Uint8Array(bits);
+  return new Uint8Array(bits);
+}
 
-  // constant-time-ish compare
-  if (actual.length !== expected.length) return false;
-  let diff = 0;
-  for (let i = 0; i < actual.length; i++) diff |= actual[i] ^ expected[i];
-  return diff === 0;
+async function makePasswordHash(password: string) {
+  const salt = crypto.getRandomValues(new Uint8Array(16));
+  const hash = await pbkdf2Hash(password, salt);
+  return `${toB64(salt)}.${toB64(hash)}`;
+}
+
+async function verifyPasswordHash(password: string, stored: string) {
+  const [saltB64, hashB64] = stored.split(".");
+  if (!saltB64 || !hashB64) return false;
+  const salt = fromB64(saltB64);
+  const expected = fromB64(hashB64);
+  const actual = await pbkdf2Hash(password, salt);
+  return timingSafeEqual(actual, expected);
 }
 
 // ✅ 상단 텍스트형 네비게이션
@@ -389,7 +370,13 @@ export default function HomeTabs() {
 
   const verifyPassword = async (post: Post, pw: string) => {
     if (!post.password_hash) return false;
-    return pbkdf2Verify(pw, post.password_hash);
+    try {
+      return await verifyPasswordHash(pw, post.password_hash);
+    } catch (e) {
+      console.error("verifyPasswordHash error:", e);
+      alert("이 브라우저에서 비밀번호 검증을 지원하지 않습니다.");
+      return false;
+    }
   };
 
   const handleDelete = async (post: Post) => {
@@ -451,7 +438,7 @@ export default function HomeTabs() {
     if (!inputName.trim() || !inputContent.trim() || !inputPassword.trim()) return;
 
     try {
-      const password_hash = await pbkdf2Hash(inputPassword);
+      const password_hash = await makePasswordHash(inputPassword);
 
       const { error }: { error: any } = await (supabase as any)
         .from("guestbook")
