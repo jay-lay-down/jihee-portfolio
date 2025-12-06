@@ -11,7 +11,7 @@ import {
 } from "react";
 import { PROJECTS } from "@/app/projects/data";
 import { supabase } from "@/lib/supabase";
-
+// @ts-ignore
 import bcrypt from "bcryptjs";
 
 // 아이콘
