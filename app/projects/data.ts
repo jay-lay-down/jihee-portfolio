@@ -24,7 +24,7 @@ export const PROJECTS: Project[] = [
     category: "LLM",
     featured: true,
     stack: ["Python", "PyTorch", "Transformers", "QLoRA", "HF Hub", "Gradio"],
-    cover: "/im2.jpg", // ilya-pavlov
+    cover: "/im2.jpg",
     links: [
       { label: "Repo", href: "https://github.com/jay-lay-down/jaychatbot_2nd" },
       { label: "Demo", href: "http://www.duboobanmo.site" },
@@ -38,7 +38,7 @@ export const PROJECTS: Project[] = [
     category: "Other",
     featured: true,
     stack: ["Python", "Gradio", "HTML/CSS", "HF Spaces"],
-    cover: "/im1.jpg", // joanna-kosinska
+    cover: "/im1.jpg",
     links: [
       { label: "Repo", href: "https://github.com/jay-lay-down/animal_test" },
       { label: "Demo", href: "https://myanimaltest.site/" },
@@ -52,7 +52,7 @@ export const PROJECTS: Project[] = [
     category: "Segmentation",
     featured: true,
     stack: ["Python", "PySide6", "scikit-learn", "Pandas", "PyInstaller"],
-    cover: "/im3.jpg", // hal-gatewood
+    cover: "/im3.jpg",
     links: [
       { label: "Repo", href: "https://github.com/jay-lay-down/auto_segment" },
       { label: "Download", href: "https://drive.google.com/uc?id=1l6dMl6QHx7fJAeh8zL3xPIJX572mtnum&export=download" },
@@ -65,7 +65,7 @@ export const PROJECTS: Project[] = [
     category: "Bayesian",
     featured: true,
     stack: ["Python", "PyMC", "ArviZ", "pandas", "Plotly/Dash"],
-    cover: "/im4.jpg", // carlos-muza
+    cover: "/im4.jpg",
     links: [
       { label: "Repo", href: "https://github.com/jay-lay-down/bayesian_dashboard" },
       { label: "Dashboard", href: "https://jay1121-bayesian-dashboard.hf.space" },
@@ -88,6 +88,7 @@ export const PROJECTS: Project[] = [
     oneLiner: "SARIMAX 파이프라인 + R 패키지 개발(MAPE 0.9~7.5%)",
     category: "Forecasting",
     featured: true,
+    cover: "/demand.jpg",
     stack: ["R", "forecast", "caret", "devtools", "roxygen2"],
     links: [
       { label: "Repo", href: "https://github.com/jay-lay-down/demand_forecasting" },
@@ -107,6 +108,8 @@ export const PROJECTS: Project[] = [
     title: "👥 Drivers of Employee Engagement",
     oneLiner: "LPA로 조직 이탈/미이탈 패턴 세분화 → 실행 가능한 조직 전략 도출",
     category: "Segmentation",
+    featured: true,
+    cover: "/satis.jpg",
     stack: ["R", "lavaan", "tidyLPA/mclust"],
     links: [
       { label: "Repo", href: "https://github.com/jay-lay-down/LPA_synthetic_vars" },
