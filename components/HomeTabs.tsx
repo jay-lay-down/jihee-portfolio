@@ -13,10 +13,6 @@ import {
 import { PROJECTS } from "@/app/projects/data";
 import { supabase } from "@/lib/supabase";
 
-// 마크다운
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
-
 // 아이콘
 import {
   FaGithub,
@@ -28,8 +24,6 @@ import {
   FaChevronDown,
   FaChevronRight,
   FaTrash,
-  FaEye,
-  FaEyeSlash,
 } from "react-icons/fa";
 import { SiHuggingface, SiVelog } from "react-icons/si";
 import {
@@ -347,7 +341,6 @@ export default function HomeTabs() {
   const [inputContent, setInputContent] = useState("");
   const [inputCategory, setInputCategory] = useState<PostCategory>("Guestbook");
   const [inputPassword, setInputPassword] = useState("");
-  const [showPreview, setShowPreview] = useState(false);
 
   const [pwById, setPwById] = useState<Record<number, string>>({});
   const [editId, setEditId] = useState<number | null>(null);
@@ -491,7 +484,6 @@ export default function HomeTabs() {
       setInputName("");
       setInputContent("");
       setInputPassword("");
-      setShowPreview(false);
       void fetchPosts();
     } catch (err) {
       console.error("RPC create exception:", err);
@@ -1187,7 +1179,6 @@ export default function HomeTabs() {
                 <div className="lg:col-span-8 bg-white p-5 sm:p-6 rounded-2xl border border-stone-200 shadow-sm h-full flex flex-col">
                   <h3 className="text-lg font-black text-stone-800 mb-4 flex items-center gap-2">
                     <FaPen className="text-[#8C5E35] text-sm" /> Write a Post
-                    <span className="ml-auto text-xs font-medium text-stone-400">마크다운 지원</span>
                   </h3>
 
                   <form onSubmit={handleSubmit} className="space-y-4 flex flex-col flex-1">
@@ -1222,32 +1213,10 @@ export default function HomeTabs() {
                       value={inputContent}
                       onChange={(e) => setInputContent(e.target.value)}
                       rows={8}
-                      className="w-full flex-1 min-h-[220px] px-4 py-3 bg-stone-50 border border-stone-200 rounded-lg text-sm focus:ring-2 focus:ring-[#8C5E35] focus:border-transparent outline-none transition resize-none font-mono"
-                      placeholder="Leave a message... (마크다운 문법 사용 가능: **굵게**, *기울임*, - 목록, [링크](url) 등)"
+                      className="w-full flex-1 min-h-[220px] px-4 py-3 bg-stone-50 border border-stone-200 rounded-lg text-sm focus:ring-2 focus:ring-[#8C5E35] focus:border-transparent outline-none transition resize-none"
+                      placeholder="Leave a message..."
                       required
                     />
-
-                    {/* 미리보기 토글 버튼 */}
-                    <button
-                      type="button"
-                      onClick={() => setShowPreview(!showPreview)}
-                      className="flex items-center gap-2 text-xs font-bold text-stone-500 hover:text-[#8C5E35] transition self-start"
-                    >
-                      {showPreview ? <FaEyeSlash /> : <FaEye />}
-                      {showPreview ? "미리보기 숨기기" : "마크다운 미리보기"}
-                    </button>
-
-                    {/* 미리보기 영역 */}
-                    {showPreview && inputContent && (
-                      <div className="p-4 bg-stone-50 border border-stone-200 rounded-lg">
-                        <div className="text-xs font-bold text-stone-400 mb-2">미리보기</div>
-                        <div className="prose prose-stone prose-sm max-w-none text-stone-700">
-                          <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                            {inputContent}
-                          </ReactMarkdown>
-                        </div>
-                      </div>
-                    )}
 
                     <input
                       type="password"
@@ -1352,17 +1321,10 @@ export default function HomeTabs() {
                         <div className="text-xs font-bold text-stone-400">#{post.id}</div>
                       </div>
 
-                      {/* 마크다운 렌더링 */}
-                      <div className="pl-11">
-                        <span className="text-xs font-bold text-[#8C5E35]">
-                          {post.category === "Q&A" ? "[Q&A] " : "[Guestbook] "}
-                        </span>
-                        <div className="prose prose-stone prose-sm max-w-none text-stone-700 mt-1">
-                          <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                            {post.content}
-                          </ReactMarkdown>
-                        </div>
-                      </div>
+                      <p className="text-sm text-stone-700 pl-11 leading-relaxed whitespace-pre-wrap break-words">
+                        {post.category === "Q&A" ? "[Q&A] " : "[Guestbook] "}
+                        {post.content}
+                      </p>
 
                       {/* Edit / Delete */}
                       <div className="mt-4 pl-11">
@@ -1372,7 +1334,7 @@ export default function HomeTabs() {
                               value={editContent}
                               onChange={(e) => setEditContent(e.target.value)}
                               rows={4}
-                              className="w-full px-4 py-3 bg-stone-50 border border-stone-200 rounded-lg text-sm focus:ring-2 focus:ring-[#8C5E35] focus:border-transparent outline-none transition resize-none font-mono"
+                              className="w-full px-4 py-3 bg-stone-50 border border-stone-200 rounded-lg text-sm focus:ring-2 focus:ring-[#8C5E35] focus:border-transparent outline-none transition resize-none"
                             />
 
                             <input
