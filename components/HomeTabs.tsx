@@ -13,6 +13,10 @@ import {
 import { PROJECTS } from "@/app/projects/data";
 import { supabase } from "@/lib/supabase";
 
+// 마크다운 (Case Studies용)
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+
 // 아이콘
 import {
   FaGithub,
@@ -897,7 +901,7 @@ export default function HomeTabs() {
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
                   <h2 className="text-2xl font-black text-stone-900">Case Studies</h2>
-                  <p className="text-sm text-stone-500 mt-1">프로젝트별 상세 설명</p>
+                  <p className="text-sm text-stone-500 mt-1">프로젝트별 상세 설명 (마크다운 지원)</p>
                 </div>
               </div>
 
@@ -1014,9 +1018,9 @@ export default function HomeTabs() {
                                           <textarea
                                             value={detailEditContent}
                                             onChange={(e) => setDetailEditContent(e.target.value)}
-                                            rows={5}
-                                            className="w-full px-3 py-2 bg-white border border-stone-200 rounded-lg text-sm focus:ring-2 focus:ring-[#8C5E35] outline-none resize-none"
-                                            placeholder="내용"
+                                            rows={8}
+                                            className="w-full px-3 py-2 bg-white border border-stone-200 rounded-lg text-sm focus:ring-2 focus:ring-[#8C5E35] outline-none resize-none font-mono"
+                                            placeholder="내용 (마크다운 지원)"
                                           />
                                           <input
                                             type="text"
@@ -1054,7 +1058,7 @@ export default function HomeTabs() {
                                           </div>
                                         </div>
                                       ) : (
-                                        /* 보기 모드 */
+                                        /* 보기 모드 - 마크다운 렌더링 */
                                         <>
                                           <div className="flex items-start justify-between gap-3 mb-2">
                                             <h4 className="text-base font-black text-stone-900">
@@ -1082,10 +1086,13 @@ export default function HomeTabs() {
                                               </button>
                                             </div>
                                           </div>
-                                          <p className="text-sm text-stone-600 leading-relaxed whitespace-pre-wrap">
-                                            {section.content}
-                                          </p>
-                                          <div className="mt-2 text-xs text-stone-400">
+                                          {/* 마크다운 렌더링 */}
+                                          <div className="prose prose-stone prose-sm max-w-none text-stone-600">
+                                            <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                                              {section.content}
+                                            </ReactMarkdown>
+                                          </div>
+                                          <div className="mt-3 text-xs text-stone-400">
                                             {new Date(section.created_at).toLocaleDateString("ko-KR")}
                                           </div>
                                         </>
@@ -1107,6 +1114,7 @@ export default function HomeTabs() {
               <div className="bg-white rounded-2xl border border-stone-200 p-5 sm:p-6 shadow-sm">
                 <h3 className="text-base font-black text-stone-800 mb-4 flex items-center gap-2">
                   <FaPen className="text-[#8C5E35] text-sm" /> 새 섹션 추가
+                  <span className="ml-auto text-xs font-medium text-stone-400">마크다운 지원</span>
                 </h3>
 
                 <form onSubmit={handleAddDetail} className="space-y-4">
@@ -1136,9 +1144,9 @@ export default function HomeTabs() {
                   <textarea
                     value={newContent}
                     onChange={(e) => setNewContent(e.target.value)}
-                    rows={5}
-                    className="w-full px-4 py-3 bg-stone-50 border border-stone-200 rounded-lg text-sm focus:ring-2 focus:ring-[#8C5E35] outline-none resize-none"
-                    placeholder="내용을 작성하세요..."
+                    rows={8}
+                    className="w-full px-4 py-3 bg-stone-50 border border-stone-200 rounded-lg text-sm focus:ring-2 focus:ring-[#8C5E35] outline-none resize-none font-mono"
+                    placeholder="내용을 작성하세요... (마크다운 문법 사용 가능: **굵게**, *기울임*, - 목록, [링크](url), ```코드``` 등)"
                   />
 
                   <input
