@@ -17,7 +17,7 @@ export default function ProjectsPage() {
         <div>
           <h1 className="text-4xl font-extrabold tracking-tight">Projects</h1>
           <p className="mt-3 text-[15px] text-[var(--muted)] leading-8">
-            카드 클릭 시 <b className="text-[var(--fg)]">Repo(우선)</b> → Demo → Blog 순으로 이동합니다.
+            Clicking a card opens the project page, where you can navigate to the repo, demo, or blog.
           </p>
         </div>
         <a

@@ -20,7 +20,7 @@ export const PROJECTS: Project[] = [
   {
     slug: "ddolbae",
     title: "🤖 AI/LLM-powered Analytics Chatbot",
-    oneLiner: "Persona fine-tuning + quantization 기반 self-hosting",
+    oneLiner: "Self-hosted analytics assistant built with persona fine-tuning and quantization",
     category: "LLM",
     featured: true,
     stack: ["Python", "PyTorch", "Transformers", "QLoRA", "HF Hub", "Gradio"],
@@ -34,7 +34,7 @@ export const PROJECTS: Project[] = [
   {
     slug: "animal-test",
     title: "🐾 Social Animal Type Test",
-    oneLiner: "11가지 사회적 동물 유형 테스트: 설계–채점–UI-배포 수행",
+    oneLiner: "An 11-type social persona test built end to end from scoring logic to UI and deployment",
     category: "Other",
     featured: true,
     stack: ["Python", "Gradio", "HTML/CSS", "HF Spaces"],
@@ -48,7 +48,7 @@ export const PROJECTS: Project[] = [
   {
     slug: "auto-segment-tool",
     title: "🔧 Auto Segment Tool (EXE)",
-    oneLiner: "데이터 로딩→PCA→Decision Tree→Segment 시각화 + AI Assistant + 자동 리포트 GUI 툴 개발",
+    oneLiner: "GUI automation tool covering data loading, PCA, decision-tree segmentation, AI assistance, and auto-reporting",
     category: "Segmentation",
     featured: true,
     stack: ["Python", "PySide6", "scikit-learn", "Pandas", "PyInstaller"],
@@ -61,7 +61,7 @@ export const PROJECTS: Project[] = [
   {
     slug: "bayesian-dashboard",
     title: "🌐 Bayesian Modeling & Dashboard",
-    oneLiner: "계층적 베이지안을 통한 Funnel 분석 + 대시보드(불확실성 기반 해석)",
+    oneLiner: "Hierarchical Bayesian funnel analysis with a dashboard built for uncertainty-aware interpretation",
     category: "Bayesian",
     featured: true,
     stack: ["Python", "PyMC", "ArviZ", "pandas", "Plotly/Dash"],
@@ -74,7 +74,7 @@ export const PROJECTS: Project[] = [
   {
     slug: "bayesian-norms",
     title: "📈 Brand Image Evaluation (Bayesian)",
-    oneLiner: "소셜+설문 결합 & 데이터 증강 기반 브랜드 이미지 평가 대시보드",
+    oneLiner: "Brand image evaluation dashboard combining social and survey data with augmentation-driven insights",
     category: "Bayesian",
     stack: ["Python", "pandas", "scikit-learn", "PyMC", "VBA"],
     links: [
@@ -85,7 +85,7 @@ export const PROJECTS: Project[] = [
   {
     slug: "demand-forecasting",
     title: "📊 Demand Forecasting Pipeline",
-    oneLiner: "SARIMAX 파이프라인 + R 패키지 개발(MAPE 0.9~7.5%)",
+    oneLiner: "SARIMAX forecasting pipeline and R package development with MAPE ranging from 0.9% to 7.5%",
     category: "Forecasting",
     featured: true,
     cover: "/demand.jpg",
@@ -98,7 +98,7 @@ export const PROJECTS: Project[] = [
   {
     slug: "brand-share-forecasting",
     title: "☑ Brand Share% Forecasting",
-    oneLiner: "Softmax 최적화 + LSTM(Additive Attention)로 점유율 예측",
+    oneLiner: "Brand share forecasting using Softmax optimization and seq2seq LSTM with additive attention",
     category: "Forecasting",
     stack: ["Python", "TensorFlow", "LSTM", "Attention", "NumPy"],
     links: [{ label: "Repo", href: "https://github.com/jay-lay-down/seq2seq_softmax" }],
@@ -106,7 +106,7 @@ export const PROJECTS: Project[] = [
   {
     slug: "employee-engagement",
     title: "👥 Drivers of Employee Engagement",
-    oneLiner: "LPA로 조직 이탈/미이탈 패턴 세분화 → 실행 가능한 조직 전략 도출",
+    oneLiner: "LPA-based segmentation of retention and attrition patterns to guide actionable organizational strategy",
     category: "Segmentation",
     featured: true,
     cover: "/satis.jpg",
@@ -119,7 +119,7 @@ export const PROJECTS: Project[] = [
   {
     slug: "other-projects",
     title: "🔢 Other Projects Archive",
-    oneLiner: "소셜마이닝/제안서 등 다양한 프로젝트 슬라이드 모음",
+    oneLiner: "A slide archive covering social mining, proposals, and a range of additional project work",
     category: "Other",
     stack: ["Slides", "PDF"],
     links: [{ label: "Slides PDF", href: "https://github.com/jay-lay-down/jay-lay-down/blob/main/assets/Example_projects.pdf" }],

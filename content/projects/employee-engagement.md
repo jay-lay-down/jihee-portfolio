@@ -6,13 +6,13 @@ tags: ["LPA","Segmentation","R","lavaan"]
 ---
 
 ## Summary
-LPA(Latent Profile Analysis)를 활용해 직원 몰입도/이직 패턴을 세분화하고 실행 가능한 조직 전략을 도출.
+Used Latent Profile Analysis (LPA) to segment employee engagement and attrition patterns and derive actionable organizational strategy.
 
 ## Tech Stack
 R · lavaan · tidyLPA/mclust
 
 ## Outcome
-직원 집단을 ‘갈등 집단/행복 집단/이탈 위험 집단’으로 분류해 세그먼트별 맞춤형 관리 전략 수립 가능.
+Classified employees into groups such as conflict-prone, thriving, and attrition-risk segments, making it possible to design tailored management strategies for each profile.
 
 ## Links
 - Repo: https://github.com/jay-lay-down/LPA_synthetic_vars

@@ -6,13 +6,13 @@ tags: ["Bayesian","PyMC","Dashboard"]
 ---
 
 ## Summary
-계층적 베이지안 모델링으로 선호 → 추천 → 구매의도 → 구매 단계 전환율(퍼널)을 분석하고, 제품 투자 우선순위/매출 최적화 인사이트를 제공.
+Used hierarchical Bayesian modeling to analyze funnel conversion across preference, recommendation, purchase intent, and purchase stages, generating insights for product investment prioritization and revenue optimization.
 
 ## Tech Stack
 Python · PyMC · ArviZ · pandas · NumPy · Plotly/Dash
 
 ## Outcome
-설문 결과를 단순 긍·부정이 아닌 “불확실성 기반”으로 해석해 의사결정의 신뢰도를 강화.
+Interpreted survey results through an uncertainty-aware lens rather than a simple positive-versus-negative split, strengthening confidence in decision-making.
 
 ## Links
 - Repo: https://github.com/jay-lay-down/bayesian_dashboard

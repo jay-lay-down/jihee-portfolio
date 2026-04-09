@@ -9,7 +9,7 @@ export default function BlogList() {
         <div className="flex items-end justify-between gap-3">
           <div>
             <h1 className="text-2xl font-semibold tracking-tight">Blog</h1>
-            <p className="mt-2 text-sm text-[var(--muted)]">마크다운 파일 추가하면 자동 게시</p>
+            <p className="mt-2 text-sm text-[var(--muted)]">New Markdown files are published automatically.</p>
           </div>
           <a className="text-sm underline underline-offset-4 text-[var(--muted)] hover:text-[var(--fg)] transition" href="/">
             ← Home

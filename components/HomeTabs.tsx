@@ -393,14 +393,14 @@ export default function HomeTabs() {
 
       if (error) {
         console.error("Supabase select error:", error);
-        alert("게시판을 불러오는 중 오류가 발생했습니다.");
+        alert("An error occurred while loading the board.");
         setPosts([]);
       } else {
         setPosts((data as Post[]) || []);
       }
     } catch (err) {
       console.error("Supabase select exception:", err);
-      alert("네트워크 문제로 게시판을 불러오지 못했습니다.");
+      alert("The board could not be loaded because of a network issue.");
       setPosts([]);
     } finally {
       setLoading(false);
@@ -481,7 +481,7 @@ export default function HomeTabs() {
 
       if (error) {
         console.error("RPC create error:", error);
-        alert("게시글 저장 중 오류가 발생했습니다.");
+        alert("An error occurred while saving the post.");
         return;
       }
 
@@ -491,7 +491,7 @@ export default function HomeTabs() {
       void fetchPosts();
     } catch (err) {
       console.error("RPC create exception:", err);
-      alert("네트워크 오류로 게시글을 저장하지 못했습니다.");
+      alert("The post could not be saved because of a network error.");
     } finally {
       setLoading(false);
     }
@@ -499,7 +499,7 @@ export default function HomeTabs() {
 
   const handleDelete = async (post: Post) => {
     const pw = getPw(post.id).trim();
-    if (!pw) return alert("비밀번호를 입력해 주세요.");
+    if (!pw) return alert("Please enter the password.");
 
     try {
       const { data, error } = await (supabase as any).rpc(
@@ -509,12 +509,12 @@ export default function HomeTabs() {
 
       if (error) {
         console.error("RPC delete error:", error);
-        alert("삭제 중 오류가 발생했습니다.");
+        alert("An error occurred while deleting the post.");
         return;
       }
 
       if (data !== true) {
-        alert("비밀번호가 맞지 않거나 글이 존재하지 않습니다.");
+        alert("The password is incorrect or the post no longer exists.");
         return;
       }
 
@@ -522,16 +522,16 @@ export default function HomeTabs() {
       void fetchPosts();
     } catch (err) {
       console.error("RPC delete exception:", err);
-      alert("네트워크 오류로 삭제하지 못했습니다.");
+      alert("The post could not be deleted because of a network error.");
     }
   };
 
   const handleUpdate = async (post: Post) => {
     const pw = getPw(post.id).trim();
-    if (!pw) return alert("비밀번호를 입력해 주세요.");
+    if (!pw) return alert("Please enter the password.");
 
     const next = editContent.trim();
-    if (!next) return alert("내용이 비어있습니다.");
+    if (!next) return alert("The content cannot be empty.");
 
     try {
       const { data, error } = await (supabase as any).rpc(
@@ -541,12 +541,12 @@ export default function HomeTabs() {
 
       if (error) {
         console.error("RPC update error:", error);
-        alert("수정 중 오류가 발생했습니다.");
+        alert("An error occurred while updating the post.");
         return;
       }
 
       if (data !== true) {
-        alert("비밀번호가 맞지 않거나 글이 존재하지 않습니다.");
+        alert("The password is incorrect or the post no longer exists.");
         return;
       }
 
@@ -556,7 +556,7 @@ export default function HomeTabs() {
       void fetchPosts();
     } catch (err) {
       console.error("RPC update exception:", err);
-      alert("네트워크 오류로 수정하지 못했습니다.");
+      alert("The post could not be updated because of a network error.");
     }
   };
 
@@ -564,7 +564,7 @@ export default function HomeTabs() {
   const handleAddDetail = async (e: FormEvent) => {
     e.preventDefault();
     if (!newTitle.trim() || !newContent.trim() || !adminPassword.trim()) {
-      alert("제목, 내용, 비밀번호를 모두 입력해주세요.");
+      alert("Please enter a title, content, and password.");
       return;
     }
 
@@ -580,7 +580,7 @@ export default function HomeTabs() {
 
       if (error) {
         console.error("Create detail error:", error);
-        alert("섹션 추가 중 오류가 발생했습니다.");
+        alert("An error occurred while adding the section.");
         return;
       }
 
@@ -591,13 +591,13 @@ export default function HomeTabs() {
       fetchProjectDetails();
     } catch (err) {
       console.error("Create detail exception:", err);
-      alert("네트워크 오류로 섹션을 추가하지 못했습니다.");
+      alert("The section could not be added because of a network error.");
     }
   };
 
   const handleUpdateDetail = async (id: number) => {
     if (!detailEditTitle.trim() || !detailEditContent.trim() || !detailEditPassword.trim()) {
-      alert("제목, 내용, 비밀번호를 모두 입력해주세요.");
+      alert("Please enter a title, content, and password.");
       return;
     }
 
@@ -612,12 +612,12 @@ export default function HomeTabs() {
 
       if (error) {
         console.error("Update detail error:", error);
-        alert("수정 중 오류가 발생했습니다.");
+        alert("An error occurred while updating the section.");
         return;
       }
 
       if (data === false) {
-        alert("비밀번호가 올바르지 않습니다.");
+        alert("The password is incorrect.");
         return;
       }
 
@@ -629,12 +629,12 @@ export default function HomeTabs() {
       fetchProjectDetails();
     } catch (err) {
       console.error("Update detail exception:", err);
-      alert("네트워크 오류로 수정하지 못했습니다.");
+      alert("The section could not be updated because of a network error.");
     }
   };
 
   const handleDeleteDetail = async (id: number) => {
-    const pw = prompt("삭제하려면 비밀번호를 입력하세요:");
+    const pw = prompt("Enter the password to delete this section:");
     if (!pw) return;
 
     try {
@@ -645,19 +645,19 @@ export default function HomeTabs() {
 
       if (error) {
         console.error("Delete detail error:", error);
-        alert("삭제 중 오류가 발생했습니다.");
+        alert("An error occurred while deleting the section.");
         return;
       }
 
       if (data === false) {
-        alert("비밀번호가 올바르지 않습니다.");
+        alert("The password is incorrect.");
         return;
       }
 
       fetchProjectDetails();
     } catch (err) {
       console.error("Delete detail exception:", err);
-      alert("네트워크 오류로 삭제하지 못했습니다.");
+      alert("The section could not be deleted because of a network error.");
     }
   };
 
@@ -684,28 +684,28 @@ export default function HomeTabs() {
 
   // --- Static Info ---
   const EDUCATION: InfoItem[] = [
-    { label: "서울여자대학교 일반대학원", sub: "아동심리학 전공 (석사)" },
-    { label: "서울여자대학교", sub: "아동학과 (학사)" },
+    { label: "Seoul Women's University Graduate School", sub: "M.A. in Child Psychology" },
+    { label: "Seoul Women's University", sub: "B.A. in Child Studies" },
   ];
   const EXPERIENCE: InfoItem[] = [
     { label: "Kantar Korea", sub: "Analytics" },
     { label: "NIQ-GfK", sub: "Global Strategic Account Management" },
-    { label: "Macromill Embrain", sub: "리서치 1부서 3팀" },
-    { label: "MnM Research", sub: "연구사업본부" },
-    { label: "서울대학교병원", sub: "소아정신과 의생명연구원" },
+    { label: "Macromill Embrain", sub: "Research Division 1, Team 3" },
+    { label: "MnM Research", sub: "Research Business Division" },
+    { label: "Seoul National University Hospital", sub: "Biomedical Research Institute, Child Psychiatry" },
   ];
   const AWARDS: InfoItem[] = [
     { year: 2024, label: "3Q Night Out in Town" },
-    { year: 2024, label: "고객사 NPS 조사 10점 만점 달성" },
-    { year: 2021, label: "인적자원위원회 최우수 보고서 선정" },
-    { year: 2018, label: "KCI 등재 학술지 제1저자(논문)" },
-    { year: 2016, label: "한국장학재단 우수연구계획서 선정" },
+    { year: 2024, label: "Achieved a perfect 10/10 on a client NPS study" },
+    { year: 2021, label: "Selected for Best Report by the Human Resources Committee" },
+    { year: 2018, label: "First author publication in a KCI-indexed journal" },
+    { year: 2016, label: "Selected for an Outstanding Research Proposal by the Korea Student Aid Foundation" },
   ];
   const LICENSES: InfoItem[] = [
-    { label: "사회조사분석사 2급" },
-    { label: "빅데이터분석기사" },
-    { label: "데이터분석준전문가(AdsP)" },
-    { label: "구글 애널리틱스(GAIQ)" },
+    { label: "Certified Social Research Analyst, Level 2" },
+    { label: "Engineer Big Data Analysis" },
+    { label: "ADsP: Advanced Data Analytics Semi-Professional" },
+    { label: "Google Analytics Individual Qualification (GAIQ)" },
   ];
 
   return (
@@ -741,21 +741,25 @@ export default function HomeTabs() {
 
                       <div className="space-y-3 text-[16px] leading-8 text-stone-800 font-medium max-w-5xl break-keep">
                         <p>
-                          심리학을 기반으로 데이터 분석을 수행하며, 브랜드·리서치 데이터를 볼 때
-                          &nbsp;"이 숫자로 무엇을 결정할 수 있을까?"부터 생각합니다. 단순히 지표를
-                          나열하기보다는, 실제 의사결정에 도움이 되는 인사이트를 도출하는 일을 더
-                          중요하게 여깁니다.
+                          I am a researcher and analytics practitioner with a foundation in psychology,
+                          and when I look at brand or research data, I start by asking,
+                          &nbsp;"What decision can this number help someone make?" I care less about
+                          listing metrics for their own sake and more about turning them into insight
+                          that helps real people act.
                         </p>
 
                         <p>
-                          프로젝트를 할 때는 기획 단계에서 문제를 정의하고, 조사·데이터 설계 → 모델링
-                          → 대시보드·리포트까지 하나의 흐름으로 이어지도록 기획하는 데 강점이 있습니다.
-                          숫자보다 "누가 이 결과를 어떻게 활용할지"를 상상하면서 구조를 설계합니다.
+                          My strength is building an end-to-end flow from problem definition to
+                          research design, data design, modeling, and finally dashboards or reports.
+                          I design around how the output will actually be used, not just how it looks
+                          on paper.
                         </p>
 
                         <p>
-                          최근에는 세그멘테이션, 수요 예측, 캠페인 효과 분석 같은 작업에 LLM·RAG를 결합해서,
-                          단순 보고서가 아니라 질문하면 맥락을 설명해 주는 AI 서비스 형태로 만드는 실험을 하고 있습니다.
+                          More recently, I have been combining LLM and RAG approaches with work such
+                          as segmentation, demand forecasting, and campaign-effect analysis so the
+                          result is not just a report, but an AI-based service that can explain the
+                          context behind the answer.
                         </p>
                       </div>
 
@@ -777,8 +781,8 @@ export default function HomeTabs() {
                       </div>
 
                       <h3 className="text-2xl font-black text-stone-900">Jihee Cho</h3>
-                      <div className="text-sm font-bold text-stone-500 mt-1">Jan.25.1991 / Seoul</div>
-                      <div className="text-sm font-bold text-[#8C5E35] mb-5 mt-2">Analytics · Build · LLM</div>
+                      <div className="text-sm font-bold text-stone-500 mt-1">Jan 25, 1991 / Seoul</div>
+                      <div className="text-sm font-bold text-[#8C5E35] mb-5 mt-2">Research · Analytics · AI</div>
 
                       <div className="space-y-3 mb-6">
                         <div className="flex items-center gap-3 text-sm text-stone-600 font-bold bg-stone-50 p-3 rounded-xl border border-stone-100">
@@ -901,7 +905,7 @@ export default function HomeTabs() {
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
                   <h2 className="text-2xl font-black text-stone-900">Case Studies</h2>
-                  <p className="text-sm text-stone-500 mt-1">프로젝트별 상세 설명 (마크다운 지원)</p>
+                  <p className="text-sm text-stone-500 mt-1">Detailed project write-ups with Markdown support</p>
                 </div>
               </div>
 
@@ -944,7 +948,7 @@ export default function HomeTabs() {
                               </span>
                               {details.length > 0 && (
                                 <span className="text-xs font-bold text-stone-400">
-                                  {details.length}개 섹션
+                                  {details.length} sections
                                 </span>
                               )}
                             </div>
@@ -984,7 +988,7 @@ export default function HomeTabs() {
                             {/* 상세 섹션들 */}
                             {details.length === 0 ? (
                               <div className="py-8 text-center text-stone-400 border-2 border-dashed border-stone-200 rounded-xl">
-                                아직 작성된 내용이 없습니다.
+                                No sections have been added yet.
                               </div>
                             ) : (
                               <div className="space-y-4">
@@ -1013,35 +1017,35 @@ export default function HomeTabs() {
                                             value={detailEditTitle}
                                             onChange={(e) => setDetailEditTitle(e.target.value)}
                                             className="w-full px-3 py-2 bg-white border border-stone-200 rounded-lg text-sm font-bold focus:ring-2 focus:ring-[#8C5E35] outline-none"
-                                            placeholder="섹션 제목"
+                                            placeholder="Section title"
                                           />
                                           <textarea
                                             value={detailEditContent}
                                             onChange={(e) => setDetailEditContent(e.target.value)}
                                             rows={8}
                                             className="w-full px-3 py-2 bg-white border border-stone-200 rounded-lg text-sm focus:ring-2 focus:ring-[#8C5E35] outline-none resize-none font-mono"
-                                            placeholder="내용 (마크다운 지원)"
+                                            placeholder="Content (Markdown supported)"
                                           />
                                           <input
                                             type="text"
                                             value={detailEditImageUrl}
                                             onChange={(e) => setDetailEditImageUrl(e.target.value)}
                                             className="w-full px-3 py-2 bg-white border border-stone-200 rounded-lg text-sm focus:ring-2 focus:ring-[#8C5E35] outline-none"
-                                            placeholder="이미지 URL (선택)"
+                                            placeholder="Image URL (optional)"
                                           />
                                           <input
                                             type="password"
                                             value={detailEditPassword}
                                             onChange={(e) => setDetailEditPassword(e.target.value)}
                                             className="w-full px-3 py-2 bg-white border border-stone-200 rounded-lg text-sm focus:ring-2 focus:ring-[#8C5E35] outline-none"
-                                            placeholder="비밀번호"
+                                            placeholder="Password"
                                           />
                                           <div className="flex gap-2">
                                             <button
                                               onClick={() => handleUpdateDetail(section.id)}
                                               className="flex items-center gap-1 px-3 py-2 bg-[#8C5E35] text-white rounded-lg text-xs font-bold"
                                             >
-                                              <MdSave /> 저장
+                                              <MdSave /> Save
                                             </button>
                                             <button
                                               onClick={() => {
@@ -1053,7 +1057,7 @@ export default function HomeTabs() {
                                               }}
                                               className="flex items-center gap-1 px-3 py-2 border border-stone-300 text-stone-600 rounded-lg text-xs font-bold"
                                             >
-                                              <MdCancel /> 취소
+                                              <MdCancel /> Cancel
                                             </button>
                                           </div>
                                         </div>
@@ -1073,14 +1077,14 @@ export default function HomeTabs() {
                                                   setDetailEditImageUrl(section.image_url || "");
                                                 }}
                                                 className="p-1.5 text-stone-400 hover:text-[#8C5E35] hover:bg-stone-100 rounded transition"
-                                                title="수정"
+                                                title="Edit"
                                               >
                                                 <MdEdit />
                                               </button>
                                               <button
                                                 onClick={() => handleDeleteDetail(section.id)}
                                                 className="p-1.5 text-stone-400 hover:text-red-500 hover:bg-red-50 rounded transition"
-                                                title="삭제"
+                                                title="Delete"
                                               >
                                                 <FaTrash className="text-xs" />
                                               </button>
@@ -1093,7 +1097,7 @@ export default function HomeTabs() {
                                             </ReactMarkdown>
                                           </div>
                                           <div className="mt-3 text-xs text-stone-400">
-                                            {new Date(section.created_at).toLocaleDateString("ko-KR")}
+                                            {new Date(section.created_at).toLocaleDateString("en-US")}
                                           </div>
                                         </>
                                       )}
@@ -1113,8 +1117,8 @@ export default function HomeTabs() {
               {/* 새 섹션 추가 폼 */}
               <div className="bg-white rounded-2xl border border-stone-200 p-5 sm:p-6 shadow-sm">
                 <h3 className="text-base font-black text-stone-800 mb-4 flex items-center gap-2">
-                  <FaPen className="text-[#8C5E35] text-sm" /> 새 섹션 추가
-                  <span className="ml-auto text-xs font-medium text-stone-400">마크다운 지원</span>
+                  <FaPen className="text-[#8C5E35] text-sm" /> Add a New Section
+                  <span className="ml-auto text-xs font-medium text-stone-400">Markdown supported</span>
                 </h3>
 
                 <form onSubmit={handleAddDetail} className="space-y-4">
@@ -1138,7 +1142,7 @@ export default function HomeTabs() {
                     value={newTitle}
                     onChange={(e) => setNewTitle(e.target.value)}
                     className="w-full px-4 py-3 bg-stone-50 border border-stone-200 rounded-lg text-sm focus:ring-2 focus:ring-[#8C5E35] outline-none"
-                    placeholder="섹션 제목 (예: 프로젝트 배경, 기술 스택, 결과)"
+                    placeholder="Section title (e.g. Project Background, Tech Stack, Outcome)"
                   />
 
                   <textarea
@@ -1146,7 +1150,7 @@ export default function HomeTabs() {
                     onChange={(e) => setNewContent(e.target.value)}
                     rows={8}
                     className="w-full px-4 py-3 bg-stone-50 border border-stone-200 rounded-lg text-sm focus:ring-2 focus:ring-[#8C5E35] outline-none resize-none font-mono"
-                    placeholder="내용을 작성하세요... (마크다운 문법 사용 가능: **굵게**, *기울임*, - 목록, [링크](url), ```코드``` 등)"
+                    placeholder="Write the content... (Markdown supported: **bold**, *italic*, - list, [link](url), ```code``` and more)"
                   />
 
                   <input
@@ -1154,7 +1158,7 @@ export default function HomeTabs() {
                     value={newImageUrl}
                     onChange={(e) => setNewImageUrl(e.target.value)}
                     className="w-full px-4 py-3 bg-stone-50 border border-stone-200 rounded-lg text-sm focus:ring-2 focus:ring-[#8C5E35] outline-none"
-                    placeholder="이미지 URL (선택, 예: /images/project.png)"
+                    placeholder="Image URL (optional, e.g. /images/project.png)"
                   />
 
                   <input
@@ -1162,14 +1166,14 @@ export default function HomeTabs() {
                     value={adminPassword}
                     onChange={(e) => setAdminPassword(e.target.value)}
                     className="w-full px-4 py-3 bg-stone-50 border border-stone-200 rounded-lg text-sm focus:ring-2 focus:ring-[#8C5E35] outline-none"
-                    placeholder="비밀번호"
+                    placeholder="Password"
                   />
 
                   <button
                     type="submit"
                     className="w-full py-3 bg-[#8C5E35] text-white font-bold rounded-xl hover:bg-[#6B4628] transition shadow-md"
                   >
-                    섹션 추가
+                    Add Section
                   </button>
                 </form>
               </div>

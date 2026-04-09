@@ -6,17 +6,17 @@ tags: ["PySide6","Segmentation","Automation","PyInstaller"]
 ---
 
 ## Summary
-데이터 로딩 → 요인분석(PCA) → 결정트리 기반 세그멘테이션 → 시각화 & Excel 자동 리포트를 GUI 클릭 몇 번으로 끝내는 end-to-end 분석 자동화 프로그램.
+An end-to-end analytics automation tool that turns data loading, PCA, decision-tree segmentation, visualization, and Excel report generation into a few clicks inside a desktop GUI.
 
 ## Tech Stack
 Python · PySide6 · Scikit-learn · Pandas · Excel Automation · PyInstaller
 
 ## Features
-- Raw 데이터 → 자동 정제 및 Factor Labeling
-- PCA 설정 및 요인 결과 저장
-- 의사결정나무 기반 Segment 생성/라벨링
-- 결과 리포트 Excel 자동 생성
-- 배포형 EXE로 설치 없이 실행 가능
+- Automated raw data cleaning and factor labeling
+- Saved PCA configurations and factor outputs
+- Generated and labeled segments with decision-tree logic
+- Created Excel reports automatically
+- Distributed as an executable desktop app with no installation required
 
 ## Links
 - Repo: https://github.com/jay-lay-down/auto_segment

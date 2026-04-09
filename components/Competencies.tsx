@@ -1,11 +1,11 @@
 export default function Competencies() {
   const items = [
-    "정성/정량 데이터 통합",
-    "베이지안 모델링 및 대시보드 구축",
-    "AI/LLM 응용",
-    "비즈니스 인사이트 도출",
+    "Integrating qualitative and quantitative data",
+    "Bayesian modeling and dashboard development",
+    "Applied AI and LLM solutions",
+    "Turning analysis into business insight",
     "Prompt Engineering",
-    "글로벌 고객사와 협업",
+    "Collaborating with global clients",
   ];
 
   return (

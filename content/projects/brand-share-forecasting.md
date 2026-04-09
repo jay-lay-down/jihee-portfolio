@@ -6,7 +6,7 @@ tags: ["Seq2Seq","LSTM","Attention","TensorFlow"]
 ---
 
 ## Summary
-경쟁 브랜드 간 시퀀스 기반 점유율 예측을 위해 Softmax 기반 최적화와 seq2seq LSTM(Additive Attention) 적용.
+Applied Softmax-based optimization and a seq2seq LSTM with additive attention to forecast market share across competing brands.
 
 ## Tech Stack
 Python · TensorFlow/Keras · LSTM seq2seq · Additive Attention · pandas · NumPy

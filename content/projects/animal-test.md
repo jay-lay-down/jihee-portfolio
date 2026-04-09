@@ -1,20 +1,20 @@
 ---
 title: "Social Animal Type Test (Metacognition & Situation Reading)"
 date: "2025-11-28"
-description: "11가지 사회적 동물 유형 테스트 end-to-end"
+description: "End-to-end development of an 11-type social persona test"
 tags: ["Gradio","HTML/CSS","UX","Deployment"]
 ---
 
 ## Summary
-메타인지 + 상황 판단 패턴을 기반으로, 실제 사회생활 속 반응을 11가지 ‘사회적 동물’ 유형으로 시각화한 웹 테스트.
+An interactive web test that visualizes real-world social behavior into 11 "social animal" types based on patterns in metacognition and situational judgment.
 
 ## Tech Stack
 Python · Gradio · HTML/CSS · Hugging Face Spaces
 
 ## Outcome
-- 커스텀 채점 알고리즘 + 반응형 UI 구축
-- 독자 도메인(myanimaltest.site) 연동
-- 사용자 응답 수집·분석 가능한 실서비스 운영 형태로 구현
+- Built a custom scoring algorithm and responsive UI
+- Connected the product to its own domain, `myanimaltest.site`
+- Implemented it as a live service capable of collecting and analyzing user responses
 
 ## Links
 - Repo: https://github.com/jay-lay-down/animal_test
