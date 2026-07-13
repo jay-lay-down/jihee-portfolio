@@ -85,6 +85,80 @@ const FEATURED_SLUGS = [
   "employee-engagement",
 ];
 
+// --- 언어 ---
+export type Lang = "ko" | "en";
+
+const T = {
+  en: {
+    available: "Available for new projects",
+    aboutTitle: "ABOUT",
+    aboutP1:
+      'I am a researcher and analytics practitioner with a foundation in psychology, and when I look at brand or research data, I start by asking, "What decision can this number help someone make?" I care less about listing metrics for their own sake and more about turning them into insight that helps real people act.',
+    aboutP2:
+      "My strength is building an end-to-end flow from problem definition to research design, data design, modeling, and finally dashboards or reports. I design around how the output will actually be used, not just how it looks on paper.",
+    aboutP3:
+      "More recently, I have been combining LLM and RAG approaches with work such as segmentation, demand forecasting, and campaign-effect analysis so the result is not just a report, but an AI-based service that can explain the context behind the answer.",
+    education: "Education",
+    experience: "Experience",
+    awards: "Awards",
+    licenses: "Licenses",
+    birthCity: "Jan 25, 1991 / Seoul",
+    role: "Research · Analytics · AI",
+    location: "Seoul, South Korea",
+    skills: "SKILLS",
+    downloadResume: "Download Resume",
+    featuredProjects: "Featured Projects",
+    viewAll: "View all →",
+    allProjects: "All Projects",
+    filterAll: "All",
+    caseStudies: "Case Studies",
+    caseStudiesSub: "Detailed project write-ups with Markdown support",
+    loading: "Loading...",
+    openFullPage: "Open full page →",
+    writePost: "Write a Post",
+    yourName: "Your name",
+    leaveMessage: "Leave a message...",
+    postPassword: "Password (for edit/delete)",
+    board: "Board",
+    noPosts: "No posts yet.",
+    sections: "sections",
+  },
+  ko: {
+    available: "새 프로젝트 문의 환영",
+    aboutTitle: "소개",
+    aboutP1:
+      "심리학을 기반으로 한 리서처이자 데이터 분석 실무자입니다. 브랜드·리서치 데이터를 볼 때 \"이 숫자가 누구의 어떤 의사결정을 도울 수 있을까?\"부터 묻습니다. 지표를 나열하는 것보다, 실제로 사람이 움직일 수 있는 인사이트로 바꾸는 일에 집중합니다.",
+    aboutP2:
+      "문제 정의부터 조사 설계, 데이터 설계, 모델링, 그리고 대시보드·리포트까지 이어지는 End-to-End 흐름을 만드는 것이 강점입니다. 보기 좋은 산출물이 아니라, 실제로 어떻게 쓰일지를 중심에 두고 설계합니다.",
+    aboutP3:
+      "최근에는 세그먼테이션, 수요예측, 캠페인 효과 분석 같은 업무에 LLM·RAG 접근을 결합해, 단순한 리포트가 아니라 답의 맥락까지 설명해 주는 AI 기반 서비스로 만드는 작업을 하고 있습니다.",
+    education: "학력",
+    experience: "경력",
+    awards: "수상",
+    licenses: "자격증",
+    birthCity: "1991.01.25 / 서울",
+    role: "리서치 · 데이터 분석 · AI",
+    location: "대한민국 서울",
+    skills: "스킬",
+    downloadResume: "이력서 다운로드",
+    featuredProjects: "대표 프로젝트",
+    viewAll: "전체 보기 →",
+    allProjects: "전체 프로젝트",
+    filterAll: "전체",
+    caseStudies: "케이스 스터디",
+    caseStudiesSub: "프로젝트별 상세 정리 (Markdown 지원)",
+    loading: "불러오는 중...",
+    openFullPage: "전체 페이지 열기 →",
+    writePost: "글 남기기",
+    yourName: "이름",
+    leaveMessage: "메시지를 남겨주세요...",
+    postPassword: "비밀번호 (수정/삭제용)",
+    board: "방명록",
+    noPosts: "아직 글이 없어요.",
+    sections: "개 섹션",
+  },
+} as const;
+
 // --- 타입 ---
 type TabKey = "Home" | "Projects" | "CaseStudies" | "Board";
 type ProjectCategory = (typeof PROJECTS)[number]["category"];
@@ -124,9 +198,13 @@ function cn(...xs: Array<string | false | undefined | null>) {
 function TopNav({
   tab,
   setTab,
+  lang,
+  onLang,
 }: {
   tab: TabKey;
   setTab: (t: TabKey) => void;
+  lang: Lang;
+  onLang: (l: Lang) => void;
 }) {
   const NavBtn = ({ k, label }: { k: TabKey; label: string }) => (
     <button
@@ -178,7 +256,24 @@ function TopNav({
           <NavBtn k="Board" label="BOARD" />
         </div>
 
-        <div className="hidden sm:flex items-center gap-1">
+        <div className="flex items-center gap-1 sm:gap-2">
+          <div className="flex items-center rounded-full border border-stone-300 overflow-hidden">
+            {(["ko", "en"] as const).map((l) => (
+              <button
+                key={l}
+                type="button"
+                onClick={() => onLang(l)}
+                className={cn(
+                  "px-3 py-1.5 text-xs font-black transition",
+                  lang === l ? "bg-[#8C5E35] text-white" : "bg-white text-stone-500 hover:text-[#8C5E35]"
+                )}
+              >
+                {l === "ko" ? "한국어" : "EN"}
+              </button>
+            ))}
+          </div>
+
+          <div className="hidden sm:flex items-center gap-1">
           <IconLink href={LINKS.linkedin} label="LinkedIn">
             <FaLinkedin className="text-[22px]" />
           </IconLink>
@@ -197,6 +292,7 @@ function TopNav({
           <IconLink href={`mailto:${LINKS.email}`} label="Email">
             <MdEmail className="text-[22px]" />
           </IconLink>
+          </div>
         </div>
       </div>
     </div>
@@ -204,7 +300,7 @@ function TopNav({
 }
 
 // 프로젝트 카드 (클릭 가능)
-function ProjectCard({ p, onClick }: { p: any; onClick?: () => void }) {
+function ProjectCard({ p, onClick, lang = "ko" }: { p: any; onClick?: () => void; lang?: Lang }) {
   return (
     <div
       className={cn(
@@ -243,11 +339,11 @@ function ProjectCard({ p, onClick }: { p: any; onClick?: () => void }) {
         </div>
 
         <h3 className="text-lg font-black text-stone-900 leading-tight mb-3 group-hover:text-[#8C5E35] transition">
-          {p.title}
+          {lang === "ko" && p.titleKo ? p.titleKo : p.title}
         </h3>
 
         <p className="text-sm text-stone-600 leading-relaxed mb-5 line-clamp-2">
-          {p.oneLiner}
+          {lang === "ko" && p.oneLinerKo ? p.oneLinerKo : p.oneLiner}
         </p>
 
         <div className="flex flex-wrap gap-1.5 mb-6">
@@ -337,7 +433,18 @@ export default function HomeTabs({
 }: {
   caseStudies?: Record<string, CaseStudyHtml>;
 }) {
-  const [csLang, setCsLang] = useState<"ko" | "en">("ko");
+  const [lang, setLang] = useState<Lang>("ko");
+  useEffect(() => {
+    const saved = window.localStorage.getItem("site-lang");
+    if (saved === "en" || saved === "ko") setLang(saved);
+  }, []);
+  const switchLang = (l: Lang) => {
+    setLang(l);
+    try {
+      window.localStorage.setItem("site-lang", l);
+    } catch {}
+  };
+  const t = T[lang];
   const [tab, setTab] = useState<TabKey>("Home");
   const [filter, setFilter] = useState<Filter>("All");
 
@@ -689,34 +796,66 @@ export default function HomeTabs({
   const getDetailsBySlug = (slug: string) => projectDetails.filter((d) => d.slug === slug);
 
   // --- Static Info ---
-  const EDUCATION: InfoItem[] = [
-    { label: "Seoul Women's University Graduate School", sub: "M.A. in Child Psychology" },
-    { label: "Seoul Women's University", sub: "B.A. in Child Studies" },
-  ];
-  const EXPERIENCE: InfoItem[] = [
-    { label: "Kantar Korea", sub: "Analytics" },
-    { label: "NIQ-GfK", sub: "Global Strategic Account Management" },
-    { label: "Macromill Embrain", sub: "Research Division 1, Team 3" },
-    { label: "MnM Research", sub: "Research Business Division" },
-    { label: "Seoul National University Hospital", sub: "Biomedical Research Institute, Child Psychiatry" },
-  ];
-  const AWARDS: InfoItem[] = [
-    { year: 2024, label: "3Q Night Out in Town" },
-    { year: 2024, label: "Achieved a perfect 10/10 on a client NPS study" },
-    { year: 2021, label: "Selected for Best Report by the Human Resources Committee" },
-    { year: 2018, label: "First author publication in a KCI-indexed journal" },
-    { year: 2016, label: "Selected for an Outstanding Research Proposal by the Korea Student Aid Foundation" },
-  ];
-  const LICENSES: InfoItem[] = [
-    { label: "Certified Social Research Analyst, Level 2" },
-    { label: "Engineer Big Data Analysis" },
-    { label: "ADsP: Advanced Data Analytics Semi-Professional" },
-    { label: "Google Analytics Individual Qualification (GAIQ)" },
-  ];
+  const EDUCATION: InfoItem[] =
+    lang === "ko"
+      ? [
+          { label: "서울여자대학교 대학원", sub: "아동심리학 석사" },
+          { label: "서울여자대학교", sub: "아동학 학사" },
+        ]
+      : [
+          { label: "Seoul Women's University Graduate School", sub: "M.A. in Child Psychology" },
+          { label: "Seoul Women's University", sub: "B.A. in Child Studies" },
+        ];
+  const EXPERIENCE: InfoItem[] =
+    lang === "ko"
+      ? [
+          { label: "칸타코리아", sub: "Analytics" },
+          { label: "NIQ-GfK", sub: "Global Strategic Account Management" },
+          { label: "마크로밀엠브레인", sub: "리서치 1부서 3팀" },
+          { label: "엠앤엠리서치", sub: "연구사업본부" },
+          { label: "서울대학교병원", sub: "의생명연구원 소아정신과" },
+        ]
+      : [
+          { label: "Kantar Korea", sub: "Analytics" },
+          { label: "NIQ-GfK", sub: "Global Strategic Account Management" },
+          { label: "Macromill Embrain", sub: "Research Division 1, Team 3" },
+          { label: "MnM Research", sub: "Research Business Division" },
+          { label: "Seoul National University Hospital", sub: "Biomedical Research Institute, Child Psychiatry" },
+        ];
+  const AWARDS: InfoItem[] =
+    lang === "ko"
+      ? [
+          { year: 2024, label: "3분기 우수사원상" },
+          { year: 2024, label: "고객사 NPS 조사 10점 만점 달성" },
+          { year: 2021, label: "인적자원위원회 최우수 보고서 선정" },
+          { year: 2018, label: "KCI 등재 학술지 제1저자 논문 게재" },
+          { year: 2016, label: "한국장학재단 우수 연구계획서 선정" },
+        ]
+      : [
+          { year: 2024, label: "3Q Night Out in Town" },
+          { year: 2024, label: "Achieved a perfect 10/10 on a client NPS study" },
+          { year: 2021, label: "Selected for Best Report by the Human Resources Committee" },
+          { year: 2018, label: "First author publication in a KCI-indexed journal" },
+          { year: 2016, label: "Selected for an Outstanding Research Proposal by the Korea Student Aid Foundation" },
+        ];
+  const LICENSES: InfoItem[] =
+    lang === "ko"
+      ? [
+          { label: "사회조사분석사 2급" },
+          { label: "빅데이터분석기사" },
+          { label: "데이터분석준전문가 (ADsP)" },
+          { label: "Google Analytics Individual Qualification (GAIQ)" },
+        ]
+      : [
+          { label: "Certified Social Research Analyst, Level 2" },
+          { label: "Engineer Big Data Analysis" },
+          { label: "ADsP: Advanced Data Analytics Semi-Professional" },
+          { label: "Google Analytics Individual Qualification (GAIQ)" },
+        ];
 
   return (
     <div className="min-h-screen text-stone-800 pb-20 w-full px-3 sm:px-4">
-      <TopNav tab={tab} setTab={setTab} />
+      <TopNav tab={tab} setTab={setTab} lang={lang} onLang={switchLang} />
 
       <main className="animate-in fade-in slide-in-from-bottom-2 duration-500 shadow-xl rounded-b-xl overflow-hidden w-full">
         {/* ========== HOME ========== */}
@@ -729,7 +868,7 @@ export default function HomeTabs({
                 <div className="absolute inset-0 p-8 sm:p-10 flex flex-col justify-center text-white">
                   <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/20 backdrop-blur-md text-xs font-bold w-fit mb-5 border border-white/30">
                     <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
-                    Available for new projects
+                    {t.available}
                   </div>
                   <h2 className="text-4xl sm:text-5xl font-black mb-0 leading-tight drop-shadow-lg">
                     Portfolio
@@ -743,38 +882,20 @@ export default function HomeTabs({
                 <div className="grid gap-8 items-stretch grid-cols-1 lg:grid-cols-12">
                   <div className="lg:col-span-8 space-y-8">
                     <section className="h-full rounded-2xl bg-[#f5ebe0]/60 border border-[#e3d5ca] px-6 py-6 sm:px-8 sm:py-7">
-                      <h3 className="text-sm font-extrabold tracking-wide text-stone-700 mb-3">ABOUT</h3>
+                      <h3 className="text-sm font-extrabold tracking-wide text-stone-700 mb-3">{t.aboutTitle}</h3>
 
                       <div className="space-y-3 text-[16px] leading-8 text-stone-800 font-medium max-w-5xl break-keep">
-                        <p>
-                          I am a researcher and analytics practitioner with a foundation in psychology,
-                          and when I look at brand or research data, I start by asking,
-                          &nbsp;"What decision can this number help someone make?" I care less about
-                          listing metrics for their own sake and more about turning them into insight
-                          that helps real people act.
-                        </p>
-
-                        <p>
-                          My strength is building an end-to-end flow from problem definition to
-                          research design, data design, modeling, and finally dashboards or reports.
-                          I design around how the output will actually be used, not just how it looks
-                          on paper.
-                        </p>
-
-                        <p>
-                          More recently, I have been combining LLM and RAG approaches with work such
-                          as segmentation, demand forecasting, and campaign-effect analysis so the
-                          result is not just a report, but an AI-based service that can explain the
-                          context behind the answer.
-                        </p>
+                        <p>{t.aboutP1}</p>
+                        <p>{t.aboutP2}</p>
+                        <p>{t.aboutP3}</p>
                       </div>
 
                       <div className="mt-6 border-t border-stone-200 pt-4">
                         <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
-                          <MiniInfoCard title="Education" icon={MdSchool} items={EDUCATION} />
-                          <MiniInfoCard title="Experience" icon={MdWork} items={EXPERIENCE} />
-                          <MiniInfoCard title="Awards" icon={MdEmojiEvents} items={AWARDS} />
-                          <MiniInfoCard title="Licenses" icon={MdEmojiEvents} items={LICENSES} />
+                          <MiniInfoCard title={t.education} icon={MdSchool} items={EDUCATION} />
+                          <MiniInfoCard title={t.experience} icon={MdWork} items={EXPERIENCE} />
+                          <MiniInfoCard title={t.awards} icon={MdEmojiEvents} items={AWARDS} />
+                          <MiniInfoCard title={t.licenses} icon={MdEmojiEvents} items={LICENSES} />
                         </div>
                       </div>
                     </section>
@@ -787,12 +908,12 @@ export default function HomeTabs({
                       </div>
 
                       <h3 className="text-2xl font-black text-stone-900">Jihee Cho</h3>
-                      <div className="text-sm font-bold text-stone-500 mt-1">Jan 25, 1991 / Seoul</div>
-                      <div className="text-sm font-bold text-[#8C5E35] mb-5 mt-2">Research · Analytics · AI</div>
+                      <div className="text-sm font-bold text-stone-500 mt-1">{t.birthCity}</div>
+                      <div className="text-sm font-bold text-[#8C5E35] mb-5 mt-2">{t.role}</div>
 
                       <div className="space-y-3 mb-6">
                         <div className="flex items-center gap-3 text-sm text-stone-600 font-bold bg-stone-50 p-3 rounded-xl border border-stone-100">
-                          <IoLocationSharp className="text-lg text-stone-400" /> Seoul, South Korea
+                          <IoLocationSharp className="text-lg text-stone-400" /> {t.location}
                         </div>
                         <a
                           href={`mailto:${LINKS.email}`}
@@ -804,7 +925,7 @@ export default function HomeTabs({
                       </div>
 
                       <div className="pt-5 border-t border-stone-200">
-                        <div className="text-xs font-black text-stone-700 tracking-wide mb-2">SKILLS</div>
+                        <div className="text-xs font-black text-stone-700 tracking-wide mb-2">{t.skills}</div>
                         <div className="flex flex-wrap gap-2">
                           {ABOUT_SKILLS.map((s) => (
                             <span
@@ -822,7 +943,7 @@ export default function HomeTabs({
                           rel="noreferrer"
                           className="mt-6 block w-full py-3 bg-[#8C5E35] text-white text-center text-sm font-bold rounded-xl hover:bg-[#6B4628] transition shadow-md"
                         >
-                          Download Resume
+                          {t.downloadResume}
                         </a>
                       </div>
                     </div>
@@ -833,12 +954,12 @@ export default function HomeTabs({
                 {featured.length > 0 && (
                   <section className="space-y-4">
                     <div className="flex items-center justify-between">
-                      <h3 className="text-lg font-black text-stone-900">Featured Projects</h3>
+                      <h3 className="text-lg font-black text-stone-900">{t.featuredProjects}</h3>
                       <button
                         onClick={() => setTab("Projects")}
                         className="text-sm font-extrabold text-[#8C5E35] hover:underline underline-offset-4"
                       >
-                        View all →
+                        {t.viewAll}
                       </button>
                     </div>
 
@@ -847,6 +968,7 @@ export default function HomeTabs({
                         <ProjectCard
                           key={p.slug}
                           p={p}
+                          lang={lang}
                           onClick={() => handleFeaturedClick(p.slug)}
                         />
                       ))}
@@ -863,7 +985,7 @@ export default function HomeTabs({
           <div className="bg-stone-200/60 pt-8 pb-10 px-0 rounded-b-xl border-x border-b border-stone-200/50 min-h-[600px]">
             <div className="space-y-8 px-6 lg:px-10">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
-                <h2 className="text-2xl font-black text-stone-900">All Projects</h2>
+                <h2 className="text-2xl font-black text-stone-900">{t.allProjects}</h2>
 
                 <div className="flex flex-wrap gap-2">
                   <button
@@ -875,7 +997,7 @@ export default function HomeTabs({
                         : "bg-white text-stone-500 border-stone-300 hover:border-[#8C5E35] hover:text-[#8C5E35]"
                     )}
                   >
-                    All
+                    {t.filterAll}
                   </button>
 
                   {categories.map((c) => (
@@ -897,7 +1019,7 @@ export default function HomeTabs({
 
               <div className="grid gap-8 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
                 {filteredProjects.map((p: any) => (
-                  <ProjectCard key={p.slug} p={p} />
+                  <ProjectCard key={p.slug} p={p} lang={lang} />
                 ))}
               </div>
             </div>
@@ -910,13 +1032,13 @@ export default function HomeTabs({
             <div className="w-full space-y-8 px-4 sm:px-6 lg:px-10">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                  <h2 className="text-2xl font-black text-stone-900">Case Studies</h2>
-                  <p className="text-sm text-stone-500 mt-1">Detailed project write-ups with Markdown support</p>
+                  <h2 className="text-2xl font-black text-stone-900">{t.caseStudies}</h2>
+                  <p className="text-sm text-stone-500 mt-1">{t.caseStudiesSub}</p>
                 </div>
               </div>
 
               {detailsLoading ? (
-                <div className="py-20 text-center text-stone-400">Loading...</div>
+                <div className="py-20 text-center text-stone-400">{t.loading}</div>
               ) : (
                 <div className="space-y-6">
                   {PROJECTS.map(({ slug }, idx) => {
@@ -995,29 +1117,11 @@ export default function HomeTabs({
                             {details.length === 0 ? (
                               caseStudies[slug] ? (
                                 <div>
-                                  {caseStudies[slug].ko && (
-                                    <div className="mb-4 flex gap-2">
-                                      {(["ko", "en"] as const).map((l) => (
-                                        <button
-                                          key={l}
-                                          onClick={() => setCsLang(l)}
-                                          className={cn(
-                                            "px-4 py-1.5 rounded-full text-xs font-bold border transition",
-                                            csLang === l
-                                              ? "bg-[#8C5E35] text-white border-[#8C5E35]"
-                                              : "bg-white text-stone-500 border-stone-300 hover:border-[#8C5E35] hover:text-[#8C5E35]"
-                                          )}
-                                        >
-                                          {l === "ko" ? "한국어" : "English"}
-                                        </button>
-                                      ))}
-                                    </div>
-                                  )}
                                   <div
                                     className="case-study-md"
                                     dangerouslySetInnerHTML={{
                                       __html:
-                                        csLang === "ko" && caseStudies[slug].ko
+                                        lang === "ko" && caseStudies[slug].ko
                                           ? (caseStudies[slug].ko as string)
                                           : caseStudies[slug].en,
                                     }}
@@ -1027,7 +1131,7 @@ export default function HomeTabs({
                                       href={`/projects/${slug}`}
                                       className="text-sm font-bold underline underline-offset-4 text-[#8C5E35] hover:opacity-80"
                                     >
-                                      Open full page →
+                                      {t.openFullPage}
                                     </a>
                                   </div>
                                 </div>
@@ -1236,7 +1340,7 @@ export default function HomeTabs({
                 {/* Write */}
                 <div className="lg:col-span-8 bg-white p-5 sm:p-6 rounded-2xl border border-stone-200 shadow-sm h-full flex flex-col">
                   <h3 className="text-lg font-black text-stone-800 mb-4 flex items-center gap-2">
-                    <FaPen className="text-[#8C5E35] text-sm" /> Write a Post
+                    <FaPen className="text-[#8C5E35] text-sm" /> {t.writePost}
                   </h3>
 
                   <form onSubmit={handleSubmit} className="space-y-4 flex flex-col flex-1">
@@ -1263,7 +1367,7 @@ export default function HomeTabs({
                       value={inputName}
                       onChange={(e) => setInputName(e.target.value)}
                       className="w-full px-4 py-3 bg-stone-50 border border-stone-200 rounded-lg text-sm focus:ring-2 focus:ring-[#8C5E35] focus:border-transparent outline-none transition"
-                      placeholder="Your name"
+                      placeholder={t.yourName}
                       required
                     />
 
@@ -1272,7 +1376,7 @@ export default function HomeTabs({
                       onChange={(e) => setInputContent(e.target.value)}
                       rows={8}
                       className="w-full flex-1 min-h-[220px] px-4 py-3 bg-stone-50 border border-stone-200 rounded-lg text-sm focus:ring-2 focus:ring-[#8C5E35] focus:border-transparent outline-none transition resize-none"
-                      placeholder="Leave a message..."
+                      placeholder={t.leaveMessage}
                       required
                     />
 
@@ -1281,7 +1385,7 @@ export default function HomeTabs({
                       value={inputPassword}
                       onChange={(e) => setInputPassword(e.target.value)}
                       className="w-full px-4 py-3 bg-stone-50 border border-stone-200 rounded-lg text-sm focus:ring-2 focus:ring-[#8C5E35] focus:border-transparent outline-none transition"
-                      placeholder="Password (for edit/delete)"
+                      placeholder={t.postPassword}
                       required
                     />
 
@@ -1302,7 +1406,7 @@ export default function HomeTabs({
                       <Image src="/board.jpg" alt="Board" fill className="object-cover" priority={false} />
                     </div>
                     <div className="p-4 border-t border-stone-100">
-                      <div className="text-sm font-black text-stone-800">Board</div>
+                      <div className="text-sm font-black text-stone-800">{t.board}</div>
                       <div className="text-xs text-stone-500 mt-1">
                         Guestbook / Q&amp;A posts are listed below.
                       </div>
@@ -1337,9 +1441,9 @@ export default function HomeTabs({
 
               {/* Posts */}
               {loading ? (
-                <div className="py-20 text-center text-stone-400">Loading...</div>
+                <div className="py-20 text-center text-stone-400">{t.loading}</div>
               ) : filteredPosts.length === 0 ? (
-                <div className="py-16 text-center text-stone-400">No posts yet.</div>
+                <div className="py-16 text-center text-stone-400">{t.noPosts}</div>
               ) : (
                 <div className="space-y-4">
                   {pagePosts.map((post) => (

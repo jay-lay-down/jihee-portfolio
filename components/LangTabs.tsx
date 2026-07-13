@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 type LocalizedDoc = {
   meta: {
@@ -14,6 +14,16 @@ type LocalizedDoc = {
 
 export default function LangTabs({ en, ko }: { en: LocalizedDoc; ko: LocalizedDoc | null }) {
   const [lang, setLang] = useState<"ko" | "en">(ko ? "ko" : "en");
+  useEffect(() => {
+    const saved = window.localStorage.getItem("site-lang");
+    if (saved === "en" || (saved === "ko" && ko)) setLang(saved as "ko" | "en");
+  }, [ko]);
+  const pickLang = (l: "ko" | "en") => {
+    setLang(l);
+    try {
+      window.localStorage.setItem("site-lang", l);
+    } catch {}
+  };
   const doc = lang === "ko" && ko ? ko : en;
 
   return (
@@ -23,7 +33,7 @@ export default function LangTabs({ en, ko }: { en: LocalizedDoc; ko: LocalizedDo
           {(["ko", "en"] as const).map((l) => (
             <button
               key={l}
-              onClick={() => setLang(l)}
+              onClick={() => pickLang(l)}
               className={
                 "px-4 py-1.5 rounded-full text-xs font-bold border transition " +
                 (lang === l
