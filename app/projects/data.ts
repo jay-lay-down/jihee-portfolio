@@ -9,7 +9,7 @@ export type Project = {
   slug: string;
   title: string;
   oneLiner: string;
-  category: "LLM" | "Segmentation" | "Bayesian" | "Forecasting" | "Other";
+  category: "GEO" | "LLM" | "Segmentation" | "Bayesian" | "Forecasting" | "Other";
   featured?: boolean;
   stack: string[];
   links: ProjectLink[];
@@ -17,6 +17,16 @@ export type Project = {
 };
 
 export const PROJECTS: Project[] = [
+  {
+    slug: "geo-ai-visibility",
+    title: "🔍 GEO Strategy for AI Search Visibility",
+    oneLiner: "Prompt-first GEO strategy for a leading digital bank — demand-validated prompts, clustering-driven content design, and citation-rate tracking (client masked)",
+    category: "GEO",
+    featured: true,
+    stack: ["GEO/AEO", "Prompt Design", "Search Ads API", "Embeddings", "Clustering", "KPI Tracking"],
+    cover: "/geo_result.png",
+    links: [{ label: "Case Study", href: "/projects/geo-ai-visibility" }],
+  },
   {
     slug: "ddolbae",
     title: "🤖 AI/LLM-powered Analytics Chatbot",

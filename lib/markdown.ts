@@ -31,9 +31,9 @@ export function markdownToHtml(md: string) {
     return `<pre class="mt-4 rounded-2xl border border-[var(--line)] bg-[var(--soft)] p-4 overflow-auto"><code>${code.trim()}</code></pre>`;
   });
 
-  // images ![alt](url)
-  s = s.replace(/!\[([^\]]*)\]\((https?:\/\/[^\s)]+)\)/g, (_m, alt, url) => {
-    return `<img src="${url}" alt="${alt}" class="mt-4 w-full rounded-2xl border border-[var(--line)] grayscale" />`;
+  // images ![alt](url) — supports absolute (https://...) and root-relative (/...) paths
+  s = s.replace(/!\[([^\]]*)\]\(((?:https?:\/\/|\/)[^\s)]+)\)/g, (_m, alt, url) => {
+    return `<img src="${url}" alt="${alt}" class="mt-4 w-full rounded-2xl border border-[var(--line)]" />`;
   });
 
   // inline code

@@ -74,8 +74,9 @@ const ABOUT_SKILLS = [
 
 const PAGE_SIZE = 10;
 
-// Featured 프로젝트 slug 순서 (6개)
+// Featured 프로젝트 slug 순서
 const FEATURED_SLUGS = [
+  "geo-ai-visibility",
   "ddolbae",
   "animal-test",
   "auto-segment-tool",
