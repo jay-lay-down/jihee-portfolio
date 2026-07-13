@@ -1,4 +1,8 @@
-import { getDocBySlug, markdownToHtml } from "@/lib/markdown";
+import { getAllDocs, getDocBySlug, markdownToHtml } from "@/lib/markdown";
+
+export function generateStaticParams() {
+  return getAllDocs("content/projects").map((d) => ({ slug: d.slug }));
+}
 
 export default function ProjectDetail({ params }: { params: { slug: string } }) {
   const doc = getDocBySlug("content/projects", params.slug);
