@@ -330,7 +330,14 @@ function MiniInfoCard({
   );
 }
 
-export default function HomeTabs() {
+export type CaseStudyHtml = { en: string; ko: string | null };
+
+export default function HomeTabs({
+  caseStudies = {},
+}: {
+  caseStudies?: Record<string, CaseStudyHtml>;
+}) {
+  const [csLang, setCsLang] = useState<"ko" | "en">("ko");
   const [tab, setTab] = useState<TabKey>("Home");
   const [filter, setFilter] = useState<Filter>("All");
 
@@ -394,14 +401,12 @@ export default function HomeTabs() {
 
       if (error) {
         console.error("Supabase select error:", error);
-        alert("An error occurred while loading the board.");
         setPosts([]);
       } else {
         setPosts((data as Post[]) || []);
       }
     } catch (err) {
       console.error("Supabase select exception:", err);
-      alert("The board could not be loaded because of a network issue.");
       setPosts([]);
     } finally {
       setLoading(false);
@@ -914,7 +919,7 @@ export default function HomeTabs() {
                 <div className="py-20 text-center text-stone-400">Loading...</div>
               ) : (
                 <div className="space-y-6">
-                  {FEATURED_SLUGS.map((slug, idx) => {
+                  {PROJECTS.map(({ slug }, idx) => {
                     const project = getProjectBySlug(slug);
                     const details = getDetailsBySlug(slug);
                     const isOpen = selectedSlug === slug;
@@ -988,9 +993,49 @@ export default function HomeTabs() {
 
                             {/* 상세 섹션들 */}
                             {details.length === 0 ? (
-                              <div className="py-8 text-center text-stone-400 border-2 border-dashed border-stone-200 rounded-xl">
-                                No sections have been added yet.
-                              </div>
+                              caseStudies[slug] ? (
+                                <div>
+                                  {caseStudies[slug].ko && (
+                                    <div className="mb-4 flex gap-2">
+                                      {(["ko", "en"] as const).map((l) => (
+                                        <button
+                                          key={l}
+                                          onClick={() => setCsLang(l)}
+                                          className={cn(
+                                            "px-4 py-1.5 rounded-full text-xs font-bold border transition",
+                                            csLang === l
+                                              ? "bg-[#8C5E35] text-white border-[#8C5E35]"
+                                              : "bg-white text-stone-500 border-stone-300 hover:border-[#8C5E35] hover:text-[#8C5E35]"
+                                          )}
+                                        >
+                                          {l === "ko" ? "한국어" : "English"}
+                                        </button>
+                                      ))}
+                                    </div>
+                                  )}
+                                  <div
+                                    className="case-study-md"
+                                    dangerouslySetInnerHTML={{
+                                      __html:
+                                        csLang === "ko" && caseStudies[slug].ko
+                                          ? (caseStudies[slug].ko as string)
+                                          : caseStudies[slug].en,
+                                    }}
+                                  />
+                                  <div className="mt-5">
+                                    <a
+                                      href={`/projects/${slug}`}
+                                      className="text-sm font-bold underline underline-offset-4 text-[#8C5E35] hover:opacity-80"
+                                    >
+                                      Open full page →
+                                    </a>
+                                  </div>
+                                </div>
+                              ) : (
+                                <div className="py-8 text-center text-stone-400 border-2 border-dashed border-stone-200 rounded-xl">
+                                  No sections have been added yet.
+                                </div>
+                              )
                             ) : (
                               <div className="space-y-4">
                                 {details.map((section) => (
