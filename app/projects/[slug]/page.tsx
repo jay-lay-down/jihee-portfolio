@@ -4,8 +4,9 @@ export function generateStaticParams() {
   return getAllDocs("content/projects").map((d) => ({ slug: d.slug }));
 }
 
-export default function ProjectDetail({ params }: { params: { slug: string } }) {
-  const doc = getDocBySlug("content/projects", params.slug);
+export default async function ProjectDetail({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const doc = getDocBySlug("content/projects", slug);
   if (!doc) return <main className="p-6">Not found</main>;
 
   const html = markdownToHtml(doc.content);

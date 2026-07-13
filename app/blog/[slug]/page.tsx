@@ -4,8 +4,9 @@ export function generateStaticParams() {
   return getAllDocs("content/posts").map((d) => ({ slug: d.slug }));
 }
 
-export default function BlogDetail({ params }: { params: { slug: string } }) {
-  const doc = getDocBySlug("content/posts", params.slug);
+export default async function BlogDetail({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const doc = getDocBySlug("content/posts", slug);
   if (!doc) return <main className="p-6">Not found</main>;
 
   const html = markdownToHtml(doc.content);
