@@ -1,4 +1,5 @@
 import { getAllDocs, getDocBySlug, markdownToHtml } from "@/lib/markdown";
+import LangTabs from "@/components/LangTabs";
 
 export function generateStaticParams() {
   return getAllDocs("content/projects").map((d) => ({ slug: d.slug }));
@@ -6,10 +7,10 @@ export function generateStaticParams() {
 
 export default async function ProjectDetail({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const doc = getDocBySlug("content/projects", slug);
-  if (!doc) return <main className="p-6">Not found</main>;
+  const en = getDocBySlug("content/projects", slug);
+  if (!en) return <main className="p-6">Not found</main>;
 
-  const html = markdownToHtml(doc.content);
+  const ko = getDocBySlug("content/projects", `${slug}.ko`);
 
   return (
     <main className="min-h-screen p-6">
@@ -18,29 +19,10 @@ export default async function ProjectDetail({ params }: { params: Promise<{ slug
           ← Back to Projects
         </a>
 
-        <div className="mt-4 rounded-3xl border border-[var(--line)] bg-[var(--card)] p-7">
-          <h1 className="text-2xl font-semibold tracking-tight">{doc.meta.title}</h1>
-
-          {(doc.meta.date || doc.meta.description) && (
-            <p className="mt-2 text-sm text-[var(--muted)]">
-              {doc.meta.date ?? ""}
-              {doc.meta.date && doc.meta.description ? " · " : ""}
-              {doc.meta.description ?? ""}
-            </p>
-          )}
-
-          {!!doc.meta.tags?.length && (
-            <div className="mt-3 flex flex-wrap gap-2">
-              {doc.meta.tags.map((t) => (
-                <span key={t} className="text-xs px-2 py-1 rounded-full border border-[var(--line)] bg-white text-[var(--muted)]">
-                  {t}
-                </span>
-              ))}
-            </div>
-          )}
-
-          <div className="mt-5" dangerouslySetInnerHTML={{ __html: html }} />
-        </div>
+        <LangTabs
+          en={{ meta: en.meta, html: markdownToHtml(en.content) }}
+          ko={ko ? { meta: ko.meta, html: markdownToHtml(ko.content) } : null}
+        />
       </div>
     </main>
   );

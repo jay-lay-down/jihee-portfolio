@@ -114,7 +114,8 @@ function parseFrontmatter(raw: string) {
 function readDir(dir: string) {
   const full = path.join(process.cwd(), dir);
   if (!fs.existsSync(full)) return [];
-  return fs.readdirSync(full).filter((f) => f.endsWith(".md"));
+  // .ko.md files are Korean translations of the same slug, not standalone docs
+  return fs.readdirSync(full).filter((f) => f.endsWith(".md") && !f.endsWith(".ko.md"));
 }
 
 export function getAllDocs(dir: string): Doc[] {
