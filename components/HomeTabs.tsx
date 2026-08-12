@@ -77,6 +77,7 @@ const PAGE_SIZE = 10;
 // Featured 프로젝트 slug 순서
 const FEATURED_SLUGS = [
   "geo-ai-visibility",
+  "geo-ai-writing",
   "ddolbae",
   "animal-test",
   "auto-segment-tool",

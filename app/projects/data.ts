@@ -32,6 +32,17 @@ export const PROJECTS: Project[] = [
     links: [{ label: "Case Study", href: "/projects/geo-ai-visibility" }],
   },
   {
+    slug: "geo-ai-writing",
+    title: "✍️ AI Writing — Embedding-guided Content Optimization",
+    titleKo: "✍️ AI Writing 임베딩 유사도 콘텐츠 최적화",
+    oneLiner: "Optimized 141 content touchpoints for a major financial holding company — citation rate 0% → 30.7% in 6 weeks (client masked)",
+    oneLinerKo: "대형 금융지주 콘텐츠 141개 지점 최적화 — 6주 만에 인용률 0% → 30.7% (고객사 마스킹)",
+    category: "GEO",
+    featured: true,
+    stack: ["GEO/AEO", "AI Writing", "Embeddings", "Similarity Scoring", "KPI Tracking"],
+    links: [{ label: "Case Study", href: "/projects/geo-ai-writing" }],
+  },
+  {
     slug: "ddolbae",
     title: "🤖 AI/LLM-powered Analytics Chatbot",
     titleKo: "🤖 AI/LLM 페르소나 챗봇",
