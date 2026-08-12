@@ -76,7 +76,6 @@ const PAGE_SIZE = 10;
 
 // Featured 프로젝트 slug 순서
 const FEATURED_SLUGS = [
-  "geo-ai-visibility",
   "geo-ai-writing",
   "ddolbae",
   "animal-test",
@@ -111,6 +110,7 @@ const T = {
     featuredProjects: "Featured Projects",
     viewAll: "View all →",
     allProjects: "All Projects",
+    ndaNote: "Ongoing client projects are not published on this site for confidentiality. Client names in finished case studies are masked.",
     filterAll: "All",
     caseStudies: "Case Studies",
     caseStudiesSub: "Detailed project write-ups with Markdown support",
@@ -145,6 +145,7 @@ const T = {
     featuredProjects: "대표 프로젝트",
     viewAll: "전체 보기 →",
     allProjects: "전체 프로젝트",
+    ndaNote: "진행 중인 클라이언트 프로젝트는 비밀유지를 위해 웹에 공개하지 않으며, 종료된 프로젝트도 고객사명은 마스킹합니다.",
     filterAll: "전체",
     caseStudies: "케이스 스터디",
     caseStudiesSub: "프로젝트별 상세 정리 (Markdown 지원)",
@@ -987,6 +988,7 @@ export default function HomeTabs({
             <div className="space-y-8 px-6 lg:px-10">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
                 <h2 className="text-2xl font-black text-stone-900">{t.allProjects}</h2>
+                <p className="text-sm text-stone-500 mt-1">{t.ndaNote}</p>
 
                 <div className="flex flex-wrap gap-2">
                   <button
@@ -1035,6 +1037,7 @@ export default function HomeTabs({
                 <div>
                   <h2 className="text-2xl font-black text-stone-900">{t.caseStudies}</h2>
                   <p className="text-sm text-stone-500 mt-1">{t.caseStudiesSub}</p>
+                  <p className="text-sm text-stone-500 mt-0.5">{t.ndaNote}</p>
                 </div>
               </div>
 

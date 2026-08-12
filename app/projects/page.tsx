@@ -38,6 +38,11 @@ export default function ProjectsPage() {
               ? "카드를 클릭하면 프로젝트 페이지가 열리고, 저장소·데모·블로그로 이동할 수 있습니다."
               : "Clicking a card opens the project page, where you can navigate to the repo, demo, or blog."}
           </p>
+          <p className="mt-1 text-[13px] text-[var(--muted)]">
+            {lang === "ko"
+              ? "진행 중인 클라이언트 프로젝트는 비밀유지를 위해 웹에 공개하지 않으며, 종료된 프로젝트도 고객사명은 마스킹합니다."
+              : "Ongoing client projects are not published here for confidentiality. Client names in finished case studies are masked."}
+          </p>
         </div>
 
         <div className="flex items-center gap-4">

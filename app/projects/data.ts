@@ -20,18 +20,6 @@ export type Project = {
 
 export const PROJECTS: Project[] = [
   {
-    slug: "geo-ai-visibility",
-    title: "🔍 GEO Strategy for AI Search Visibility",
-    titleKo: "🔍 AI 검색 가시성 GEO 전략",
-    oneLiner: "Prompt-first GEO strategy for a leading digital bank — demand-validated prompts, clustering-driven content design, and citation-rate tracking (client masked)",
-    oneLinerKo: "프롬프트 퍼스트 GEO 전략 — 수요 검증 프롬프트, 클러스터링 기반 콘텐츠 설계, 인용률 트래킹 (고객사 마스킹)",
-    category: "GEO",
-    featured: true,
-    stack: ["GEO/AEO", "Prompt Design", "Search Ads API", "Embeddings", "Clustering", "KPI Tracking"],
-    cover: "/geo_result.png",
-    links: [{ label: "Case Study", href: "/projects/geo-ai-visibility" }],
-  },
-  {
     slug: "geo-ai-writing",
     title: "✍️ AI Writing — Embedding-guided Content Optimization",
     titleKo: "✍️ AI Writing 임베딩 유사도 콘텐츠 최적화",
