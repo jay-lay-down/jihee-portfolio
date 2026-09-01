@@ -1,0 +1,36 @@
+# Supabase 무료 플랜은 7일간 DB 활동이 없으면 프로젝트를 일시정지한다.
+# 일시정지되면 호스트가 DNS에서 사라져 게시판이 통째로 죽으므로,
+# 사흘에 한 번 가벼운 SELECT 를 날려 타이머를 초기화한다.
+name: Supabase keepalive
+
+on:
+  schedule:
+    - cron: "0 3 */3 * *" # 3일마다 03:00 UTC
+  workflow_dispatch: # 수동 실행도 가능
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Supabase REST
+        env:
+          URL: ${{ secrets.SUPABASE_URL }}
+          KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+        run: |
+          if [ -z "$URL" ] || [ -z "$KEY" ]; then
+            echo "SUPABASE_URL / SUPABASE_ANON_KEY 시크릿이 설정되지 않았습니다." >&2
+            exit 1
+          fi
+
+          code=$(curl -s -o /tmp/out -w "%{http_code}" \
+            "$URL/rest/v1/guestbook?select=id&limit=1" \
+            -H "apikey: $KEY" \
+            -H "Authorization: Bearer $KEY")
+
+          echo "HTTP $code"
+          if [ "$code" != "200" ]; then
+            echo "--- 응답 ---" >&2
+            cat /tmp/out >&2
+            exit 1
+          fi
+          echo "Supabase 정상 — 일시정지 타이머 초기화됨"
