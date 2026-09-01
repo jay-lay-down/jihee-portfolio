@@ -887,7 +887,7 @@ export default function HomeTabs({
                     <section className="h-full rounded-2xl bg-[#E0EBF5]/60 border border-[#CAD5E3] px-6 py-6 sm:px-8 sm:py-7">
                       <h3 className="text-sm font-extrabold tracking-wide text-slate-700 mb-3">{t.aboutTitle}</h3>
 
-                      <div className="space-y-3 text-[1rem] leading-8 text-slate-800 font-medium max-w-5xl break-keep">
+                      <div className="space-y-3 text-[0.9375rem] leading-[1.85] text-slate-800 font-medium max-w-5xl break-keep">
                         <p>{t.aboutP1}</p>
                         <p>{t.aboutP2}</p>
                         <p>{t.aboutP3}</p>
