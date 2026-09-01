@@ -4,7 +4,7 @@ export default function BlogList() {
   const posts = getAllDocs("content/posts");
 
   return (
-    <main className="min-h-screen p-6">
+    <main className="min-h-screen p-4 sm:p-6">
       <div className="mx-auto max-w-3xl">
         <div className="flex items-end justify-between gap-3">
           <div>

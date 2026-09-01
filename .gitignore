@@ -10,3 +10,4 @@
 
 # 타입스크립트 캐시
 .tsbuildinfo
+tsconfig.tsbuildinfo

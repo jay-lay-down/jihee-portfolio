@@ -13,7 +13,7 @@ export default async function ProjectDetail({ params }: { params: Promise<{ slug
   const ko = getDocBySlug("content/projects", `${slug}.ko`);
 
   return (
-    <main className="min-h-screen p-6">
+    <main className="min-h-screen p-4 sm:p-6">
       <div className="mx-auto max-w-3xl">
         <a className="text-sm underline underline-offset-4 text-[var(--muted)] hover:text-[var(--fg)] transition" href="/projects">
           ← Back to Projects

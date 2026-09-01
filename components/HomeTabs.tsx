@@ -111,7 +111,7 @@ const T = {
     featuredProjects: "Featured Projects",
     viewAll: "View all →",
     allProjects: "All Projects",
-    ndaNote: "Ongoing client projects are not published on this site for confidentiality. Client names in finished case studies are masked.",
+    ndaNote: "Ongoing client projects are not published on this site for confidentiality.",
     filterAll: "All",
     caseStudies: "Case Studies",
     caseStudiesSub: "Detailed project write-ups with Markdown support",
@@ -146,7 +146,7 @@ const T = {
     featuredProjects: "대표 프로젝트",
     viewAll: "전체 보기 →",
     allProjects: "전체 프로젝트",
-    ndaNote: "진행 중인 클라이언트 프로젝트는 비밀유지를 위해 웹에 공개하지 않으며, 종료된 프로젝트도 고객사명은 마스킹합니다.",
+    ndaNote: "진행 중인 클라이언트 프로젝트는 비밀유지를 위해 웹에 공개하지 않습니다.",
     filterAll: "전체",
     caseStudies: "케이스 스터디",
     caseStudiesSub: "프로젝트별 상세 정리 (Markdown 지원)",
@@ -214,15 +214,15 @@ function TopNav({
       type="button"
       onClick={() => setTab(k)}
       className={cn(
-        "relative px-2 py-2 text-[13px] sm:text-[15px] md:text-base font-extrabold tracking-wide transition",
-        tab === k ? "text-stone-900" : "text-stone-400 hover:text-stone-700"
+        "relative shrink-0 whitespace-nowrap px-1.5 sm:px-2 py-2 text-[12px] sm:text-[15px] md:text-base font-extrabold tracking-wide transition",
+        tab === k ? "text-slate-900" : "text-slate-400 hover:text-slate-700"
       )}
     >
       {label}
       <span
         className={cn(
           "absolute left-2 right-2 -bottom-1 h-[2px] rounded-full transition",
-          tab === k ? "bg-[#8C5E35]" : "bg-transparent"
+          tab === k ? "bg-[#355E8C]" : "bg-transparent"
         )}
       />
     </button>
@@ -243,32 +243,32 @@ function TopNav({
       rel="noreferrer"
       aria-label={label}
       title={label}
-      className="inline-flex items-center justify-center w-11 h-11 rounded-full text-stone-500 hover:text-[#8C5E35] hover:bg-stone-100 transition"
+      className="inline-flex items-center justify-center w-11 h-11 rounded-full text-slate-500 hover:text-[#355E8C] hover:bg-slate-100 transition"
     >
       {children}
     </a>
   );
 
   return (
-    <div className="sticky top-0 z-50 w-full bg-white/85 backdrop-blur border-b border-stone-200">
+    <div className="sticky top-0 z-50 w-full bg-white/85 backdrop-blur border-b border-slate-200">
       <div className="px-4 sm:px-6 lg:px-10 py-3 flex items-center justify-between gap-2 sm:gap-4">
-        <div className="flex items-center gap-2 sm:gap-4">
+        <div className="flex items-center gap-1 sm:gap-4 min-w-0 flex-1 overflow-x-auto no-scrollbar">
           <NavBtn k="Home" label="HOME" />
           <NavBtn k="Projects" label="PROJECTS" />
           <NavBtn k="CaseStudies" label="CASE STUDIES" />
           <NavBtn k="Board" label="BOARD" />
         </div>
 
-        <div className="flex items-center gap-1 sm:gap-2">
-          <div className="flex items-center rounded-full border border-stone-300 overflow-hidden">
+        <div className="flex items-center gap-1 sm:gap-2 shrink-0">
+          <div className="flex items-center rounded-full border border-slate-300 overflow-hidden">
             {(["ko", "en"] as const).map((l) => (
               <button
                 key={l}
                 type="button"
                 onClick={() => onLang(l)}
                 className={cn(
-                  "px-3 py-1.5 text-xs font-black transition",
-                  lang === l ? "bg-[#8C5E35] text-white" : "bg-white text-stone-500 hover:text-[#8C5E35]"
+                  "px-2 sm:px-3 py-1.5 text-[11px] sm:text-xs font-black transition whitespace-nowrap",
+                  lang === l ? "bg-[#355E8C] text-white" : "bg-white text-slate-500 hover:text-[#355E8C]"
                 )}
               >
                 {l === "ko" ? "한국어" : "EN"}
@@ -307,7 +307,7 @@ function ProjectCard({ p, onClick, lang = "ko" }: { p: any; onClick?: () => void
   return (
     <div
       className={cn(
-        "group flex flex-col bg-white rounded-2xl border border-stone-200 overflow-hidden hover:shadow-xl transition-all duration-300 h-full hover:border-[#d4a373]/50",
+        "group flex flex-col bg-white rounded-2xl border border-slate-200 overflow-hidden hover:shadow-xl transition-all duration-300 h-full hover:border-[#73A3D4]/50",
         onClick && "cursor-pointer"
       )}
       onClick={onClick}
@@ -322,9 +322,9 @@ function ProjectCard({ p, onClick, lang = "ko" }: { p: any; onClick?: () => void
           />
         ) : (
           <div className="absolute inset-0">
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_0%_0%,#fef3c7,transparent_55%),radial-gradient(circle_at_100%_100%,#e5e7eb,transparent_55%),linear-gradient(135deg,#fdfcfb,#e5e7eb)]" />
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_0%_0%,#DBEAFE,transparent_55%),radial-gradient(circle_at_100%_100%,#e5e7eb,transparent_55%),linear-gradient(135deg,#FBFCFD,#e5e7eb)]" />
             <div className="absolute inset-0 mix-blend-multiply opacity-60 bg-[radial-gradient(circle_at_20%_30%,rgba(0,0,0,0.06),transparent_55%),radial-gradient(circle_at_80%_70%,rgba(0,0,0,0.08),transparent_55%)]" />
-            <div className="absolute bottom-3 left-4 text-xs font-bold text-stone-700/85">
+            <div className="absolute bottom-3 left-4 text-xs font-bold text-slate-700/85">
               {String(p.category)} Project
             </div>
           </div>
@@ -333,19 +333,19 @@ function ProjectCard({ p, onClick, lang = "ko" }: { p: any; onClick?: () => void
 
       <div className="p-6 flex flex-col flex-1">
         <div className="flex justify-between items-start mb-2">
-          <span className="text-xs font-bold text-[#8C5E35] bg-[#8C5E35]/10 px-2 py-1 rounded uppercase tracking-wide">
+          <span className="text-xs font-bold text-[#355E8C] bg-[#355E8C]/10 px-2 py-1 rounded uppercase tracking-wide">
             {p.category}
           </span>
           {onClick && (
-            <FaChevronRight className="text-stone-300 group-hover:text-[#8C5E35] transition text-sm" />
+            <FaChevronRight className="text-slate-300 group-hover:text-[#355E8C] transition text-sm" />
           )}
         </div>
 
-        <h3 className="text-lg font-black text-stone-900 leading-tight mb-3 group-hover:text-[#8C5E35] transition">
+        <h3 className="text-lg font-black text-slate-900 leading-tight mb-3 group-hover:text-[#355E8C] transition">
           {lang === "ko" && p.titleKo ? p.titleKo : p.title}
         </h3>
 
-        <p className="text-sm text-stone-600 leading-relaxed mb-5 line-clamp-2">
+        <p className="text-sm text-slate-600 leading-relaxed mb-5 line-clamp-2">
           {lang === "ko" && p.oneLinerKo ? p.oneLinerKo : p.oneLiner}
         </p>
 
@@ -354,7 +354,7 @@ function ProjectCard({ p, onClick, lang = "ko" }: { p: any; onClick?: () => void
             p.stack.slice(0, 5).map((s: string) => (
               <span
                 key={s}
-                className="px-2 py-1 bg-stone-100 text-stone-600 text-[10px] font-bold rounded-md border border-stone-200"
+                className="px-2 py-1 bg-slate-100 text-slate-600 text-[10px] font-bold rounded-md border border-slate-200"
               >
                 {s}
               </span>
@@ -362,7 +362,7 @@ function ProjectCard({ p, onClick, lang = "ko" }: { p: any; onClick?: () => void
         </div>
 
         <div
-          className="mt-auto flex flex-wrap gap-2 pt-4 border-t border-stone-100"
+          className="mt-auto flex flex-wrap gap-2 pt-4 border-t border-slate-100"
           onClick={(e) => e.stopPropagation()}
         >
           {Array.isArray(p.links) &&
@@ -372,7 +372,7 @@ function ProjectCard({ p, onClick, lang = "ko" }: { p: any; onClick?: () => void
                 href={link.href}
                 target="_blank"
                 rel="noreferrer"
-                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-lg border border-stone-300 text-stone-600 hover:bg-[#8C5E35] hover:text-white hover:border-[#8C5E35] transition-colors duration-300"
+                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-lg border border-slate-300 text-slate-600 hover:bg-[#355E8C] hover:text-white hover:border-[#355E8C] transition-colors duration-300"
               >
                 {link.label === "Download" ? (
                   <FaDownload />
@@ -399,28 +399,28 @@ function MiniInfoCard({
   items: InfoItem[];
 }) {
   return (
-    <div className="rounded-xl bg-white/70 border border-[#e3d5ca] px-4 py-3">
+    <div className="rounded-xl bg-white/70 border border-[#CAD5E3] px-4 py-3">
       <div className="flex items-center gap-2">
-        <Icon className="text-[#8C5E35]" />
-        <div className="text-xs font-black text-stone-800">{title}</div>
+        <Icon className="text-[#355E8C]" />
+        <div className="text-xs font-black text-slate-800">{title}</div>
       </div>
 
       <div className="mt-2 space-y-2">
         {items.map((x, i) => (
           <div
             key={i}
-            className="text-[12px] leading-4 text-stone-600 font-medium"
+            className="text-[12px] leading-4 text-slate-600 font-medium"
           >
             <div className="flex gap-2">
               {x.year ? (
-                <span className="font-extrabold text-stone-700 shrink-0">
+                <span className="font-extrabold text-slate-700 shrink-0">
                   {x.year}
                 </span>
               ) : null}
-              <span className="font-bold text-stone-700">{x.label}</span>
+              <span className="font-bold text-slate-700">{x.label}</span>
             </div>
             {x.sub ? (
-              <div className="text-[12px] text-stone-500 mt-0.5">{x.sub}</div>
+              <div className="text-[12px] text-slate-500 mt-0.5">{x.sub}</div>
             ) : null}
           </div>
         ))}
@@ -857,13 +857,13 @@ export default function HomeTabs({
         ];
 
   return (
-    <div className="min-h-screen text-stone-800 pb-20 w-full px-3 sm:px-4">
+    <div className="min-h-screen text-slate-800 pb-20 w-full px-3 sm:px-4">
       <TopNav tab={tab} setTab={setTab} lang={lang} onLang={switchLang} />
 
       <main className="animate-in fade-in slide-in-from-bottom-2 duration-500 shadow-xl rounded-b-xl overflow-hidden w-full">
         {/* ========== HOME ========== */}
         {tab === "Home" && (
-          <div className="bg-stone-100/80 pt-0 pb-12 px-0 border-x border-b border-stone-200/50">
+          <div className="bg-slate-100/80 pt-0 pb-12 px-0 border-x border-b border-slate-200/50">
             <div className="space-y-10 px-6 lg:px-10">
               <div className="relative mt-0 w-full h-[410px] md:h-[480px] rounded-2xl overflow-hidden shadow-xl">
                 <Image src="/a2026.jpg" alt="Hero" fill className="object-cover" priority />
@@ -876,7 +876,7 @@ export default function HomeTabs({
                   <h2 className="text-4xl sm:text-5xl font-black mb-0 leading-tight drop-shadow-lg">
                     Portfolio
                     <br />
-                    <span className="text-[#ffba49]">Jihee Cho</span>
+                    <span className="text-[#49BAFF]">Jihee Cho</span>
                   </h2>
                 </div>
               </div>
@@ -884,16 +884,16 @@ export default function HomeTabs({
               <div className="space-y-10">
                 <div className="grid gap-8 items-stretch grid-cols-1 lg:grid-cols-12">
                   <div className="lg:col-span-8 space-y-8">
-                    <section className="h-full rounded-2xl bg-[#f5ebe0]/60 border border-[#e3d5ca] px-6 py-6 sm:px-8 sm:py-7">
-                      <h3 className="text-sm font-extrabold tracking-wide text-stone-700 mb-3">{t.aboutTitle}</h3>
+                    <section className="h-full rounded-2xl bg-[#E0EBF5]/60 border border-[#CAD5E3] px-6 py-6 sm:px-8 sm:py-7">
+                      <h3 className="text-sm font-extrabold tracking-wide text-slate-700 mb-3">{t.aboutTitle}</h3>
 
-                      <div className="space-y-3 text-[16px] leading-8 text-stone-800 font-medium max-w-5xl break-keep">
+                      <div className="space-y-3 text-[16px] leading-8 text-slate-800 font-medium max-w-5xl break-keep">
                         <p>{t.aboutP1}</p>
                         <p>{t.aboutP2}</p>
                         <p>{t.aboutP3}</p>
                       </div>
 
-                      <div className="mt-6 border-t border-stone-200 pt-4">
+                      <div className="mt-6 border-t border-slate-200 pt-4">
                         <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
                           <MiniInfoCard title={t.education} icon={MdSchool} items={EDUCATION} />
                           <MiniInfoCard title={t.experience} icon={MdWork} items={EXPERIENCE} />
@@ -905,35 +905,35 @@ export default function HomeTabs({
                   </div>
 
                   <div className="lg:col-span-4">
-                    <div className="lg:sticky lg:top-20 bg-white/85 backdrop-blur-sm rounded-2xl p-8 border border-stone-200 shadow-sm h-full">
+                    <div className="lg:sticky lg:top-20 bg-white/85 backdrop-blur-sm rounded-2xl p-8 border border-slate-200 shadow-sm h-full">
                       <div className="relative w-24 h-24 rounded-full border-4 border-white shadow-md mb-5 overflow-hidden">
                         <Image src="/avatar.jpg" alt="Avatar" fill className="object-cover" />
                       </div>
 
-                      <h3 className="text-2xl font-black text-stone-900">Jihee Cho</h3>
-                      <div className="text-sm font-bold text-stone-500 mt-1">{t.birthCity}</div>
-                      <div className="text-sm font-bold text-[#8C5E35] mb-5 mt-2">{t.role}</div>
+                      <h3 className="text-2xl font-black text-slate-900">Jihee Cho</h3>
+                      <div className="text-sm font-bold text-slate-500 mt-1">{t.birthCity}</div>
+                      <div className="text-sm font-bold text-[#355E8C] mb-5 mt-2">{t.role}</div>
 
                       <div className="space-y-3 mb-6">
-                        <div className="flex items-center gap-3 text-sm text-stone-600 font-bold bg-stone-50 p-3 rounded-xl border border-stone-100">
-                          <IoLocationSharp className="text-lg text-stone-400" /> {t.location}
+                        <div className="flex items-center gap-3 text-sm text-slate-600 font-bold bg-slate-50 p-3 rounded-xl border border-slate-100">
+                          <IoLocationSharp className="text-lg text-slate-400" /> {t.location}
                         </div>
                         <a
                           href={`mailto:${LINKS.email}`}
-                          className="flex items-center gap-3 text-sm text-stone-600 font-bold bg-stone-50 p-3 rounded-xl border border-stone-100 hover:bg-[#8C5E35] hover:text-white hover:border-[#8C5E35] transition"
+                          className="flex items-center gap-3 text-sm text-slate-600 font-bold bg-slate-50 p-3 rounded-xl border border-slate-100 hover:bg-[#355E8C] hover:text-white hover:border-[#355E8C] transition"
                         >
                           <MdEmail className="text-lg" />
                           {LINKS.email}
                         </a>
                       </div>
 
-                      <div className="pt-5 border-t border-stone-200">
-                        <div className="text-xs font-black text-stone-700 tracking-wide mb-2">{t.skills}</div>
+                      <div className="pt-5 border-t border-slate-200">
+                        <div className="text-xs font-black text-slate-700 tracking-wide mb-2">{t.skills}</div>
                         <div className="flex flex-wrap gap-2">
                           {ABOUT_SKILLS.map((s) => (
                             <span
                               key={s}
-                              className="px-3 py-1.5 rounded-full text-[11px] font-semibold bg-stone-50 text-stone-700 border border-stone-200"
+                              className="px-3 py-1.5 rounded-full text-[11px] font-semibold bg-slate-50 text-slate-700 border border-slate-200"
                             >
                               {s}
                             </span>
@@ -944,7 +944,7 @@ export default function HomeTabs({
                           href={LINKS.resumePdf}
                           target="_blank"
                           rel="noreferrer"
-                          className="mt-6 block w-full py-3 bg-[#8C5E35] text-white text-center text-sm font-bold rounded-xl hover:bg-[#6B4628] transition shadow-md"
+                          className="mt-6 block w-full py-3 bg-[#355E8C] text-white text-center text-sm font-bold rounded-xl hover:bg-[#28466B] transition shadow-md"
                         >
                           {t.downloadResume}
                         </a>
@@ -953,21 +953,21 @@ export default function HomeTabs({
                   </div>
                 </div>
 
-                {/* Featured Projects - 3열 × 2행 (6개) */}
+                {/* Featured Projects - 전체 표시 */}
                 {featured.length > 0 && (
                   <section className="space-y-4">
                     <div className="flex items-center justify-between">
-                      <h3 className="text-lg font-black text-stone-900">{t.featuredProjects}</h3>
+                      <h3 className="text-lg font-black text-slate-900">{t.featuredProjects}</h3>
                       <button
                         onClick={() => setTab("Projects")}
-                        className="text-sm font-extrabold text-[#8C5E35] hover:underline underline-offset-4"
+                        className="text-sm font-extrabold text-[#355E8C] hover:underline underline-offset-4"
                       >
                         {t.viewAll}
                       </button>
                     </div>
 
                     <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-                      {featured.slice(0, 6).map((p: any) => (
+                      {featured.map((p: any) => (
                         <ProjectCard
                           key={p.slug}
                           p={p}
@@ -985,11 +985,11 @@ export default function HomeTabs({
 
         {/* ========== PROJECTS ========== */}
         {tab === "Projects" && (
-          <div className="bg-stone-200/60 pt-8 pb-10 px-0 rounded-b-xl border-x border-b border-stone-200/50 min-h-[600px]">
+          <div className="bg-slate-200/60 pt-8 pb-10 px-0 rounded-b-xl border-x border-b border-slate-200/50 min-h-[600px]">
             <div className="space-y-8 px-6 lg:px-10">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
-                <h2 className="text-2xl font-black text-stone-900">{t.allProjects}</h2>
-                <p className="text-sm text-stone-500 mt-1">{t.ndaNote}</p>
+                <h2 className="text-2xl font-black text-slate-900">{t.allProjects}</h2>
+                <p className="text-sm text-slate-500 mt-1">{t.ndaNote}</p>
 
                 <div className="flex flex-wrap gap-2">
                   <button
@@ -997,8 +997,8 @@ export default function HomeTabs({
                     className={cn(
                       "px-4 py-2 rounded-full text-sm font-bold transition border",
                       filter === "All"
-                        ? "bg-[#8C5E35] text-white border-[#8C5E35]"
-                        : "bg-white text-stone-500 border-stone-300 hover:border-[#8C5E35] hover:text-[#8C5E35]"
+                        ? "bg-[#355E8C] text-white border-[#355E8C]"
+                        : "bg-white text-slate-500 border-slate-300 hover:border-[#355E8C] hover:text-[#355E8C]"
                     )}
                   >
                     {t.filterAll}
@@ -1011,8 +1011,8 @@ export default function HomeTabs({
                       className={cn(
                         "px-4 py-2 rounded-full text-sm font-bold transition border",
                         filter === c
-                          ? "bg-[#8C5E35] text-white border-[#8C5E35]"
-                          : "bg-white text-stone-500 border-stone-300 hover:border-[#8C5E35] hover:text-[#8C5E35]"
+                          ? "bg-[#355E8C] text-white border-[#355E8C]"
+                          : "bg-white text-slate-500 border-slate-300 hover:border-[#355E8C] hover:text-[#355E8C]"
                       )}
                     >
                       {String(c)}
@@ -1032,18 +1032,18 @@ export default function HomeTabs({
 
         {/* ========== CASE STUDIES ========== */}
         {tab === "CaseStudies" && (
-          <div className="bg-stone-100/80 pt-8 pb-10 px-0 rounded-b-xl border-x border-b border-stone-200/50 min-h-[600px]">
+          <div className="bg-slate-100/80 pt-8 pb-10 px-0 rounded-b-xl border-x border-b border-slate-200/50 min-h-[600px]">
             <div className="w-full space-y-8 px-4 sm:px-6 lg:px-10">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                  <h2 className="text-2xl font-black text-stone-900">{t.caseStudies}</h2>
-                  <p className="text-sm text-stone-500 mt-1">{t.caseStudiesSub}</p>
-                  <p className="text-sm text-stone-500 mt-0.5">{t.ndaNote}</p>
+                  <h2 className="text-2xl font-black text-slate-900">{t.caseStudies}</h2>
+                  <p className="text-sm text-slate-500 mt-1">{t.caseStudiesSub}</p>
+                  <p className="text-sm text-slate-500 mt-0.5">{t.ndaNote}</p>
                 </div>
               </div>
 
               {detailsLoading ? (
-                <div className="py-20 text-center text-stone-400">{t.loading}</div>
+                <div className="py-20 text-center text-slate-400">{t.loading}</div>
               ) : (
                 <div className="space-y-6">
                   {PROJECTS.map(({ slug }, idx) => {
@@ -1061,39 +1061,39 @@ export default function HomeTabs({
                         }}
                         className={cn(
                           "bg-white rounded-2xl border overflow-hidden transition-all duration-300",
-                          isOpen ? "border-[#8C5E35] shadow-lg" : "border-stone-200 shadow-sm"
+                          isOpen ? "border-[#355E8C] shadow-lg" : "border-slate-200 shadow-sm"
                         )}
                       >
                         {/* 아코디언 헤더 */}
                         <button
                           type="button"
                           onClick={() => setSelectedSlug(isOpen ? null : slug)}
-                          className="w-full p-5 sm:p-6 flex items-center gap-4 text-left hover:bg-stone-50 transition"
+                          className="w-full p-5 sm:p-6 flex items-center gap-4 text-left hover:bg-slate-50 transition"
                         >
-                          <div className="w-10 h-10 rounded-full bg-[#8C5E35]/10 flex items-center justify-center text-[#8C5E35] font-black shrink-0">
+                          <div className="w-10 h-10 rounded-full bg-[#355E8C]/10 flex items-center justify-center text-[#355E8C] font-black shrink-0">
                             {idx + 1}
                           </div>
 
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 mb-1">
-                              <span className="text-xs font-bold text-[#8C5E35] bg-[#8C5E35]/10 px-2 py-0.5 rounded">
+                              <span className="text-xs font-bold text-[#355E8C] bg-[#355E8C]/10 px-2 py-0.5 rounded">
                                 {project.category}
                               </span>
                               {details.length > 0 && (
-                                <span className="text-xs font-bold text-stone-400">
+                                <span className="text-xs font-bold text-slate-400">
                                   {details.length} sections
                                 </span>
                               )}
                             </div>
-                            <h3 className="text-lg font-black text-stone-900 truncate">
+                            <h3 className="text-lg font-black text-slate-900 truncate">
                               {project.title}
                             </h3>
-                            <p className="text-sm text-stone-500 truncate">{project.oneLiner}</p>
+                            <p className="text-sm text-slate-500 truncate">{project.oneLiner}</p>
                           </div>
 
                           <FaChevronDown
                             className={cn(
-                              "text-stone-400 transition-transform duration-300 shrink-0",
+                              "text-slate-400 transition-transform duration-300 shrink-0",
                               isOpen && "rotate-180"
                             )}
                           />
@@ -1101,7 +1101,7 @@ export default function HomeTabs({
 
                         {/* 아코디언 내용 */}
                         {isOpen && (
-                          <div className="border-t border-stone-100 p-5 sm:p-6 space-y-6 animate-in fade-in slide-in-from-top-2 duration-300">
+                          <div className="border-t border-slate-100 p-5 sm:p-6 space-y-6 animate-in fade-in slide-in-from-top-2 duration-300">
                             {/* 프로젝트 링크 */}
                             <div className="flex flex-wrap gap-2">
                               {project.links?.map((link: any) => (
@@ -1110,7 +1110,7 @@ export default function HomeTabs({
                                   href={link.href}
                                   target="_blank"
                                   rel="noreferrer"
-                                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-lg border border-stone-300 text-stone-600 hover:bg-[#8C5E35] hover:text-white hover:border-[#8C5E35] transition-colors"
+                                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-lg border border-slate-300 text-slate-600 hover:bg-[#355E8C] hover:text-white hover:border-[#355E8C] transition-colors"
                                 >
                                   <FaExternalLinkAlt />
                                   {link.label}
@@ -1134,14 +1134,14 @@ export default function HomeTabs({
                                   <div className="mt-5">
                                     <a
                                       href={`/projects/${slug}`}
-                                      className="text-sm font-bold underline underline-offset-4 text-[#8C5E35] hover:opacity-80"
+                                      className="text-sm font-bold underline underline-offset-4 text-[#355E8C] hover:opacity-80"
                                     >
                                       {t.openFullPage}
                                     </a>
                                   </div>
                                 </div>
                               ) : (
-                                <div className="py-8 text-center text-stone-400 border-2 border-dashed border-stone-200 rounded-xl">
+                                <div className="py-8 text-center text-slate-400 border-2 border-dashed border-slate-200 rounded-xl">
                                   No sections have been added yet.
                                 </div>
                               )
@@ -1150,10 +1150,10 @@ export default function HomeTabs({
                                 {details.map((section) => (
                                   <div
                                     key={section.id}
-                                    className="bg-stone-50 rounded-xl border border-stone-200 overflow-hidden"
+                                    className="bg-slate-50 rounded-xl border border-slate-200 overflow-hidden"
                                   >
                                     {section.image_url && (
-                                      <div className="relative aspect-video bg-stone-200">
+                                      <div className="relative aspect-video bg-slate-200">
                                         <Image
                                           src={section.image_url}
                                           alt={section.section_title}
@@ -1171,34 +1171,34 @@ export default function HomeTabs({
                                             type="text"
                                             value={detailEditTitle}
                                             onChange={(e) => setDetailEditTitle(e.target.value)}
-                                            className="w-full px-3 py-2 bg-white border border-stone-200 rounded-lg text-sm font-bold focus:ring-2 focus:ring-[#8C5E35] outline-none"
+                                            className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm font-bold focus:ring-2 focus:ring-[#355E8C] outline-none"
                                             placeholder="Section title"
                                           />
                                           <textarea
                                             value={detailEditContent}
                                             onChange={(e) => setDetailEditContent(e.target.value)}
                                             rows={8}
-                                            className="w-full px-3 py-2 bg-white border border-stone-200 rounded-lg text-sm focus:ring-2 focus:ring-[#8C5E35] outline-none resize-none font-mono"
+                                            className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-[#355E8C] outline-none resize-none font-mono"
                                             placeholder="Content (Markdown supported)"
                                           />
                                           <input
                                             type="text"
                                             value={detailEditImageUrl}
                                             onChange={(e) => setDetailEditImageUrl(e.target.value)}
-                                            className="w-full px-3 py-2 bg-white border border-stone-200 rounded-lg text-sm focus:ring-2 focus:ring-[#8C5E35] outline-none"
+                                            className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-[#355E8C] outline-none"
                                             placeholder="Image URL (optional)"
                                           />
                                           <input
                                             type="password"
                                             value={detailEditPassword}
                                             onChange={(e) => setDetailEditPassword(e.target.value)}
-                                            className="w-full px-3 py-2 bg-white border border-stone-200 rounded-lg text-sm focus:ring-2 focus:ring-[#8C5E35] outline-none"
+                                            className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-[#355E8C] outline-none"
                                             placeholder="Password"
                                           />
                                           <div className="flex gap-2">
                                             <button
                                               onClick={() => handleUpdateDetail(section.id)}
-                                              className="flex items-center gap-1 px-3 py-2 bg-[#8C5E35] text-white rounded-lg text-xs font-bold"
+                                              className="flex items-center gap-1 px-3 py-2 bg-[#355E8C] text-white rounded-lg text-xs font-bold"
                                             >
                                               <MdSave /> Save
                                             </button>
@@ -1210,7 +1210,7 @@ export default function HomeTabs({
                                                 setDetailEditImageUrl("");
                                                 setDetailEditPassword("");
                                               }}
-                                              className="flex items-center gap-1 px-3 py-2 border border-stone-300 text-stone-600 rounded-lg text-xs font-bold"
+                                              className="flex items-center gap-1 px-3 py-2 border border-slate-300 text-slate-600 rounded-lg text-xs font-bold"
                                             >
                                               <MdCancel /> Cancel
                                             </button>
@@ -1220,7 +1220,7 @@ export default function HomeTabs({
                                         /* 보기 모드 - 마크다운 렌더링 */
                                         <>
                                           <div className="flex items-start justify-between gap-3 mb-2">
-                                            <h4 className="text-base font-black text-stone-900">
+                                            <h4 className="text-base font-black text-slate-900">
                                               {section.section_title}
                                             </h4>
                                             <div className="flex gap-1 shrink-0">
@@ -1231,14 +1231,14 @@ export default function HomeTabs({
                                                   setDetailEditContent(section.content);
                                                   setDetailEditImageUrl(section.image_url || "");
                                                 }}
-                                                className="p-1.5 text-stone-400 hover:text-[#8C5E35] hover:bg-stone-100 rounded transition"
+                                                className="p-1.5 text-slate-400 hover:text-[#355E8C] hover:bg-slate-100 rounded transition"
                                                 title="Edit"
                                               >
                                                 <MdEdit />
                                               </button>
                                               <button
                                                 onClick={() => handleDeleteDetail(section.id)}
-                                                className="p-1.5 text-stone-400 hover:text-red-500 hover:bg-red-50 rounded transition"
+                                                className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded transition"
                                                 title="Delete"
                                               >
                                                 <FaTrash className="text-xs" />
@@ -1246,12 +1246,12 @@ export default function HomeTabs({
                                             </div>
                                           </div>
                                           {/* 마크다운 렌더링 */}
-                                          <div className="prose prose-stone prose-sm max-w-none text-stone-600">
+                                          <div className="prose prose-stone prose-sm max-w-none text-slate-600">
                                             <ReactMarkdown remarkPlugins={[remarkGfm]}>
                                               {section.content}
                                             </ReactMarkdown>
                                           </div>
-                                          <div className="mt-3 text-xs text-stone-400">
+                                          <div className="mt-3 text-xs text-slate-400">
                                             {new Date(section.created_at).toLocaleDateString("en-US")}
                                           </div>
                                         </>
@@ -1270,17 +1270,17 @@ export default function HomeTabs({
               )}
 
               {/* 새 섹션 추가 폼 */}
-              <div className="bg-white rounded-2xl border border-stone-200 p-5 sm:p-6 shadow-sm">
-                <h3 className="text-base font-black text-stone-800 mb-4 flex items-center gap-2">
-                  <FaPen className="text-[#8C5E35] text-sm" /> Add a New Section
-                  <span className="ml-auto text-xs font-medium text-stone-400">Markdown supported</span>
+              <div className="bg-white rounded-2xl border border-slate-200 p-5 sm:p-6 shadow-sm">
+                <h3 className="text-base font-black text-slate-800 mb-4 flex items-center gap-2">
+                  <FaPen className="text-[#355E8C] text-sm" /> Add a New Section
+                  <span className="ml-auto text-xs font-medium text-slate-400">Markdown supported</span>
                 </h3>
 
                 <form onSubmit={handleAddDetail} className="space-y-4">
                   <select
                     value={newSlug}
                     onChange={(e) => setNewSlug(e.target.value)}
-                    className="w-full px-4 py-3 bg-stone-50 border border-stone-200 rounded-lg text-sm font-bold focus:ring-2 focus:ring-[#8C5E35] outline-none"
+                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg text-sm font-bold focus:ring-2 focus:ring-[#355E8C] outline-none"
                   >
                     {FEATURED_SLUGS.map((slug) => {
                       const p = getProjectBySlug(slug);
@@ -1296,7 +1296,7 @@ export default function HomeTabs({
                     type="text"
                     value={newTitle}
                     onChange={(e) => setNewTitle(e.target.value)}
-                    className="w-full px-4 py-3 bg-stone-50 border border-stone-200 rounded-lg text-sm focus:ring-2 focus:ring-[#8C5E35] outline-none"
+                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-[#355E8C] outline-none"
                     placeholder="Section title (e.g. Project Background, Tech Stack, Outcome)"
                   />
 
@@ -1304,7 +1304,7 @@ export default function HomeTabs({
                     value={newContent}
                     onChange={(e) => setNewContent(e.target.value)}
                     rows={8}
-                    className="w-full px-4 py-3 bg-stone-50 border border-stone-200 rounded-lg text-sm focus:ring-2 focus:ring-[#8C5E35] outline-none resize-none font-mono"
+                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-[#355E8C] outline-none resize-none font-mono"
                     placeholder="Write the content... (Markdown supported: **bold**, *italic*, - list, [link](url), ```code``` and more)"
                   />
 
@@ -1312,7 +1312,7 @@ export default function HomeTabs({
                     type="text"
                     value={newImageUrl}
                     onChange={(e) => setNewImageUrl(e.target.value)}
-                    className="w-full px-4 py-3 bg-stone-50 border border-stone-200 rounded-lg text-sm focus:ring-2 focus:ring-[#8C5E35] outline-none"
+                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-[#355E8C] outline-none"
                     placeholder="Image URL (optional, e.g. /images/project.png)"
                   />
 
@@ -1320,13 +1320,13 @@ export default function HomeTabs({
                     type="password"
                     value={adminPassword}
                     onChange={(e) => setAdminPassword(e.target.value)}
-                    className="w-full px-4 py-3 bg-stone-50 border border-stone-200 rounded-lg text-sm focus:ring-2 focus:ring-[#8C5E35] outline-none"
+                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-[#355E8C] outline-none"
                     placeholder="Password"
                   />
 
                   <button
                     type="submit"
-                    className="w-full py-3 bg-[#8C5E35] text-white font-bold rounded-xl hover:bg-[#6B4628] transition shadow-md"
+                    className="w-full py-3 bg-[#355E8C] text-white font-bold rounded-xl hover:bg-[#28466B] transition shadow-md"
                   >
                     Add Section
                   </button>
@@ -1338,14 +1338,14 @@ export default function HomeTabs({
 
         {/* ========== BOARD ========== */}
         {tab === "Board" && (
-          <div className="bg-stone-100/80 pt-8 pb-10 px-0 rounded-b-xl border-x border-b border-stone-200/50 min-h-[600px]">
+          <div className="bg-slate-100/80 pt-8 pb-10 px-0 rounded-b-xl border-x border-b border-slate-200/50 min-h-[600px]">
             <div className="w-full max-w-none space-y-8 px-4 sm:px-6 lg:px-10">
               {/* Top: Write (Left) + Image (Right) */}
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
                 {/* Write */}
-                <div className="lg:col-span-8 bg-white p-5 sm:p-6 rounded-2xl border border-stone-200 shadow-sm h-full flex flex-col">
-                  <h3 className="text-lg font-black text-stone-800 mb-4 flex items-center gap-2">
-                    <FaPen className="text-[#8C5E35] text-sm" /> {t.writePost}
+                <div className="lg:col-span-8 bg-white p-5 sm:p-6 rounded-2xl border border-slate-200 shadow-sm h-full flex flex-col">
+                  <h3 className="text-lg font-black text-slate-800 mb-4 flex items-center gap-2">
+                    <FaPen className="text-[#355E8C] text-sm" /> {t.writePost}
                   </h3>
 
                   <form onSubmit={handleSubmit} className="space-y-4 flex flex-col flex-1">
@@ -1358,8 +1358,8 @@ export default function HomeTabs({
                           className={cn(
                             "flex-1 py-2 text-xs font-bold rounded-lg border transition duration-300",
                             inputCategory === c
-                              ? "bg-[#8C5E35] text-white border-[#8C5E35]"
-                              : "bg-stone-50 text-stone-500 border-stone-200 hover:border-[#8C5E35] hover:text-[#8C5E35]"
+                              ? "bg-[#355E8C] text-white border-[#355E8C]"
+                              : "bg-slate-50 text-slate-500 border-slate-200 hover:border-[#355E8C] hover:text-[#355E8C]"
                           )}
                         >
                           {c}
@@ -1371,7 +1371,7 @@ export default function HomeTabs({
                       type="text"
                       value={inputName}
                       onChange={(e) => setInputName(e.target.value)}
-                      className="w-full px-4 py-3 bg-stone-50 border border-stone-200 rounded-lg text-sm focus:ring-2 focus:ring-[#8C5E35] focus:border-transparent outline-none transition"
+                      className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-[#355E8C] focus:border-transparent outline-none transition"
                       placeholder={t.yourName}
                       required
                     />
@@ -1380,7 +1380,7 @@ export default function HomeTabs({
                       value={inputContent}
                       onChange={(e) => setInputContent(e.target.value)}
                       rows={8}
-                      className="w-full flex-1 min-h-[220px] px-4 py-3 bg-stone-50 border border-stone-200 rounded-lg text-sm focus:ring-2 focus:ring-[#8C5E35] focus:border-transparent outline-none transition resize-none"
+                      className="w-full flex-1 min-h-[220px] px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-[#355E8C] focus:border-transparent outline-none transition resize-none"
                       placeholder={t.leaveMessage}
                       required
                     />
@@ -1389,14 +1389,14 @@ export default function HomeTabs({
                       type="password"
                       value={inputPassword}
                       onChange={(e) => setInputPassword(e.target.value)}
-                      className="w-full px-4 py-3 bg-stone-50 border border-stone-200 rounded-lg text-sm focus:ring-2 focus:ring-[#8C5E35] focus:border-transparent outline-none transition"
+                      className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-[#355E8C] focus:border-transparent outline-none transition"
                       placeholder={t.postPassword}
                       required
                     />
 
                     <button
                       type="submit"
-                      className="w-full py-3 bg-[#8C5E35] text-white font-bold rounded-xl hover:bg-[#6B4628] transition shadow-md duration-300 mt-auto"
+                      className="w-full py-3 bg-[#355E8C] text-white font-bold rounded-xl hover:bg-[#28466B] transition shadow-md duration-300 mt-auto"
                       disabled={loading}
                     >
                       Post Message
@@ -1406,13 +1406,13 @@ export default function HomeTabs({
 
                 {/* Image */}
                 <div className="lg:col-span-4">
-                  <div className="bg-white rounded-2xl border border-stone-200 shadow-sm overflow-hidden h-full">
+                  <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden h-full">
                     <div className="relative w-full aspect-[4/3]">
                       <Image src="/board.jpg" alt="Board" fill className="object-cover" priority={false} />
                     </div>
-                    <div className="p-4 border-t border-stone-100">
-                      <div className="text-sm font-black text-stone-800">{t.board}</div>
-                      <div className="text-xs text-stone-500 mt-1">
+                    <div className="p-4 border-t border-slate-100">
+                      <div className="text-sm font-black text-slate-800">{t.board}</div>
+                      <div className="text-xs text-slate-500 mt-1">
                         Guestbook / Q&amp;A posts are listed below.
                       </div>
                     </div>
@@ -1422,8 +1422,8 @@ export default function HomeTabs({
 
               {/* List Header + Filter */}
               <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                <h3 className="text-lg font-black text-stone-800 flex items-center gap-2">
-                  <MdArticle className="text-[#8C5E35]" /> Recent Posts
+                <h3 className="text-lg font-black text-slate-800 flex items-center gap-2">
+                  <MdArticle className="text-[#355E8C]" /> Recent Posts
                 </h3>
 
                 <div className="flex flex-wrap gap-2 items-center">
@@ -1434,8 +1434,8 @@ export default function HomeTabs({
                       className={cn(
                         "px-4 py-2 rounded-full text-sm font-bold transition border",
                         boardFilter === c
-                          ? "bg-[#8C5E35] text-white border-[#8C5E35]"
-                          : "bg-white text-stone-500 border-stone-300 hover:border-[#8C5E35] hover:text-[#8C5E35]"
+                          ? "bg-[#355E8C] text-white border-[#355E8C]"
+                          : "bg-white text-slate-500 border-slate-300 hover:border-[#355E8C] hover:text-[#355E8C]"
                       )}
                     >
                       {c}
@@ -1446,38 +1446,38 @@ export default function HomeTabs({
 
               {/* Posts */}
               {loading ? (
-                <div className="py-20 text-center text-stone-400">{t.loading}</div>
+                <div className="py-20 text-center text-slate-400">{t.loading}</div>
               ) : filteredPosts.length === 0 ? (
-                <div className="py-16 text-center text-stone-400">{t.noPosts}</div>
+                <div className="py-16 text-center text-slate-400">{t.noPosts}</div>
               ) : (
                 <div className="space-y-4">
                   {pagePosts.map((post) => (
                     <div
                       key={post.id}
-                      className="bg-white p-5 sm:p-6 rounded-2xl border border-stone-200 shadow-sm hover:shadow-md transition"
+                      className="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition"
                     >
                       <div className="flex justify-between mb-4 items-center gap-3">
                         <div className="flex gap-3 items-center">
-                          <FaUserCircle className="text-stone-300 text-3xl" />
+                          <FaUserCircle className="text-slate-300 text-3xl" />
                           <div>
-                            <div className="font-bold text-stone-900 flex items-center gap-2">
+                            <div className="font-bold text-slate-900 flex items-center gap-2">
                               <span>{post.author}</span>
                               <span
                                 className={cn(
                                   "text-[10px] font-bold px-2.5 py-1 rounded-full border",
                                   post.category === "Q&A"
                                     ? "bg-blue-50 text-blue-600 border-blue-100"
-                                    : "bg-[#8C5E35]/10 text-[#8C5E35] border-[#8C5E35]/20"
+                                    : "bg-[#355E8C]/10 text-[#355E8C] border-[#355E8C]/20"
                                 )}
                               >
                                 {post.category}
                               </span>
                             </div>
 
-                            <div className="text-xs text-stone-400">
+                            <div className="text-xs text-slate-400">
                               {new Date(post.created_at).toLocaleDateString()}
                               {post.updated_at && (
-                                <span className="ml-2 text-stone-300">
+                                <span className="ml-2 text-slate-300">
                                   (updated {new Date(post.updated_at).toLocaleDateString()})
                                 </span>
                               )}
@@ -1485,10 +1485,10 @@ export default function HomeTabs({
                           </div>
                         </div>
 
-                        <div className="text-xs font-bold text-stone-400">#{post.id}</div>
+                        <div className="text-xs font-bold text-slate-400">#{post.id}</div>
                       </div>
 
-                      <p className="text-sm text-stone-700 pl-11 leading-relaxed whitespace-pre-wrap break-words">
+                      <p className="text-sm text-slate-700 pl-11 leading-relaxed whitespace-pre-wrap break-words">
                         {post.category === "Q&A" ? "[Q&A] " : "[Guestbook] "}
                         {post.content}
                       </p>
@@ -1501,14 +1501,14 @@ export default function HomeTabs({
                               value={editContent}
                               onChange={(e) => setEditContent(e.target.value)}
                               rows={4}
-                              className="w-full px-4 py-3 bg-stone-50 border border-stone-200 rounded-lg text-sm focus:ring-2 focus:ring-[#8C5E35] focus:border-transparent outline-none transition resize-none"
+                              className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-[#355E8C] focus:border-transparent outline-none transition resize-none"
                             />
 
                             <input
                               type="password"
                               value={getPw(post.id)}
                               onChange={(e) => setPw(post.id, e.target.value)}
-                              className="w-full px-4 py-3 bg-stone-50 border border-stone-200 rounded-lg text-sm focus:ring-2 focus:ring-[#8C5E35] focus:border-transparent outline-none transition"
+                              className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-[#355E8C] focus:border-transparent outline-none transition"
                               placeholder="Password to save"
                             />
 
@@ -1516,7 +1516,7 @@ export default function HomeTabs({
                               <button
                                 type="button"
                                 onClick={() => handleUpdate(post)}
-                                className="px-3 py-2 text-xs font-bold rounded-lg bg-[#8C5E35] text-white"
+                                className="px-3 py-2 text-xs font-bold rounded-lg bg-[#355E8C] text-white"
                               >
                                 Save
                               </button>
@@ -1527,7 +1527,7 @@ export default function HomeTabs({
                                   setEditContent("");
                                   clearPw(post.id);
                                 }}
-                                className="px-3 py-2 text-xs font-bold rounded-lg border border-stone-200 text-stone-600"
+                                className="px-3 py-2 text-xs font-bold rounded-lg border border-slate-200 text-slate-600"
                               >
                                 Cancel
                               </button>
@@ -1539,7 +1539,7 @@ export default function HomeTabs({
                               type="password"
                               value={getPw(post.id)}
                               onChange={(e) => setPw(post.id, e.target.value)}
-                              className="w-full sm:w-64 px-3 py-2 bg-stone-50 border border-stone-200 rounded-lg text-xs focus:ring-2 focus:ring-[#8C5E35] focus:border-transparent outline-none transition"
+                              className="w-full sm:w-64 px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-[#355E8C] focus:border-transparent outline-none transition"
                               placeholder="Password for edit/delete"
                             />
 
@@ -1550,7 +1550,7 @@ export default function HomeTabs({
                                   setEditId(post.id);
                                   setEditContent(post.content);
                                 }}
-                                className="px-3 py-2 text-xs font-bold rounded-lg border border-stone-200 text-stone-600 hover:bg-stone-50"
+                                className="px-3 py-2 text-xs font-bold rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50"
                               >
                                 Edit
                               </button>
@@ -1558,7 +1558,7 @@ export default function HomeTabs({
                               <button
                                 type="button"
                                 onClick={() => handleDelete(post)}
-                                className="px-3 py-2 text-xs font-bold rounded-lg border border-stone-200 text-stone-600 hover:bg-stone-50"
+                                className="px-3 py-2 text-xs font-bold rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50"
                               >
                                 Delete
                               </button>
@@ -1578,14 +1578,14 @@ export default function HomeTabs({
                       className={cn(
                         "px-3 py-2 rounded-lg border text-sm font-bold",
                         page <= 1
-                          ? "text-stone-300 border-stone-200 bg-stone-50"
-                          : "text-stone-700 border-stone-300 bg-white hover:border-[#8C5E35] hover:text-[#8C5E35]"
+                          ? "text-slate-300 border-slate-200 bg-slate-50"
+                          : "text-slate-700 border-slate-300 bg-white hover:border-[#355E8C] hover:text-[#355E8C]"
                       )}
                     >
                       ←
                     </button>
 
-                    <div className="text-sm font-bold text-stone-600">
+                    <div className="text-sm font-bold text-slate-600">
                       {page} / {totalPages}
                     </div>
 
@@ -1596,8 +1596,8 @@ export default function HomeTabs({
                       className={cn(
                         "px-3 py-2 rounded-lg border text-sm font-bold",
                         page >= totalPages
-                          ? "text-stone-300 border-stone-200 bg-stone-50"
-                          : "text-stone-700 border-stone-300 bg-white hover:border-[#8C5E35] hover:text-[#8C5E35]"
+                          ? "text-slate-300 border-slate-200 bg-slate-50"
+                          : "text-slate-700 border-slate-300 bg-white hover:border-[#355E8C] hover:text-[#355E8C]"
                       )}
                     >
                       →
@@ -1610,7 +1610,7 @@ export default function HomeTabs({
         )}
       </main>
 
-      <footer className="mt-20 pt-8 border-t border-stone-200 text-center text-xs font-medium text-stone-500">
+      <footer className="mt-20 pt-8 border-t border-slate-200 text-center text-xs font-medium text-slate-500">
         © {new Date().getFullYear()} Jihee Cho. All rights reserved.
       </footer>
     </div>

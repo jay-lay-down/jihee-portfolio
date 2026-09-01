@@ -13,7 +13,7 @@ body {
     BlinkMacSystemFont, system-ui, Roboto, "Helvetica Neue", "Segoe UI",
     "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic",
     "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif;
-  background: #fbf7f2;
+  background: #F2F7FB;
   color: #111111;
   -webkit-font-smoothing: antialiased;
   text-rendering: geometricPrecision;
@@ -21,13 +21,15 @@ body {
 
 /* 색상 변수 */
 :root {
-  --bg: #fbf7f2;
+  --bg: #F2F7FB;
   --fg: #111111;
-  --muted: rgba(0, 0, 0, 0.62);
-  --line: rgba(0, 0, 0, 0.12);
+  --muted: rgba(15, 30, 50, 0.62);
+  --line: rgba(15, 30, 50, 0.14);
   --soft: rgba(255, 255, 255, 0.65);
-  --accent: #ffba49;
-  --accent2: #c27a3a;
+  --card: #ffffff;
+  --accent: #49BAFF;
+  --accent2: #3A7AC2;
+  --brand: #355E8C;
 }
 
 /* 유틸 */
@@ -37,8 +39,23 @@ body {
   margin: 0 auto;
 }
 
+/* 모바일에서 가로 스크롤되는 네비게이션의 스크롤바 숨김 */
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* 케이스 스터디 본문 이미지가 좁은 화면에서 넘치지 않도록 */
+img {
+  max-width: 100%;
+  height: auto;
+}
+
 ::selection {
-  background: rgba(194, 122, 58, 0.25);
+  background: rgba(58, 122, 194, 0.25);
 }
 
 .prose :where(a) {

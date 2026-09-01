@@ -29,23 +29,23 @@ export default function ProjectsPage() {
   };
 
   return (
-    <main className="mx-auto max-w-6xl px-10 py-12">
-      <div className="flex items-end justify-between gap-6">
+    <main className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-10 py-8 sm:py-12">
+      <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 sm:gap-6">
         <div>
-          <h1 className="text-4xl font-extrabold tracking-tight">{lang === "ko" ? "프로젝트" : "Projects"}</h1>
-          <p className="mt-3 text-[15px] text-[var(--muted)] leading-8">
+          <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight">{lang === "ko" ? "프로젝트" : "Projects"}</h1>
+          <p className="mt-3 text-sm sm:text-[15px] text-[var(--muted)] leading-7 sm:leading-8">
             {lang === "ko"
               ? "카드를 클릭하면 프로젝트 페이지가 열리고, 저장소·데모·블로그로 이동할 수 있습니다."
               : "Clicking a card opens the project page, where you can navigate to the repo, demo, or blog."}
           </p>
           <p className="mt-1 text-[13px] text-[var(--muted)]">
             {lang === "ko"
-              ? "진행 중인 클라이언트 프로젝트는 비밀유지를 위해 웹에 공개하지 않으며, 종료된 프로젝트도 고객사명은 마스킹합니다."
-              : "Ongoing client projects are not published here for confidentiality. Client names in finished case studies are masked."}
+              ? "진행 중인 클라이언트 프로젝트는 비밀유지를 위해 웹에 공개하지 않습니다."
+              : "Ongoing client projects are not published here for confidentiality."}
           </p>
         </div>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3 sm:gap-4 shrink-0">
           <div className="flex items-center rounded-full border border-black/20 overflow-hidden">
             {(["ko", "en"] as const).map((l) => (
               <button
@@ -54,7 +54,7 @@ export default function ProjectsPage() {
                 onClick={() => switchLang(l)}
                 className={
                   "px-3 py-1.5 text-xs font-black transition " +
-                  (lang === l ? "bg-[#8C5E35] text-white" : "bg-white/70 text-black/50 hover:text-[#8C5E35]")
+                  (lang === l ? "bg-[#355E8C] text-white" : "bg-white/70 text-black/50 hover:text-[#355E8C]")
                 }
               >
                 {l === "ko" ? "한국어" : "EN"}
@@ -81,9 +81,9 @@ export default function ProjectsPage() {
               href={href}
               target={external ? "_blank" : undefined}
               rel={external ? "noreferrer" : undefined}
-              className="group rounded-[26px] border border-[var(--line)] bg-white/70 p-6 hover:shadow-sm transition"
+              className="group rounded-[26px] border border-[var(--line)] bg-white/70 p-4 sm:p-6 hover:shadow-sm transition"
             >
-              <div className="flex items-start justify-between gap-8">
+              <div className="flex flex-col-reverse sm:flex-row sm:items-start sm:justify-between gap-4 sm:gap-8">
                 {/* left */}
                 <div className="min-w-0">
                   <div className="text-xs font-extrabold text-black/60">{String((p as any).category ?? "")}</div>
@@ -109,15 +109,15 @@ export default function ProjectsPage() {
                 </div>
 
                 {/* right thumbnail */}
-                <div className="shrink-0 w-[320px]">
-                  <div className="relative h-[180px] w-full overflow-hidden rounded-2xl border border-black/15 bg-black/5">
+                <div className="w-full sm:w-[280px] lg:w-[320px] sm:shrink-0">
+                  <div className="relative aspect-[16/9] sm:h-[180px] w-full overflow-hidden rounded-2xl border border-black/15 bg-black/5">
                     {cover ? (
                       <>
                         <Image src={cover} alt={`${title} cover`} fill className="object-cover" />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/35 via-black/0 to-transparent" />
                       </>
                     ) : (
-                      <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,rgba(255,200,150,0.55),transparent_55%),radial-gradient(circle_at_80%_75%,rgba(0,0,0,0.10),transparent_55%),linear-gradient(135deg,rgba(253,248,242,1),rgba(243,233,222,1))]" />
+                      <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,rgba(150,200,255,0.55),transparent_55%),radial-gradient(circle_at_80%_75%,rgba(0,0,0,0.10),transparent_55%),linear-gradient(135deg,rgba(242,248,253,1),rgba(222,233,243,1))]" />
                     )}
                   </div>
                 </div>

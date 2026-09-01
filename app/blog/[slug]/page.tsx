@@ -12,7 +12,7 @@ export default async function BlogDetail({ params }: { params: Promise<{ slug: s
   const html = markdownToHtml(doc.content);
 
   return (
-    <main className="min-h-screen p-6">
+    <main className="min-h-screen p-4 sm:p-6">
       <div className="mx-auto max-w-3xl">
         <a className="text-sm underline underline-offset-4 text-[var(--muted)] hover:text-[var(--fg)] transition" href="/blog">
           ← Back to Blog

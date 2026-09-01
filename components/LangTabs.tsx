@@ -27,7 +27,7 @@ export default function LangTabs({ en, ko }: { en: LocalizedDoc; ko: LocalizedDo
   const doc = lang === "ko" && ko ? ko : en;
 
   return (
-    <div className="mt-4 rounded-3xl border border-[var(--line)] bg-[var(--card)] p-7">
+    <div className="mt-4 rounded-3xl border border-[var(--line)] bg-[var(--card)] p-5 sm:p-7">
       {ko && (
         <div className="mb-4 flex gap-2">
           {(["ko", "en"] as const).map((l) => (
@@ -37,8 +37,8 @@ export default function LangTabs({ en, ko }: { en: LocalizedDoc; ko: LocalizedDo
               className={
                 "px-4 py-1.5 rounded-full text-xs font-bold border transition " +
                 (lang === l
-                  ? "bg-[#8C5E35] text-white border-[#8C5E35]"
-                  : "bg-white text-stone-500 border-stone-300 hover:border-[#8C5E35] hover:text-[#8C5E35]")
+                  ? "bg-[#355E8C] text-white border-[#355E8C]"
+                  : "bg-white text-slate-500 border-slate-300 hover:border-[#355E8C] hover:text-[#355E8C]")
               }
             >
               {l === "ko" ? "한국어" : "English"}
