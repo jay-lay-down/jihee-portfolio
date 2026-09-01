@@ -18,6 +18,20 @@ A desktop app that takes social and online buzz data from an Excel export all th
 - Put **synonym, representative-term and stopword dictionaries into saved, reusable rule files** on top of Kiwi morphological analysis, so the criteria live in a file rather than in a person's head.
 - Made co-occurrence weighting selectable between count and PMI, and layered **five rule corrections** onto the KNU sentiment lexicon to catch the negation and contrast patterns Korean actually uses.
 
+## Screens
+
+Word cloud — top tokens under period, Top N and sentiment filters. Right-clicking a row in the table on the right sends that word straight to the stopword list.
+
+![Word cloud tab — top token table and the cloud itself](/tm_wordcloud.jpg)
+
+Network — co-occurrence weighted by count or PMI. Search a node, expand it n hops, and drag the layout into shape.
+
+![Network tab — co-occurrence graph with Edges/Nodes tables](/tm_network.jpg)
+
+Sentiment — KNU lexicon scores cut into five levels. The five checkboxes across the top are the rule corrections.
+
+![Sentiment tab — rule correction options and the distribution chart](/tm_sentiment.jpg)
+
 ## The Nine Tabs
 - **Data load** — reads the first sheet, normalizes column names, and auto-maps roles (date / channel / body text / country code); page types and keywords can be excluded, and the text column set by hand when detection misses
 - **Buzz volume** — year / month / week / day aggregation, stacked bars by group, count or %, and click-through from any bar to the underlying posts
