@@ -33,12 +33,12 @@ export default function ProjectsPage() {
       <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 sm:gap-6">
         <div>
           <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight">{lang === "ko" ? "프로젝트" : "Projects"}</h1>
-          <p className="mt-3 text-sm sm:text-[15px] text-[var(--muted)] leading-7 sm:leading-8">
+          <p className="mt-3 text-sm sm:text-[0.9375rem] text-[var(--muted)] leading-7 sm:leading-8">
             {lang === "ko"
               ? "카드를 클릭하면 프로젝트 페이지가 열리고, 저장소·데모·블로그로 이동할 수 있습니다."
               : "Clicking a card opens the project page, where you can navigate to the repo, demo, or blog."}
           </p>
-          <p className="mt-1 text-[13px] text-[var(--muted)]">
+          <p className="mt-1 text-[0.8125rem] text-[var(--muted)]">
             {lang === "ko"
               ? "진행 중인 클라이언트 프로젝트는 비밀유지를 위해 웹에 공개하지 않습니다."
               : "Ongoing client projects are not published here for confidentiality."}
@@ -88,7 +88,7 @@ export default function ProjectsPage() {
                 <div className="min-w-0">
                   <div className="text-xs font-extrabold text-black/60">{String((p as any).category ?? "")}</div>
                   <div className="mt-1 text-2xl font-black tracking-tight">{title}</div>
-                  <div className="mt-2 text-[15px] text-[var(--muted)] leading-8">{oneLiner}</div>
+                  <div className="mt-2 text-[0.9375rem] text-[var(--muted)] leading-8">{oneLiner}</div>
 
                   <div className="mt-4 flex flex-wrap gap-2">
                     {(Array.isArray((p as any).stack) ? (p as any).stack : [])
@@ -109,8 +109,8 @@ export default function ProjectsPage() {
                 </div>
 
                 {/* right thumbnail */}
-                <div className="w-full sm:w-[280px] lg:w-[320px] sm:shrink-0">
-                  <div className="relative aspect-[16/9] sm:h-[180px] w-full overflow-hidden rounded-2xl border border-black/15 bg-black/5">
+                <div className="w-full sm:w-[clamp(13rem,24vw,20rem)] sm:shrink-0">
+                  <div className="relative aspect-[16/9] sm:h-[clamp(8rem,14vw,11.5rem)] w-full overflow-hidden rounded-2xl border border-black/15 bg-black/5">
                     {cover ? (
                       <>
                         <Image src={cover} alt={`${title} cover`} fill className="object-cover" />

@@ -214,7 +214,7 @@ function TopNav({
       type="button"
       onClick={() => setTab(k)}
       className={cn(
-        "relative shrink-0 whitespace-nowrap px-1.5 sm:px-2 py-2 text-[12px] sm:text-[15px] md:text-base font-extrabold tracking-wide transition",
+        "relative shrink-0 whitespace-nowrap px-1.5 sm:px-2 py-2 text-[0.75rem] sm:text-[0.9375rem] md:text-base font-extrabold tracking-wide transition",
         tab === k ? "text-slate-900" : "text-slate-400 hover:text-slate-700"
       )}
     >
@@ -267,7 +267,7 @@ function TopNav({
                 type="button"
                 onClick={() => onLang(l)}
                 className={cn(
-                  "px-2 sm:px-3 py-1.5 text-[11px] sm:text-xs font-black transition whitespace-nowrap",
+                  "px-2 sm:px-3 py-1.5 text-[0.6875rem] sm:text-xs font-black transition whitespace-nowrap",
                   lang === l ? "bg-[#355E8C] text-white" : "bg-white text-slate-500 hover:text-[#355E8C]"
                 )}
               >
@@ -278,22 +278,22 @@ function TopNav({
 
           <div className="hidden sm:flex items-center gap-1">
           <IconLink href={LINKS.linkedin} label="LinkedIn">
-            <FaLinkedin className="text-[22px]" />
+            <FaLinkedin className="text-[1.375rem]" />
           </IconLink>
           <IconLink href={LINKS.github} label="GitHub">
-            <FaGithub className="text-[22px]" />
+            <FaGithub className="text-[1.375rem]" />
           </IconLink>
           <IconLink href={LINKS.hf} label="Hugging Face">
-            <SiHuggingface className="text-[22px]" />
+            <SiHuggingface className="text-[1.375rem]" />
           </IconLink>
           <IconLink href={LINKS.velog} label="Velog">
-            <SiVelog className="text-[22px]" />
+            <SiVelog className="text-[1.375rem]" />
           </IconLink>
           <IconLink href={LINKS.resumePdf} label="Resume PDF">
-            <FaDownload className="text-[20px]" />
+            <FaDownload className="text-[1.25rem]" />
           </IconLink>
           <IconLink href={`mailto:${LINKS.email}`} label="Email">
-            <MdEmail className="text-[22px]" />
+            <MdEmail className="text-[1.375rem]" />
           </IconLink>
           </div>
         </div>
@@ -354,7 +354,7 @@ function ProjectCard({ p, onClick, lang = "ko" }: { p: any; onClick?: () => void
             p.stack.slice(0, 5).map((s: string) => (
               <span
                 key={s}
-                className="px-2 py-1 bg-slate-100 text-slate-600 text-[10px] font-bold rounded-md border border-slate-200"
+                className="px-2 py-1 bg-slate-100 text-slate-600 text-[0.625rem] font-bold rounded-md border border-slate-200"
               >
                 {s}
               </span>
@@ -409,7 +409,7 @@ function MiniInfoCard({
         {items.map((x, i) => (
           <div
             key={i}
-            className="text-[12px] leading-4 text-slate-600 font-medium"
+            className="text-[0.75rem] leading-4 text-slate-600 font-medium"
           >
             <div className="flex gap-2">
               {x.year ? (
@@ -420,7 +420,7 @@ function MiniInfoCard({
               <span className="font-bold text-slate-700">{x.label}</span>
             </div>
             {x.sub ? (
-              <div className="text-[12px] text-slate-500 mt-0.5">{x.sub}</div>
+              <div className="text-[0.75rem] text-slate-500 mt-0.5">{x.sub}</div>
             ) : null}
           </div>
         ))}
@@ -865,15 +865,15 @@ export default function HomeTabs({
         {tab === "Home" && (
           <div className="bg-slate-100/80 pt-0 pb-12 px-0 border-x border-b border-slate-200/50">
             <div className="space-y-10 px-6 lg:px-10">
-              <div className="relative mt-0 w-full h-[410px] md:h-[480px] rounded-2xl overflow-hidden shadow-xl">
-                <Image src="/a2026.jpg" alt="Hero" fill className="object-cover" priority />
+              <div className="relative mt-0 w-full h-[clamp(15rem,38vw,30rem)] rounded-2xl overflow-hidden shadow-xl">
+                <Image src="/hero.jpg" alt="Hero" fill className="object-cover" priority />
                 <div className="absolute inset-0 bg-gradient-to-b from-black/15 via-black/55 to-black/80" />
                 <div className="absolute inset-0 p-8 sm:p-10 flex flex-col justify-center text-white">
                   <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/20 backdrop-blur-md text-xs font-bold w-fit mb-5 border border-white/30">
                     <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
                     {t.available}
                   </div>
-                  <h2 className="text-4xl sm:text-5xl font-black mb-0 leading-tight drop-shadow-lg">
+                  <h2 className="text-[clamp(2rem,5.5vw,3.75rem)] font-black mb-0 leading-tight drop-shadow-lg">
                     Portfolio
                     <br />
                     <span className="text-[#49BAFF]">Jihee Cho</span>
@@ -887,7 +887,7 @@ export default function HomeTabs({
                     <section className="h-full rounded-2xl bg-[#E0EBF5]/60 border border-[#CAD5E3] px-6 py-6 sm:px-8 sm:py-7">
                       <h3 className="text-sm font-extrabold tracking-wide text-slate-700 mb-3">{t.aboutTitle}</h3>
 
-                      <div className="space-y-3 text-[16px] leading-8 text-slate-800 font-medium max-w-5xl break-keep">
+                      <div className="space-y-3 text-[1rem] leading-8 text-slate-800 font-medium max-w-5xl break-keep">
                         <p>{t.aboutP1}</p>
                         <p>{t.aboutP2}</p>
                         <p>{t.aboutP3}</p>
@@ -933,7 +933,7 @@ export default function HomeTabs({
                           {ABOUT_SKILLS.map((s) => (
                             <span
                               key={s}
-                              className="px-3 py-1.5 rounded-full text-[11px] font-semibold bg-slate-50 text-slate-700 border border-slate-200"
+                              className="px-3 py-1.5 rounded-full text-[0.6875rem] font-semibold bg-slate-50 text-slate-700 border border-slate-200"
                             >
                               {s}
                             </span>
@@ -985,7 +985,7 @@ export default function HomeTabs({
 
         {/* ========== PROJECTS ========== */}
         {tab === "Projects" && (
-          <div className="bg-slate-200/60 pt-8 pb-10 px-0 rounded-b-xl border-x border-b border-slate-200/50 min-h-[600px]">
+          <div className="bg-slate-200/60 pt-8 pb-10 px-0 rounded-b-xl border-x border-b border-slate-200/50 min-h-[clamp(24rem,52vw,40rem)]">
             <div className="space-y-8 px-6 lg:px-10">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
                 <h2 className="text-2xl font-black text-slate-900">{t.allProjects}</h2>
@@ -1032,7 +1032,7 @@ export default function HomeTabs({
 
         {/* ========== CASE STUDIES ========== */}
         {tab === "CaseStudies" && (
-          <div className="bg-slate-100/80 pt-8 pb-10 px-0 rounded-b-xl border-x border-b border-slate-200/50 min-h-[600px]">
+          <div className="bg-slate-100/80 pt-8 pb-10 px-0 rounded-b-xl border-x border-b border-slate-200/50 min-h-[clamp(24rem,52vw,40rem)]">
             <div className="w-full space-y-8 px-4 sm:px-6 lg:px-10">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
@@ -1338,7 +1338,7 @@ export default function HomeTabs({
 
         {/* ========== BOARD ========== */}
         {tab === "Board" && (
-          <div className="bg-slate-100/80 pt-8 pb-10 px-0 rounded-b-xl border-x border-b border-slate-200/50 min-h-[600px]">
+          <div className="bg-slate-100/80 pt-8 pb-10 px-0 rounded-b-xl border-x border-b border-slate-200/50 min-h-[clamp(24rem,52vw,40rem)]">
             <div className="w-full max-w-none space-y-8 px-4 sm:px-6 lg:px-10">
               {/* Top: Write (Left) + Image (Right) */}
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
@@ -1380,7 +1380,7 @@ export default function HomeTabs({
                       value={inputContent}
                       onChange={(e) => setInputContent(e.target.value)}
                       rows={8}
-                      className="w-full flex-1 min-h-[220px] px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-[#355E8C] focus:border-transparent outline-none transition resize-none"
+                      className="w-full flex-1 min-h-[clamp(9rem,18vw,14rem)] px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-[#355E8C] focus:border-transparent outline-none transition resize-none"
                       placeholder={t.leaveMessage}
                       required
                     />
@@ -1464,7 +1464,7 @@ export default function HomeTabs({
                               <span>{post.author}</span>
                               <span
                                 className={cn(
-                                  "text-[10px] font-bold px-2.5 py-1 rounded-full border",
+                                  "text-[0.625rem] font-bold px-2.5 py-1 rounded-full border",
                                   post.category === "Q&A"
                                     ? "bg-blue-50 text-blue-600 border-blue-100"
                                     : "bg-[#355E8C]/10 text-[#355E8C] border-[#355E8C]/20"

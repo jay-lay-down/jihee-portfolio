@@ -5,6 +5,16 @@
 @import "tailwindcss";
 
 /* 3. 전역 폰트 / 배경 */
+
+/*
+  유동(fluid) 타이포 — 뷰포트 390px에서 14px, 1536px 이상에서 18px.
+  Tailwind의 크기 값은 대부분 rem 기준이라, 루트 하나만 흔들면
+  글자·여백·간격·모서리 반경이 breakpoint 없이 함께 줄고 늘어난다.
+*/
+html {
+  font-size: clamp(14px, 12.64px + 0.349vw, 18px);
+}
+
 html,
 body {
   margin: 0;
