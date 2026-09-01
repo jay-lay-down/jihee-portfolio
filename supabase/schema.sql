@@ -212,7 +212,11 @@ begin
 end;
 $$;
 
-revoke all on function public.is_admin(text) from anon, authenticated;
+-- Postgres 는 함수 생성 시 EXECUTE 를 PUBLIC 에게 자동으로 부여한다.
+-- anon/authenticated 만 회수하면 PUBLIC 경유 권한이 남아 그대로 호출된다.
+-- 그러면 anon 키만으로 관리자 비밀번호를 무제한 대조할 수 있는 오라클이 된다.
+-- project_detail_* 은 SECURITY DEFINER 라 소유자 권한으로 내부 호출하므로 영향 없다.
+revoke all on function public.is_admin(text) from public, anon, authenticated;
 
 create function public.project_detail_create(
   p_slug          text,
