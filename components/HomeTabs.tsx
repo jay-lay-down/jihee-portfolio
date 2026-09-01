@@ -49,7 +49,6 @@ const LINKS = {
   velog: "https://velog.io/@jaylaydown",
   github: "https://github.com/jay-lay-down",
   linkedin: "https://www.linkedin.com/in/jihee-cho-767aa9260/",
-  resumePdf: "/resume.pdf",
 };
 
 const ABOUT_SKILLS = [
@@ -91,7 +90,6 @@ export type Lang = "ko" | "en";
 
 const T = {
   en: {
-    available: "Available for new projects",
     aboutTitle: "ABOUT",
     aboutP1:
       'I am a researcher and analytics practitioner with a foundation in psychology, and when I look at brand or research data, I start by asking, "What decision can this number help someone make?" I care less about listing metrics for their own sake and more about turning them into insight that helps real people act.',
@@ -107,7 +105,6 @@ const T = {
     role: "Research · Analytics · AI",
     location: "Seoul, South Korea",
     skills: "SKILLS",
-    downloadResume: "Download Resume",
     featuredProjects: "Featured Projects",
     viewAll: "View all →",
     allProjects: "All Projects",
@@ -126,7 +123,6 @@ const T = {
     sections: "sections",
   },
   ko: {
-    available: "새 프로젝트 문의 환영",
     aboutTitle: "소개",
     aboutP1:
       "심리학을 기반으로 한 리서처이자 데이터 분석 실무자입니다. 브랜드·리서치 데이터를 볼 때 \"이 숫자가 누구의 어떤 의사결정을 도울 수 있을까?\"부터 묻습니다. 지표를 나열하는 것보다, 실제로 사람이 움직일 수 있는 인사이트로 바꾸는 일에 집중합니다.",
@@ -142,7 +138,6 @@ const T = {
     role: "리서치 · 데이터 분석 · AI",
     location: "대한민국 서울",
     skills: "스킬",
-    downloadResume: "이력서 다운로드",
     featuredProjects: "대표 프로젝트",
     viewAll: "전체 보기 →",
     allProjects: "전체 프로젝트",
@@ -288,9 +283,6 @@ function TopNav({
           </IconLink>
           <IconLink href={LINKS.velog} label="Velog">
             <SiVelog className="text-[1.375rem]" />
-          </IconLink>
-          <IconLink href={LINKS.resumePdf} label="Resume PDF">
-            <FaDownload className="text-[1.25rem]" />
           </IconLink>
           <IconLink href={`mailto:${LINKS.email}`} label="Email">
             <MdEmail className="text-[1.375rem]" />
@@ -869,10 +861,6 @@ export default function HomeTabs({
                 <Image src="/hero.jpg" alt="Hero" fill className="object-cover" priority />
                 <div className="absolute inset-0 bg-gradient-to-b from-black/15 via-black/55 to-black/80" />
                 <div className="absolute inset-0 p-8 sm:p-10 flex flex-col justify-center text-white">
-                  <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/20 backdrop-blur-md text-xs font-bold w-fit mb-5 border border-white/30">
-                    <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
-                    {t.available}
-                  </div>
                   <h2 className="text-[clamp(2rem,5.5vw,3.75rem)] font-black mb-0 leading-tight drop-shadow-lg">
                     Portfolio
                     <br />
@@ -939,15 +927,6 @@ export default function HomeTabs({
                             </span>
                           ))}
                         </div>
-
-                        <a
-                          href={LINKS.resumePdf}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="mt-6 block w-full py-3 bg-[#355E8C] text-white text-center text-sm font-bold rounded-xl hover:bg-[#28466B] transition shadow-md"
-                        >
-                          {t.downloadResume}
-                        </a>
                       </div>
                     </div>
                   </div>

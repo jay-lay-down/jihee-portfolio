@@ -1,4 +1,11 @@
+import type { Metadata } from "next";
 import { getAllDocs } from "@/lib/markdown";
+
+export const metadata: Metadata = {
+  title: "블로그",
+  description: "조지희의 리서치·데이터 분석 기록.",
+  alternates: { canonical: "/blog" },
+};
 
 export default function BlogList() {
   const posts = getAllDocs("content/posts");

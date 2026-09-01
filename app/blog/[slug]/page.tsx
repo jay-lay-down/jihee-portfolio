@@ -1,7 +1,33 @@
+import type { Metadata } from "next";
 import { getAllDocs, getDocBySlug, markdownToHtml } from "@/lib/markdown";
+import { SITE_URL } from "@/app/layout";
 
 export function generateStaticParams() {
   return getAllDocs("content/posts").map((d) => ({ slug: d.slug }));
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const doc = getDocBySlug("content/posts", slug);
+  if (!doc) return {};
+  return {
+    title: doc.meta.title,
+    description: doc.meta.description,
+    keywords: doc.meta.tags,
+    alternates: { canonical: `/blog/${slug}` },
+    openGraph: {
+      type: "article",
+      title: doc.meta.title,
+      description: doc.meta.description,
+      url: `${SITE_URL}/blog/${slug}`,
+      publishedTime: doc.meta.date,
+      authors: ["조지희 (Jihee Cho)"],
+    },
+  };
 }
 
 export default async function BlogDetail({ params }: { params: Promise<{ slug: string }> }) {
