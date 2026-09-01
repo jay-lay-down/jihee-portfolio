@@ -80,6 +80,7 @@ const FEATURED_SLUGS = [
   "ddolbae",
   "animal-test",
   "auto-segment-tool",
+  "text-mining-tool",
   "bayesian-dashboard",
   "demand-forecasting",
   "employee-engagement",

@@ -11,7 +11,7 @@ export type Project = {
   titleKo?: string;
   oneLiner: string;
   oneLinerKo?: string;
-  category: "GEO" | "LLM" | "Segmentation" | "Bayesian" | "Forecasting" | "Other";
+  category: "GEO" | "LLM" | "NLP" | "Segmentation" | "Bayesian" | "Forecasting" | "Other";
   featured?: boolean;
   stack: string[];
   links: ProjectLink[];
@@ -76,6 +76,18 @@ export const PROJECTS: Project[] = [
       { label: "Repo", href: "https://github.com/jay-lay-down/auto_segment" },
       { label: "Download", href: "https://drive.google.com/uc?id=1l6dMl6QHx7fJAeh8zL3xPIJX572mtnum&export=download" },
     ],
+  },
+  {
+    slug: "text-mining-tool",
+    title: "📝 Text Mining Tool (EXE)",
+    titleKo: "📝 텍스트마이닝 자동화 도구 (EXE)",
+    oneLiner: "Nine-tab desktop pipeline taking buzz data from Excel through tokenization, word clouds, co-occurrence networks, and sentiment into one export",
+    oneLinerKo: "전처리부터 감성분석까지 9개 탭으로 고정한 정량분석 파이프라인 — 결과는 엑셀 한 파일로",
+    category: "NLP",
+    featured: true,
+    cover: "/textmining.jpg",
+    stack: ["Python", "PyQt5", "Kiwi", "VADER", "networkx", "KNU SentiLex", "PyInstaller"],
+    links: [{ label: "Case Study", href: "/projects/text-mining-tool" }],
   },
   {
     slug: "bayesian-dashboard",
