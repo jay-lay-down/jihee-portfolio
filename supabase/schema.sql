@@ -50,6 +50,8 @@ create table if not exists public.project_details (
   content       text        not null,
   image_url     text,
   order_num     integer     not null default 1,
+  -- 운영 DB에 존재하는 컬럼. 읽기 GRANT에서 제외해 anon 에게 노출되지 않게 한다.
+  password_hash text,
   created_at    timestamptz not null default now(),
   updated_at    timestamptz not null default now()
 );
