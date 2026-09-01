@@ -2,14 +2,23 @@
 
 import { createClient } from '@supabase/supabase-js';
 
-// **Next.js 규칙에 따라 NEXT_PUBLIC_ 접두사를 사용합니다.**
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-// 배포 시 문제가 생기지 않도록 값이 있는지 확인
-if (!supabaseUrl || !supabaseKey) {
-    // ⚠️ 환경 변수가 없으면 오류 발생
-    throw new Error('Supabase URL or Key is missing in environment variables. Check .env.local and Vercel settings.');
+/*
+  환경변수가 없다고 여기서 throw 하면 게시판과 무관한 페이지까지 통째로 죽는다.
+  빌드나 클론 직후처럼 키가 없는 상황에서도 사이트는 떠야 하므로,
+  설정 여부만 플래그로 노출하고 호출부에서 판단하게 한다.
+*/
+export const isSupabaseConfigured = Boolean(supabaseUrl && supabaseKey);
+
+if (!isSupabaseConfigured && typeof window !== 'undefined') {
+  console.warn(
+    '[supabase] NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_ANON_KEY 가 없습니다. 게시판 기능이 비활성화됩니다.'
+  );
 }
 
-export const supabase = createClient(supabaseUrl, supabaseKey);
+export const supabase = createClient(
+  supabaseUrl ?? 'https://placeholder.supabase.co',
+  supabaseKey ?? 'placeholder-anon-key'
+);

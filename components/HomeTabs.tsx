@@ -11,7 +11,7 @@ import {
   type ReactNode,
 } from "react";
 import { PROJECTS } from "@/app/projects/data";
-import { supabase } from "@/lib/supabase";
+import { supabase, isSupabaseConfigured } from "@/lib/supabase";
 
 // 마크다운 (Case Studies용)
 import ReactMarkdown from "react-markdown";
@@ -450,6 +450,7 @@ export default function HomeTabs({
   // --- Board ---
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(false);
+  const [boardError, setBoardError] = useState<string | null>(null);
 
   const [inputName, setInputName] = useState("");
   const [inputContent, setInputContent] = useState("");
@@ -494,7 +495,13 @@ export default function HomeTabs({
 
   // --- Fetch Board Posts ---
   const fetchPosts = useCallback(async () => {
+    if (!isSupabaseConfigured) {
+      setBoardError("게시판 백엔드가 연결되어 있지 않습니다.");
+      setPosts([]);
+      return;
+    }
     setLoading(true);
+    setBoardError(null);
     try {
       const { data, error } = await (supabase as any)
         .from("guestbook")
@@ -503,12 +510,14 @@ export default function HomeTabs({
 
       if (error) {
         console.error("Supabase select error:", error);
+        setBoardError("게시글을 불러오지 못했습니다.");
         setPosts([]);
       } else {
         setPosts((data as Post[]) || []);
       }
     } catch (err) {
       console.error("Supabase select exception:", err);
+      setBoardError("게시판 서버에 연결할 수 없습니다.");
       setPosts([]);
     } finally {
       setLoading(false);
@@ -1426,6 +1435,13 @@ export default function HomeTabs({
               {/* Posts */}
               {loading ? (
                 <div className="py-20 text-center text-slate-400">{t.loading}</div>
+              ) : boardError ? (
+                <div className="py-16 text-center">
+                  <div className="text-sm font-bold text-slate-600">{boardError}</div>
+                  <div className="mt-2 text-xs text-slate-400">
+                    잠시 후 다시 시도해 주세요.
+                  </div>
+                </div>
               ) : filteredPosts.length === 0 ? (
                 <div className="py-16 text-center text-slate-400">{t.noPosts}</div>
               ) : (
