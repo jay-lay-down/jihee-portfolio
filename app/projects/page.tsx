@@ -87,7 +87,7 @@ export default function ProjectsPage() {
                 {/* left */}
                 <div className="min-w-0">
                   <div className="text-xs font-extrabold text-black/60">{String((p as any).category ?? "")}</div>
-                  <div className="font-display mt-1 text-2xl font-black tracking-tight">{title}</div>
+                  <div className="mt-1 text-2xl font-black tracking-tight">{title}</div>
                   <div className="mt-2 text-[0.9375rem] text-[var(--muted)] leading-8">{oneLiner}</div>
 
                   <div className="mt-4 flex flex-wrap gap-2">

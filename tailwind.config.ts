@@ -10,8 +10,8 @@ const config: Config = {
     extend: {
       fontFamily: {
         sans: [
-          "Pretendard",
-          "Pretendard Variable",
+          "NanumSquareNeoVariable",
+          "NanumSquareNeo",
           "-apple-system",
           "BlinkMacSystemFont",
           "system-ui",
