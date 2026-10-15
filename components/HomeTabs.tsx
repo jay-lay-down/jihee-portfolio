@@ -119,6 +119,13 @@ const HIGHLIGHTS: Record<"ko" | "en", Highlight[]> = {
       outcome: "브랜드별 월간/연간 리포트 자동화, 고객사 브랜드 전략 의사결정에 활용",
     },
     {
+      tag: "Consumer Insight",
+      title: "패션 플랫폼 광고효과 FGD",
+      client: "패션 유통 E사",
+      approach: "플랫폼 고객 특성에 맞춰 FGD 그룹 구성과 진행 가이드라인을 직접 설계",
+      outcome: "내부 모더레이터와 고객사 호평, 동일 고객사 추가 프로젝트 계약",
+    },
+    {
       tag: "Market Intelligence",
       title: "TV 시장 한국/유럽 소비자 비교",
       client: "글로벌 전자 D사",
@@ -131,13 +138,6 @@ const HIGHLIGHTS: Record<"ko" | "en", Highlight[]> = {
       client: "글로벌 전자 고객사",
       approach: "해지 원인을 데이터 정확도 편차로 특정하고 카드 결제 데이터 도입 제안, 리뷰 크롤링/감성분석으로 미커버 영역 보완",
       outcome: "약 5.7억원 규모 재구독 성사, 2024 Q3 우수사원상",
-    },
-    {
-      tag: "Market Intelligence",
-      title: "생성형 AI 검색 소비자 질문 측정",
-      client: "금융, 통신 고객사",
-      approach: "실제 소비자 발화와 검색어로 고정 프롬프트 240개를 구조화하고, 자사 브랜드/Organic 키워드/품목 특성 3구간 분류 기준 설계",
-      outcome: "주간 반복 측정 편차 0.3%p 미만, 금융지주사 AI 답변 인용률 0% → 31%",
     },
   ],
   en: [
@@ -163,6 +163,13 @@ const HIGHLIGHTS: Record<"ko" | "en", Highlight[]> = {
       outcome: "Automated monthly and yearly brand reports used in the client's brand strategy decisions",
     },
     {
+      tag: "Consumer Insight",
+      title: "Fashion Platform Ad Effectiveness FGD",
+      client: "Fashion retail Co. E",
+      approach: "Designed the group composition and discussion guide around the platform's customer profile",
+      outcome: "Praised by the in-house moderator and the client; led to an additional project with the same client",
+    },
+    {
       tag: "Market Intelligence",
       title: "TV Market: Korea vs Europe Consumers",
       client: "Global electronics Co. D",
@@ -176,13 +183,6 @@ const HIGHLIGHTS: Record<"ko" | "en", Highlight[]> = {
       approach: "Traced churn to uneven data accuracy, proposed adding card payment data, and filled coverage gaps with review crawling and sentiment analysis",
       outcome: "Won back a renewal worth about KRW 570M; Q3 2024 employee award",
     },
-    {
-      tag: "Market Intelligence",
-      title: "Measuring Consumer Questions in AI Search",
-      client: "Finance and telecom clients",
-      approach: "Structured 240 fixed prompts from real consumer wording and designed a 3-way split: own brand, organic keywords and category attributes",
-      outcome: "Week-to-week measurement variance under 0.3%p; AI answer citation rate 0% → 31% for a financial holding company",
-    },
   ],
 };
 
@@ -195,7 +195,7 @@ const T = {
     aboutP1:
       "I am a researcher who wants two things: to try new things, and to see them through. At global research firms I proposed hierarchical Bayesian sample stabilization, AI-based VoC analysis, segmentation automation and synthetic data, and I kept pushing pricing analysis and a demand forecasting method until they became the team standard.",
     aboutP2:
-      "But at a research agency, even a report full of good insight could not lead the improvement itself. I could only guess whether a recommendation had been used by looking at products that reached the market much later. Wanting to act and see the results myself, I joined a startup in GEO, a field that did not yet have a measurement standard.",
+      "But at a research agency, my work ended at the report, however good the insight. I could only guess whether a recommendation had been used by spotting products that reached the market much later. Wanting to act on the findings and see the results myself, I joined a startup in GEO, a field that did not yet have a measurement standard.",
     aboutP3:
       "I designed its measurement system from scratch: about 240 fixed prompts based on real consumer question patterns, sent to four AI models every three days and tracked weekly and monthly. I kept week-to-week variance under 0.3%p and ran KPIs for a financial holding company, a telecom and an internet bank at the same time. My clients ranked first in citation rate and second in mention rate, which made the work an internal best-practice case and brought in new business from the same industry.",
     highlightsTitle: "Research Highlights",
