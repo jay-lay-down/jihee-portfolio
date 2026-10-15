@@ -52,17 +52,17 @@ const LINKS = {
 };
 
 const ABOUT_SKILLS = [
-  "Python",
-  "PyTorch",
-  "TensorFlow",
+  "SPSS",
   "R",
+  "Python",
   "SQL",
-  "Tableau",
-  "Hadoop",
   "Excel",
   "PowerPoint",
+  "Tableau",
+  "PyTorch",
+  "TensorFlow",
   "Hugging Face",
-  "SPSS",
+  "Hadoop",
   "Next.js",
   "TypeScript",
   "Tailwind CSS",
@@ -73,17 +73,118 @@ const ABOUT_SKILLS = [
 
 const PAGE_SIZE = 10;
 
-// Featured 프로젝트 slug 순서
+// Featured 프로젝트 slug 순서 (소비자 조사 → 시장 인텔리전스 → 설문/심리측정, 3열 × 3행)
 const FEATURED_SLUGS = [
-  "geo-ai-writing",
-  "ddolbae",
-  "animal-test",
   "auto-segment-tool",
   "text-mining-tool",
+  "bayesian-norms",
   "bayesian-dashboard",
+  "other-projects",
+  "geo-ai-writing",
   "demand-forecasting",
   "employee-engagement",
+  "animal-test",
 ];
+
+// 실무 하이라이트 (고객사명 마스킹)
+type Highlight = {
+  tag: "Consumer Insight" | "Market Intelligence";
+  title: string;
+  client: string;
+  approach: string;
+  outcome: string;
+};
+
+const HIGHLIGHTS: Record<"ko" | "en", Highlight[]> = {
+  ko: [
+    {
+      tag: "Consumer Insight",
+      title: "제과 브랜드 Brand Index 조사",
+      client: "국내 제과 A사",
+      approach: "유튜브와 커뮤니티 크롤링으로 제품군을 상승/정체/하락 유형으로 나누고, 유형별로 퍼널 검증과 KANO 모듈을 분리 설계",
+      outcome: "KANO와 VoC로 '한 입 크기' 니즈와 '부스러기 불편'을 도출, 이후 한 입 크기 제품 출시",
+    },
+    {
+      tag: "Consumer Insight",
+      title: "음용 상황 기반 Demand Space",
+      client: "국내 음료 B사",
+      approach: "음용 시간대, 장소, 동반자, 상황 등 소비 맥락 문항을 변수로 넣어 소비자 세그먼트 설계",
+      outcome: "상황 맥락 기반 타깃 인사이트로 동일 고객사 후속 프로젝트 수주",
+    },
+    {
+      tag: "Consumer Insight",
+      title: "브랜드 파워 드라이버 진단",
+      client: "글로벌 주류 C사",
+      approach: "브랜드 인식, 구매 행동 지표 8종을 설명변수로 둔 24개월 롤링 회귀로 월별 드라이버 기여도 산출",
+      outcome: "브랜드별 월간/연간 리포트 자동화, 고객사 브랜드 전략 의사결정에 활용",
+    },
+    {
+      tag: "Market Intelligence",
+      title: "TV 시장 한국/유럽 소비자 비교",
+      client: "글로벌 전자 D사",
+      approach: "한국/유럽 판매 데이터와 리뷰 VoC를 인지자/구매고려자/구매자로 나누어 재분석",
+      outcome: "구매 장벽(신뢰, A/S 우려)과 전환 트리거(가격 경쟁력)를 도출해 트래킹 지표 제안",
+    },
+    {
+      tag: "Market Intelligence",
+      title: "데이터 품질 개선과 신규 데이터 소싱",
+      client: "글로벌 전자 고객사",
+      approach: "해지 원인을 데이터 정확도 편차로 특정하고 카드 결제 데이터 도입 제안, 리뷰 크롤링/감성분석으로 미커버 영역 보완",
+      outcome: "약 5.7억원 규모 재구독 성사, 2024 Q3 우수사원상",
+    },
+    {
+      tag: "Market Intelligence",
+      title: "생성형 AI 검색 소비자 질문 측정",
+      client: "금융, 통신 고객사",
+      approach: "실제 소비자 발화와 검색어로 고정 프롬프트 240개를 구조화하고, 자사 브랜드/Organic 키워드/품목 특성 3구간 분류 기준 설계",
+      outcome: "주간 반복 측정 편차 0.3%p 미만, 금융지주사 AI 답변 인용률 0% → 31%",
+    },
+  ],
+  en: [
+    {
+      tag: "Consumer Insight",
+      title: "Snack Brand Index Study",
+      client: "Domestic confectionery Co. A",
+      approach: "Grouped products into rising, flat and declining types using YouTube and community crawling, then designed separate funnel and KANO modules for each type",
+      outcome: "KANO and VoC surfaced a need for a bite-size format and a crumb complaint; a bite-size product was later launched",
+    },
+    {
+      tag: "Consumer Insight",
+      title: "Occasion-based Demand Space",
+      client: "Domestic beverage Co. B",
+      approach: "Built consumer segments from occasion variables such as time of day, place, company and situation",
+      outcome: "Occasion-level targeting insight led to a follow-up project with the same client",
+    },
+    {
+      tag: "Consumer Insight",
+      title: "Brand Power Driver Diagnosis",
+      client: "Global brewer C",
+      approach: "Estimated monthly driver contributions with a 24-month rolling regression on 8 brand perception and purchase behavior metrics",
+      outcome: "Automated monthly and yearly brand reports used in the client's brand strategy decisions",
+    },
+    {
+      tag: "Market Intelligence",
+      title: "TV Market: Korea vs Europe Consumers",
+      client: "Global electronics Co. D",
+      approach: "Re-analyzed Korean and European sales data and review VoC by aware, considering and purchasing consumers",
+      outcome: "Identified purchase barriers (trust, after-sales concerns) and the conversion trigger (price), and proposed tracking metrics",
+    },
+    {
+      tag: "Market Intelligence",
+      title: "Data Quality and New Data Sourcing",
+      client: "Global electronics client",
+      approach: "Traced churn to uneven data accuracy, proposed adding card payment data, and filled coverage gaps with review crawling and sentiment analysis",
+      outcome: "Won back a renewal worth about KRW 570M; Q3 2024 employee award",
+    },
+    {
+      tag: "Market Intelligence",
+      title: "Measuring Consumer Questions in AI Search",
+      client: "Finance and telecom clients",
+      approach: "Structured 240 fixed prompts from real consumer wording and designed a 3-way split: own brand, organic keywords and category attributes",
+      outcome: "Week-to-week measurement variance under 0.3%p; AI answer citation rate 0% → 31% for a financial holding company",
+    },
+  ],
+};
 
 // --- 언어 ---
 export type Lang = "ko" | "en";
@@ -92,17 +193,21 @@ const T = {
   en: {
     aboutTitle: "ABOUT",
     aboutP1:
-      'I am a researcher and analytics practitioner with a foundation in psychology, and when I look at brand or research data, I start by asking, "What decision can this number help someone make?" I care less about listing metrics for their own sake and more about turning them into insight that helps real people act.',
+      "I am a researcher who wants two things: to try new things, and to see them through. At global research firms I proposed hierarchical Bayesian sample stabilization, AI-based VoC analysis, segmentation automation and synthetic data, and I kept pushing pricing analysis and a demand forecasting method until they became the team standard.",
     aboutP2:
-      "My strength is building an end-to-end flow from problem definition to research design, data design, modeling, and finally dashboards or reports. I design around how the output will actually be used, not just how it looks on paper.",
+      "But at a research agency, even a report full of good insight could not lead the improvement itself. I could only guess whether a recommendation had been used by looking at products that reached the market much later. Wanting to act and see the results myself, I joined a startup in GEO, a field that did not yet have a measurement standard.",
     aboutP3:
-      "More recently, I have been combining LLM and RAG approaches with work such as segmentation, demand forecasting, and campaign-effect analysis so the result is not just a report, but an AI-based service that can explain the context behind the answer.",
+      "I designed its measurement system from scratch: about 240 fixed prompts based on real consumer question patterns, sent to four AI models every three days and tracked weekly and monthly. I kept week-to-week variance under 0.3%p and ran KPIs for a financial holding company, a telecom and an internet bank at the same time. My clients ranked first in citation rate and second in mention rate, which made the work an internal best-practice case and brought in new business from the same industry.",
+    highlightsTitle: "Research Highlights",
+    highlightsSub: "Selected client work. Client names are masked for confidentiality.",
+    approach: "Approach",
+    outcome: "Outcome",
     education: "Education",
     experience: "Experience",
     awards: "Awards",
     licenses: "Licenses",
     birthCity: "Jan 25, 1991 / Seoul",
-    role: "Research · Analytics · AI",
+    role: "Consumer Research / Market Insight / Analytics",
     location: "Seoul, South Korea",
     skills: "SKILLS",
     featuredProjects: "Featured Projects",
@@ -125,17 +230,21 @@ const T = {
   ko: {
     aboutTitle: "소개",
     aboutP1:
-      "심리학을 기반으로 한 리서처이자 데이터 분석 실무자입니다. 브랜드·리서치 데이터를 볼 때 \"이 숫자가 누구의 어떤 의사결정을 도울 수 있을까?\"부터 묻습니다. 지표를 나열하는 것보다, 실제로 사람이 움직일 수 있는 인사이트로 바꾸는 일에 집중합니다.",
+      "'새로운 시도'와 '끝까지 책임지는 실행'을 원하는 리서처입니다. 글로벌 리서치사에서 위계적 베이지안 표본 안정화, AI 기반 VoC 분석과 세그먼트 자동화, 합성(Synthetic) 데이터를 내부에 제안했고, 프라이싱 분석과 수요예측 방법론은 끝까지 밀어붙여 부서 표준으로 안착시켰습니다.",
     aboutP2:
-      "문제 정의부터 조사 설계, 데이터 설계, 모델링, 그리고 대시보드·리포트까지 이어지는 End-to-End 흐름을 만드는 것이 강점입니다. 보기 좋은 산출물이 아니라, 실제로 어떻게 쓰일지를 중심에 두고 설계합니다.",
+      "하지만 조사 에이전시에서는 좋은 인사이트를 담은 보고서를 내도 '개선'까지 주도할 수 없었습니다. 제안이 반영됐는지는 시간이 흐른 뒤 시장에 나온 제품을 보고서야 짐작할 수 있었습니다. 직접 실행하고 결과를 확인하고 싶어, 측정 표준조차 없던 GEO 분야의 스타트업에 합류했습니다.",
     aboutP3:
-      "최근에는 세그먼테이션, 수요예측, 캠페인 효과 분석 같은 업무에 LLM·RAG 접근을 결합해, 단순한 리포트가 아니라 답의 맥락까지 설명해 주는 AI 기반 서비스로 만드는 작업을 하고 있습니다.",
+      "실제 소비자의 질문 패턴을 반영한 고정 프롬프트 240여 개를 구조화하고, 4종의 AI 모델에 3일 주기로 질의해 주/월 단위로 추적하는 측정 체계를 처음부터 설계했습니다. 주간 반복 측정 편차를 0.3%p 미만으로 통제했고, 금융지주, 통신사, 인터넷은행의 KPI를 동시에 운영하며 담당 고객사 인용률 1위, 언급률 2위를 달성했습니다. 이 성과는 사내 우수 사례 선정과 동종 업계 신규 수주로 이어졌습니다.",
+    highlightsTitle: "소비자 조사 실무 하이라이트",
+    highlightsSub: "고객사 프로젝트 중 일부이며, 고객사명은 비밀유지를 위해 마스킹했습니다.",
+    approach: "설계",
+    outcome: "결과",
     education: "학력",
     experience: "경력",
     awards: "수상",
     licenses: "자격증",
     birthCity: "1991.01.25 / 서울",
-    role: "리서치 · 데이터 분석 · AI",
+    role: "소비자 리서치 / 시장 인사이트 / 데이터 분석",
     location: "대한민국 서울",
     skills: "스킬",
     featuredProjects: "대표 프로젝트",
@@ -417,6 +526,30 @@ function MiniInfoCard({
           </div>
         ))}
       </div>
+    </div>
+  );
+}
+
+// 실무 하이라이트 카드
+function HighlightCard({ h, approachLabel, outcomeLabel }: { h: Highlight; approachLabel: string; outcomeLabel: string }) {
+  return (
+    <div className="flex flex-col bg-white rounded-2xl border border-slate-200 p-6 h-full hover:border-[#73A3D4]/50 hover:shadow-md transition">
+      <span className="text-xs font-bold text-[#355E8C] bg-[#355E8C]/10 px-2 py-1 rounded uppercase tracking-wide w-fit">
+        {h.tag}
+      </span>
+      <h4 className="mt-3 text-lg font-black text-slate-900 leading-tight break-keep">{h.title}</h4>
+      <div className="mt-1 text-xs font-bold text-slate-400">{h.client}</div>
+
+      <dl className="mt-4 space-y-3 text-sm leading-relaxed break-keep">
+        <div>
+          <dt className="text-[0.6875rem] font-black text-slate-500 tracking-wide">{approachLabel}</dt>
+          <dd className="mt-0.5 text-slate-700">{h.approach}</dd>
+        </div>
+        <div className="pt-3 border-t border-slate-100">
+          <dt className="text-[0.6875rem] font-black text-[#355E8C] tracking-wide">{outcomeLabel}</dt>
+          <dd className="mt-0.5 font-bold text-slate-900">{h.outcome}</dd>
+        </div>
+      </dl>
     </div>
   );
 }
@@ -813,6 +946,7 @@ export default function HomeTabs({
   const EXPERIENCE: InfoItem[] =
     lang === "ko"
       ? [
+          { label: "앤서", sub: "컨설팅팀 (GEO)" },
           { label: "칸타코리아", sub: "Analytics" },
           { label: "NIQ-GfK", sub: "Global Strategic Account Management" },
           { label: "마크로밀엠브레인", sub: "리서치 1부서 3팀" },
@@ -820,6 +954,7 @@ export default function HomeTabs({
           { label: "서울대학교병원", sub: "의생명연구원 소아정신과" },
         ]
       : [
+          { label: "ANSWER", sub: "Consulting Team (GEO)" },
           { label: "Kantar Korea", sub: "Analytics" },
           { label: "NIQ-GfK", sub: "Global Strategic Account Management" },
           { label: "Macromill Embrain", sub: "Research Division 1, Team 3" },
@@ -940,6 +1075,19 @@ export default function HomeTabs({
                     </div>
                   </div>
                 </div>
+
+                {/* 실무 하이라이트 - 3열 × 2행 */}
+                <section className="space-y-4">
+                  <div>
+                    <h3 className="text-lg font-black text-slate-900">{t.highlightsTitle}</h3>
+                    <p className="text-sm text-slate-500 mt-1">{t.highlightsSub}</p>
+                  </div>
+                  <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+                    {HIGHLIGHTS[lang].map((h) => (
+                      <HighlightCard key={h.title} h={h} approachLabel={t.approach} outcomeLabel={t.outcome} />
+                    ))}
+                  </div>
+                </section>
 
                 {/* Featured Projects - 전체 표시 */}
                 {featured.length > 0 && (
@@ -1074,9 +1222,11 @@ export default function HomeTabs({
                               )}
                             </div>
                             <h3 className="text-lg font-black text-slate-900 truncate">
-                              {project.title}
+                              {lang === "ko" && project.titleKo ? project.titleKo : project.title}
                             </h3>
-                            <p className="text-sm text-slate-500 truncate">{project.oneLiner}</p>
+                            <p className="text-sm text-slate-500 truncate">
+                              {lang === "ko" && project.oneLinerKo ? project.oneLinerKo : project.oneLiner}
+                            </p>
                           </div>
 
                           <FaChevronDown

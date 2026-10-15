@@ -4,12 +4,12 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "프로젝트",
   description:
-    "세그먼테이션, 수요예측, 베이지안 모델링, 텍스트마이닝, GEO/LLM까지 — 조지희가 문제 정의부터 배포까지 담당한 프로젝트 목록.",
+    "소비자 세그먼테이션, VoC 텍스트마이닝, 브랜드 이미지 평가, 구매 퍼널, 수요예측, GEO까지 조지희가 문제 정의부터 배포까지 담당한 프로젝트 목록.",
   alternates: { canonical: "/projects" },
   openGraph: {
     title: "프로젝트 | 조지희 포트폴리오",
     description:
-      "세그먼테이션, 수요예측, 베이지안 모델링, 텍스트마이닝, GEO/LLM 프로젝트 목록.",
+      "소비자 세그먼테이션, VoC 텍스트마이닝, 브랜드 이미지 평가, 수요예측, GEO 프로젝트 목록.",
     url: "/projects",
   },
 };

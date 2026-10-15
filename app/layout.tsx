@@ -4,12 +4,12 @@ import "./globals.css";
 export const SITE_URL = "https://www.jayportfolio.xyz";
 
 const DESCRIPTION =
-  "심리학 기반 리서처이자 데이터 분석 실무자 조지희의 포트폴리오. 세그먼테이션, 수요예측, 베이지안 모델링, 텍스트마이닝, GEO/LLM 프로젝트를 문제 정의부터 대시보드까지 정리했습니다.";
+  "심리학 기반 소비자 리서처 조지희의 포트폴리오. 소비자 조사 설계, 세그먼테이션, 브랜드 이미지 평가, VoC 텍스트마이닝, 수요예측, GEO 프로젝트를 문제 정의부터 대시보드까지 정리했습니다.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: "조지희 | 리서치 · 데이터 분석 · AI 포트폴리오",
+    default: "조지희 | 소비자 리서치 & 시장 인사이트 포트폴리오",
     template: "%s | 조지희 포트폴리오",
   },
   description: DESCRIPTION,
@@ -21,6 +21,11 @@ export const metadata: Metadata = {
     "Jihee Cho",
     "데이터 분석 포트폴리오",
     "리서처 포트폴리오",
+    "소비자 조사",
+    "소비자 인사이트",
+    "시장 인텔리전스",
+    "브랜드 진단",
+    "VoC 분석",
     "마케팅 리서치",
     "세그먼테이션",
     "수요예측",
@@ -39,7 +44,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: "profile",
     siteName: "조지희 포트폴리오",
-    title: "조지희 | 리서치 · 데이터 분석 · AI 포트폴리오",
+    title: "조지희 | 소비자 리서치 & 시장 인사이트 포트폴리오",
     description: DESCRIPTION,
     url: SITE_URL,
     locale: "ko_KR",
@@ -47,7 +52,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "조지희 | 리서치 · 데이터 분석 · AI 포트폴리오",
+    title: "조지희 | 소비자 리서치 & 시장 인사이트 포트폴리오",
     description: DESCRIPTION,
     images: ["/hero.jpg"],
   },
@@ -71,7 +76,7 @@ const personLd = {
   alternateName: "Jihee Cho",
   url: SITE_URL,
   image: `${SITE_URL}/avatar.jpg`,
-  jobTitle: "리서처 · 데이터 분석가",
+  jobTitle: "소비자 리서처",
   description: DESCRIPTION,
   address: { "@type": "PostalAddress", addressLocality: "서울", addressCountry: "KR" },
   alumniOf: [
@@ -79,6 +84,9 @@ const personLd = {
     { "@type": "CollegeOrUniversity", name: "서울여자대학교", description: "아동학 학사" },
   ],
   knowsAbout: [
+    "소비자 조사 설계",
+    "브랜드 진단",
+    "VoC 분석",
     "마케팅 리서치",
     "세그먼테이션",
     "수요예측",
